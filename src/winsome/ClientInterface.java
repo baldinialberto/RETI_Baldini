@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ClientInterface {
 
-	private Client client;
+	private final Client client;
 	HashMap<String, Method> commands;
 	
 	public ClientInterface(Client client) {
@@ -419,27 +419,209 @@ public class ClientInterface {
 	}
 
 	private void show_post_command(List<String> args) {
+		/*
+		 * show_post <post_id>
+		 *
+		 * 1. check if there are exactly 1 argument
+		 * 2. call the show_post method of the client
+		 * 3. print the result
+		 */
 
+		// 1. check if there are exactly 1 argument
+		if (args.size() != 1) {
+			System.out.println("show_post command : Wrong number of arguments : " +
+					"usage : show_post <post_id>");
+			return;
+		}
+
+		// 2. call the show_post method of the client
+		String post_id = args.get(0);
+		try
+		{
+			Post post = client.showPost(post_id);
+			// 3. print the result
+			System.out.println("show_post command : Post :");
+			System.out.println(post);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void delete_command(List<String> args) {
+		/*
+		 * delete <post_id>
+		 *
+		 * 1. check if there are exactly 1 argument
+		 * 2. call the delete method of the client
+		 * 3. print the result
+		 */
 
+		// 1. check if there are exactly 1 argument
+		if (args.size() != 1) {
+			System.out.println("delete command : Wrong number of arguments : " +
+					"usage : delete <post_id>");
+			return;
+		}
+
+		// 2. call the delete method of the client
+		String post_id = args.get(0);
+		try
+		{
+			client.deletePost(post_id);
+			// 3. print the result
+			System.out.println("delete command : Post deleted");
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void rewin_command(List<String> args) {
+		/*
+		 * rewin <post_id>
+		 *
+		 * 1. check if there are exactly 1 argument
+		 * 2. call the rewin method of the client
+		 * 3. print the result
+		 */
 
+		// 1. check if there are exactly 1 argument
+		if (args.size() != 1) {
+			System.out.println("rewin command : Wrong number of arguments : " +
+					"usage : rewin <post_id>");
+			return;
+		}
+
+		// 2. call the rewin method of the client
+		String post_id = args.get(0);
+		try
+		{
+			client.rewinPost(post_id);
+			// 3. print the result
+			System.out.println("rewin command : Post rewin");
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void rate_command(List<String> args) {
+		/*
+		 * rate <post_id> <rating>
+		 *
+		 * 1. check if there are exactly 2 arguments
+		 * 2. call the rate method of the client
+		 * 3. print the result
+		 */
+
+		// 1. check if there are exactly 2 arguments
+		if (args.size() != 2) {
+			System.out.println("rate command : Wrong number of arguments : " +
+					"usage : rate <post_id> <rating>");
+			return;
+		}
+
+		// 2. call the rate method of the client
+		String post_id = args.get(0);
+		String rating = args.get(1);
+		// 2.1 Check if the rating is a number either 1 or -1
+		if (!rating.equals("1") && !rating.equals("-1")) {
+			System.out.println("rate command : Wrong rating : " +
+					"usage : rate <post_id> <rating>");
+			return;
+		}
+		try
+		{
+			client.ratePost(post_id, rating.equals("1"));
+			// 3. print the result
+			System.out.println("rate command : Post rated");
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void comment_command(List<String> args) {
+		/*
+		 * comment <post_id> <comment>
+		 *
+		 * 1. check if there are at least 2 arguments
+		 * 2. call the comment method of the client
+		 * 3. print the result
+		 */
+
+		// 1. check if there are at least 2 arguments
+		if (args.size() < 2) {
+			System.out.println("comment command : Wrong number of arguments : " +
+					"usage : comment <post_id> <comment>");
+			return;
+		}
+
+		// 2. call the comment method of the client
+		String post_id = args.get(0);
+		StringBuilder comment = new StringBuilder(args.get(1));
+		for (int i = 2; i < args.size(); i++) {
+			comment.append(" ").append(args.get(i));
+		}
+		try
+		{
+			client.addComment(post_id, client.create_comment(comment.toString()));
+			// 3. print the result
+			System.out.println("comment command : Post commented");
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void wallet_command(List<String> args) {
+		/*
+		 * wallet
+		 *
+		 * 1. call the wallet method of the client
+		 * 2. print the result
+		 */
+
+		// 1. call the wallet method of the client
+		try
+		{
+			Wallet wallet = client.getWallet();
+			// 2. print the result
+			System.out.println("wallet command : Wallet :");
+			System.out.println(wallet);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void wallet_btc_command(List<String> args) {
+		/*
+		 * wallet_btc
+		 *
+		 * 1. call the wallet_btc method of the client
+		 * 2. print the result
+		 */
+
+		// 1. call the wallet_btc method of the client
+		try
+		{
+			float wallet = client.getWalletInBitcoin();
+			// 2. print the result
+			System.out.println("wallet_btc command : Wallet :" + wallet + " BTC");
+			System.out.println(wallet);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void help_command(List<String> args) {

@@ -1,0 +1,16 @@
+# Indirizzo del server
+SERVER=10.101.55.68
+# Indirizzo di multicast
+MULTICAST=239.255.32.32
+# Host su cui si trova il registry
+REGHOST=localhost
+# Porta UDP del servert
+UDPPORT=8070
+# Porta TCP del server
+TCPPORT=8080
+# Porta di multicast
+MCASTPORT=8090
+# Porta del registry RMI
+REGPORT=8100
+# Timeout della socket
+TIMEOUT=100

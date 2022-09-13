@@ -21,6 +21,9 @@ public class Client {
         _on = true;
     }
 
+    public String get_username() {
+        return user.username();
+    }
     public boolean is_logged() {
         return _logged;
     }

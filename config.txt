@@ -1,5 +1,5 @@
 # Indirizzo del server
-SERVER=10.101.55.68
+SERVER=127.0.0.1
 # Indirizzo di multicast
 MULTICAST=239.255.32.32
 # Host su cui si trova il registry

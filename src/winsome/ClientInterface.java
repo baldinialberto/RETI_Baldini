@@ -13,7 +13,7 @@ public class ClientInterface {
 
 	private final Client client;
 	HashMap<String, Method> commands;
-	
+
 	public ClientInterface(Client client) {
 		this.client = client;
 		populate_commands();
@@ -675,7 +675,6 @@ public class ClientInterface {
 	}
 
 	private void exit_command(List<String> args) {
-		client.logout();
 		client.exit();
 	}
 

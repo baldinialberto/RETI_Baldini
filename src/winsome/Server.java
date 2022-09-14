@@ -8,17 +8,16 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server {
+public class                                                                                                                                                 Server {
     class ServerAuthorization {
         private ServerAuthorization() {
         };
     };
 
-    private ServerProperties properties;
+    private final ServerProperties properties;
     public ServerSocket tcp_server_socket;
     public ServerSocket udp_server_socket;
-    private String server_address;
-    private ExecutorService tpe;
+    private final ExecutorService workers_thread_poll;
 
     private ArrayList<User_serializable> users;
 
@@ -28,7 +27,7 @@ public class Server {
 
     public Server(String serverProperties_configFile) {
         this.properties = ServerProperties.readFile(serverProperties_configFile);
-        this.tpe = Executors.newCachedThreadPool();
+        this.workers_thread_poll = Executors.newCachedThreadPool();
 
         try {
             this.tcp_server_socket = new ServerSocket(properties.getTcp_port());
@@ -40,7 +39,7 @@ public class Server {
 
         // update server address
         try {
-            server_address = InetAddress.getLocalHost().getHostAddress();
+            String server_address = InetAddress.getLocalHost().getHostAddress();
             properties.setServer_address(authorization(), server_address);
             properties.dump_to_file(serverProperties_configFile);
         } catch (Exception e) {
@@ -48,11 +47,12 @@ public class Server {
         }
 
         // submit server welcome service
-        tpe.submit(new ServerReception(this));
+        Thread reception_thread = new ServerReception(this);
+        reception_thread.start();
     }
 
     public void add_client(Socket client_socket) {
-        tpe.submit(new ServerWorker(this, client_socket));
+        workers_thread_poll.submit(new ServerWorker(this, client_socket));
     }
 
     public String get_properties_toString() {
@@ -61,6 +61,10 @@ public class Server {
 
     public ServerProperties get_properties() {
         return this.properties;
+    }
+
+    public int rmi_register(String username, String password) {
+        return 0;
     }
 
     public void read_jsonBackup(String filename) {

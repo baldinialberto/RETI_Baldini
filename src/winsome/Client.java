@@ -1,6 +1,7 @@
 package winsome;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
@@ -15,9 +16,21 @@ public class Client {
     private boolean _logged = false;
 
     public Client(String properties_filepath) {
-        c_interface = new ClientInterface(this);
+        /*
+         * client constructor
+         *
+         * 1. load server properties
+         * 2. create client interface
+         * 3. set state on = true
+         */
+
+        // 1. load server properties
         s_properties = ServerProperties.readFile(properties_filepath);
-        socket = new Socket();
+
+        // 2. create client interface
+        c_interface = new ClientInterface(this);
+
+        // 3. set state on = true
         _on = true;
     }
 
@@ -37,6 +50,45 @@ public class Client {
     }
 
     public void start_CLI() { c_interface.exec();}
+
+    private void connect() throws IOException {
+        /*
+         * connect to server
+         *
+         * TCP and UDP port are specified in the server properties file
+         * Timeout is set in the server properties file
+         * Server address is set in the server properties file
+         *
+         * 1. Create a TCP socket
+         * 2. Create a UDP socket
+         * 3. If the connection is established, set _connected to true
+         */
+
+        // 1. Create a TCP socket
+        socket = new Socket(s_properties.getServer_address(), s_properties.getTcp_port());
+
+        // 2. Create a UDP socket
+        // TODO
+
+        // 3. If the connection is established, set _connected to true
+        _connected = true;
+    }
+
+    private void disconnect() throws IOException {
+        /*
+         * disconnect from server
+         *
+         * 1. Close the TCP socket
+         * 2. Close the UDP socket
+         * 3. Set _connected to false
+         */
+
+        if (!_connected)
+            return;
+
+        socket.close();
+        _connected = false;
+    }
 
     /**
      * Per inserire un nuovo utente, il server mette a disposizione una operazione
@@ -74,8 +126,42 @@ public class Client {
      */
     public User login(String username, String password)
             throws WinsomeExceptions.WrongPassword {
-        throw new WinsomeExceptions.WrongPassword();
-        // return null;
+        /*
+         * login to server
+         *
+         * 1. Connect to server
+         * 2. Send login request to server
+         * 3. Receive login response from server
+         * 4. If login is successful, set _logged to true
+         * 5. Return the user
+         */
+
+        System.out.println("login");
+
+
+        try {
+            // 1. Connect to server
+            connect();
+
+            // 2. Send login request to server
+            OutputStream out = socket.getOutputStream();
+            out.write("login\n".getBytes());
+
+            // 3. Receive login response from server
+            // TODO
+
+            // 4. If login is successful, set _logged to true
+            _logged = true;
+
+            // 5. Return the user
+            return null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            //throw new RuntimeException(e);
+            return null;
+        }
+
     }
 
     /**
@@ -85,6 +171,43 @@ public class Client {
      */
     public void logout()
             throws NullPointerException {
+        /*
+         * logout from server
+         *
+         * 1. Send logout request to server
+         * 2. Receive logout response from server
+         * 3. If logout is successful, set _logged to false
+         * 4. Disconnect from server
+         * 5. Set user to null
+         * 6. set _connected to false
+         */
+
+        System.out.println("logout");
+
+        try {
+            // 1. Send logout request to server
+            OutputStream out = socket.getOutputStream();
+            out.write("logout\n".getBytes());
+
+            // 2. Receive logout response from server
+            // TODO
+
+            // 3. If logout is successful, set _logged to false
+            _logged = false;
+
+            //4. Disconnect from server
+            disconnect();
+
+            //5. Set user to null
+            user = null;
+
+            //6. set _connected to false
+            _connected = false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+//            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -98,6 +221,32 @@ public class Client {
      */
     public List<String> listUsers()
             throws NullPointerException {
+
+        /*
+         * list users
+         *
+         * 1. Send list users request to server
+         * 2. Receive list users response from server
+         * 3. Return the list of users
+         */
+
+        System.out.println("list users");
+
+        try {
+            // 1. Send list users request to server
+            OutputStream out = socket.getOutputStream();
+            out.write("list users\n".getBytes());
+
+            // 2. Receive list users response from server
+            // TODO
+
+            // 3. Return the list of users
+            return null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
@@ -313,6 +462,11 @@ public class Client {
     }
 
     public void exit() {
+        try {
+            disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         _on = false;
     }
 

@@ -19,6 +19,7 @@ public class ServerReception extends Thread {
     @Override
     public void run() {
         while (this.isAlive()) {
+            System.out.println("Server is listening for new clients...");
             try {
                 Socket newConnection = server.tcp_server_socket.accept();
                 print_new_client(newConnection.getInetAddress().getHostAddress(), newConnection.getPort());

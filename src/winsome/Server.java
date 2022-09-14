@@ -52,7 +52,7 @@ public class                                                                    
         try {
             // add stub for RMI
             ServerRMI serverRMI = new ServerRMI(this, authorization());
-            Integer stub = (Integer) UnicastRemoteObject.exportObject(serverRMI, 0);
+            ServerRMI.IntRemote stub = (ServerRMI.IntRemote) UnicastRemoteObject.exportObject(serverRMI, 0);
 
             LocateRegistry.createRegistry(properties.getRegistry_port());
             Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());

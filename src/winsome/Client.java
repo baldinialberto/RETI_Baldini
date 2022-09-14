@@ -3,6 +3,10 @@ package winsome;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.List;
 
 public class Client {
@@ -10,6 +14,7 @@ public class Client {
     private ServerProperties s_properties;
     private Socket socket;
 
+    private ServerRMI remote_registration_result;
     private User user;
     private boolean _on = false;
     private boolean _connected = false;
@@ -22,6 +27,7 @@ public class Client {
          * 1. load server properties
          * 2. create client interface
          * 3. set state on = true
+         * 4. connect to server's RMI
          */
 
         // 1. load server properties
@@ -32,6 +38,14 @@ public class Client {
 
         // 3. set state on = true
         _on = true;
+
+        // 4. connect to server's RMI
+        try {
+            Registry r = LocateRegistry.getRegistry(s_properties.getRegistry_port());
+            remote_registration_result = (ServerRMI) r.lookup("ServerRMI");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String get_username() {
@@ -110,7 +124,26 @@ public class Client {
      * @throws WinsomeExceptions.UsernameAlreadyExists
      */
     public void register(String username, String password, List<String> tags)
-            throws WinsomeExceptions.UsernameAlreadyExists {
+            throws WinsomeExceptions.UsernameAlreadyExists, RemoteException {
+        /*
+        * register a new user
+        *
+        * 1. Call RMI register method
+        * 2. Print the result
+        */
+
+        // 1. Call RMI register method
+        int result = remote_registration_result.ServerRMI_registerUser(username, password).value;
+
+        // 2. Print the result
+        if (result == 0)
+            System.out.println("Registration successful");
+        else if (result == 1)
+            System.out.println("Username already exists");
+        else if (result == 2)
+            System.out.println("Password is empty");
+        else
+            System.out.println("Unknown error");
     }
 
     /**

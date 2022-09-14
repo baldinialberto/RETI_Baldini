@@ -2,18 +2,28 @@ package winsome;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteServer;
+import java.rmi.server.RemoteObject;
 import java.util.Objects;
 
-public class ServerRMI extends RemoteServer {
-	public class IntRemote implements Remote {
-		public int value;
-		public IntRemote(int value) throws RemoteException
-		{
+public class ServerRMI extends RemoteObject {
+	private final Server server;
+
+	public static class IntRemote implements Remote {
+		private int value;
+
+		public IntRemote(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public void setValue(int value) {
 			this.value = value;
 		}
 	}
-	private Server server;
+
 	public ServerRMI(Server server, Server.ServerAuthorization auth) throws RemoteException {
 		super();
 		Objects.requireNonNull(auth);

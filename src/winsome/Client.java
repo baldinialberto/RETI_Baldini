@@ -133,7 +133,7 @@ public class Client {
         */
 
         // 1. Call RMI register method
-        int result = remote_registration_result.ServerRMI_registerUser(username, password).value;
+        int result = remote_registration_result.ServerRMI_registerUser(username, password).getValue();
 
         // 2. Print the result
         if (result == 0)

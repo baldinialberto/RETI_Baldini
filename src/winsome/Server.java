@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +49,22 @@ public class                                                                    
             e.printStackTrace();
         }
 
+        try {
+            // add stub for RMI
+            ServerRMI serverRMI = new ServerRMI(this, authorization());
+            Integer stub = (Integer) UnicastRemoteObject.exportObject(serverRMI, 0);
+
+            LocateRegistry.createRegistry(properties.getRegistry_port());
+            Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());
+
+            r.rebind("ServerRMI", stub);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
         // submit server welcome service
         Thread reception_thread = new ServerReception(this);
         reception_thread.start();
@@ -71,6 +90,10 @@ public class                                                                    
     }
 
     public void write_jsonBackup(String filename) {
+    }
+
+    public Integer register_user(String username, String password) {
+        return new Integer(0);
     }
 
 }

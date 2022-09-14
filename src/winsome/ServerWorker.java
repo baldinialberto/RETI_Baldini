@@ -49,7 +49,7 @@ public class ServerWorker implements Runnable {
             }
 
             // 2. print client request
-            System.out.println("worker received " + request + " from " + client_address);
+            System.out.println("worker` received " + request + " from " + client_address);
 
         } while (!request.equals("logout"));
 

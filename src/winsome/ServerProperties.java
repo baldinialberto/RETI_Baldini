@@ -18,6 +18,8 @@ public class ServerProperties {
     static final String registry_port_keyword = "REGPORT";
     static final String socket_timeout_millis_keyword = "TIMEOUT";
 
+    static final String server_backup_file_keyword = "BACKUP_FILEPATH";
+
     private String server_address;
     private String multicast_address;
     private String registry_address;
@@ -26,6 +28,8 @@ public class ServerProperties {
     private final int multicast_port;
     private final int registry_port;
     private final long socket_timeout_millis;
+
+    private final String backup_file;
 
     public void dump_to_file(String filePath) {
         StringBuilder sb = new StringBuilder();
@@ -46,6 +50,8 @@ public class ServerProperties {
         sb.append("# Porta del registry RMI\n" + registry_port_keyword + "=" + registry_port + "\n");
         // add socket timeout
         sb.append("# Timeout della socket\n" + socket_timeout_millis_keyword + "=" + socket_timeout_millis + "\n");
+        // add backup file
+        sb.append("# File di backup\n" + server_backup_file_keyword + "=" + backup_file + "\n");
 
         // dump string to file
         try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
@@ -68,6 +74,8 @@ public class ServerProperties {
             private int multicast_port = 0;
             private int registry_port = 0;
             private long socket_timeout_millis = 0;
+
+            private String backup_file = "";
 
             public boolean server_address_isValid() {
                 return !server_address.equals("");
@@ -100,6 +108,8 @@ public class ServerProperties {
             public boolean socket_timeout_millis_isValid() {
                 return socket_timeout_millis > 0;
             }
+
+            public boolean backup_file_isValid() { return !backup_file.equals(""); }
 
             public void readLine(String line) {
                 if (line.toCharArray()[0] == '#')
@@ -150,6 +160,9 @@ public class ServerProperties {
                             e.printStackTrace();
                         }
                         break;
+                    case ServerProperties.server_backup_file_keyword:
+                        backup_file = new String(tokens[1].getBytes(StandardCharsets.UTF_8));
+                        break;
                     default:
                         ErrorHandler.printError(Thread.currentThread().getStackTrace()[0].getMethodName(),
                                 String.format("keyword not recognized [%s]", tokens[0]));
@@ -166,7 +179,8 @@ public class ServerProperties {
                         tcp_port_isValid() &&
                         multicast_port_isValid() &&
                         registry_port_isValid() &&
-                        socket_timeout_millis_isValid();
+                        socket_timeout_millis_isValid() &&
+                        backup_file_isValid();
             }
 
             public String getServer_address() {
@@ -200,6 +214,8 @@ public class ServerProperties {
             public long getSocket_timeout_millis() {
                 return socket_timeout_millis_isValid() ? socket_timeout_millis : 1000;
             }
+
+            public String getBackup_file() { return backup_file_isValid() ? backup_file : "backup.json"; }
         }
         File file = new File(filePath);
         if (!file.exists()) {
@@ -212,7 +228,8 @@ public class ServerProperties {
             stream.forEach(temp::readLine);
             return new ServerProperties(temp.getServer_address(), temp.getMulticast_address(),
                     temp.getRegistry_address(), temp.getUdp_port(), temp.getTcp_port(),
-                    temp.getMulticast_port(), temp.getRegistry_port(), temp.getSocket_timeout_millis());
+                    temp.getMulticast_port(), temp.getRegistry_port(),
+                    temp.getSocket_timeout_millis(), temp.getBackup_file());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -221,7 +238,7 @@ public class ServerProperties {
 
     private ServerProperties(String server_address, String multicast_address, String registry_address,
             int udp_port, int tcp_port, int multicast_port, int registry_port,
-            long socket_timeout_millis) {
+            long socket_timeout_millis, String backup_file) {
         this.server_address = server_address;
         this.multicast_address = multicast_address;
         this.registry_address = registry_address;
@@ -230,6 +247,7 @@ public class ServerProperties {
         this.multicast_port = multicast_port;
         this.registry_port = registry_port;
         this.socket_timeout_millis = socket_timeout_millis;
+        this.backup_file = backup_file;
     }
 
     public void setServer_address(Server.ServerAuthorization a, String newServerAdrress) {
@@ -292,11 +310,13 @@ public class ServerProperties {
         return socket_timeout_millis;
     }
 
+    public String getBackup_file() { return backup_file; }
+
     @Override
     public String toString() {
         return String.format("--Server_Properties--\n" +
                 "%s = %s\n" + "%s = %s\n" + "%s = %s\n" + "%s = %s\n" +
-                "%s = %s\n" + "%s = %s\n" + "%s = %s\n" + "%s = %s\n",
+                "%s = %s\n" + "%s = %s\n" + "%s = %s\n" + "%s = %s\n" + "%s = %s\n",
                 ServerProperties.server_address_keyword, this.server_address,
                 ServerProperties.multicast_address_keyword, this.multicast_address,
                 ServerProperties.registry_address_keyword, this.registry_address,
@@ -304,6 +324,7 @@ public class ServerProperties {
                 ServerProperties.tcp_port_keyword, this.tcp_port,
                 ServerProperties.multicast_port_keyword, this.multicast_port,
                 ServerProperties.registry_port_keyword, this.registry_port,
-                ServerProperties.socket_timeout_millis_keyword, this.socket_timeout_millis);
+                ServerProperties.socket_timeout_millis_keyword, this.socket_timeout_millis,
+                ServerProperties.server_backup_file_keyword, this.backup_file);
     }
 }

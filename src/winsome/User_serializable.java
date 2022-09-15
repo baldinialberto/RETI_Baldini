@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class User_serializable extends User implements JSON_Serializable{
-    public User_serializable() {
-        super(new Tag[1], "username", "password");
+    public User_serializable(String username, String password, String[] tags) {
+        super(username, password, tags);
+
     }
 
     public String[] getFollows() {
@@ -38,11 +39,11 @@ public class User_serializable extends User implements JSON_Serializable{
         this.followers.addAll(Arrays.asList(followers));
     }
 
-    public Tag[] getTags() {
+    public String[] getTags() {
         return tags;
     }
 
-    public void setTags(Tag[] tags) {
+    public void setTags(String[] tags) {
         this.tags = tags;
     }
 

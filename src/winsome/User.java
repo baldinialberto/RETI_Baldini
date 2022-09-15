@@ -1,19 +1,27 @@
 package winsome;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class User {
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
+
+public class User implements JSON_Serializable {
     protected ArrayList<String> follows;
     protected ArrayList<String> followers;
-    protected Tag[] tags;
+    protected String[] tags;
     protected Blog blog;
     protected Wallet wallet;
+
     protected String username;
     protected String password;
-
     protected String id;
+    
+    protected Boolean login_status;
 
-    public User(Tag[] tags, String username, String password) {
+    public User(String username, String password, String[] tags) {
         assert tags != null && username != null && password != null;
         this.username = username;
         this.password = password;
@@ -27,13 +35,33 @@ public class User {
     }
 
     public boolean check_psw(String password, Server.ServerAuthorization sa) throws NullPointerException {
-        if (sa == null)
-            throw new NullPointerException("check_");
+        Objects.requireNonNull(sa);
         return this.password.equals(password);
     }
 
     public String username() {
         return this.username;
     }
+    
+    public void set_login_status(Boolean status, Server.ServerAuthorization sa) {
+        Objects.requireNonNull(sa);
+    	this.login_status = status;
+    }
 
+    public Boolean get_login_status() {
+    	return this.login_status;
+    }
+
+    @Override
+    public void JSON_write(String filePath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.writeValue(new File(filePath), this);
+    }
+
+    @Override
+    public User JSON_read(String filePath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(new File(filePath), User.class);
+    }
 }

@@ -14,3 +14,5 @@ MCASTPORT=8090
 REGPORT=8100
 # Timeout della socket
 TIMEOUT=100
+# File di backup
+BACKUP_FILEPATH=backup.json

@@ -14,7 +14,7 @@ public class Client {
     private ServerProperties s_properties;
     private Socket socket;
 
-    private ServerRMI remote_registration_result;
+    private RMI_registration_int remote_registration_result;
     private User user;
     private boolean _on = false;
     private boolean _connected = false;
@@ -42,7 +42,7 @@ public class Client {
         // 4. connect to server's RMI
         try {
             Registry r = LocateRegistry.getRegistry(s_properties.getRegistry_port());
-            remote_registration_result = (ServerRMI) r.lookup("ServerRMI");
+            remote_registration_result = (RMI_registration_int) r.lookup("ServerRMI");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,7 +133,10 @@ public class Client {
         */
 
         // 1. Call RMI register method
-        int result = remote_registration_result.ServerRMI_registerUser(username, password).getValue();
+
+        String[] tags_array = new String[tags.size()];
+        tags_array = tags.toArray(tags_array);
+        int result = remote_registration_result.registerUser(username, password, tags_array);
 
         // 2. Print the result
         if (result == 0)

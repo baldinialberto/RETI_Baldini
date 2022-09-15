@@ -33,26 +33,17 @@ public class                                                                    
         this.workers_thread_poll = Executors.newCachedThreadPool();
 
         try {
+            assert properties != null;
             this.tcp_server_socket = new ServerSocket(properties.getTcp_port());
             this.udp_server_socket = new ServerSocket(properties.getUdp_port());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
-        // update server address
-        try {
             String server_address = InetAddress.getLocalHost().getHostAddress();
             properties.setServer_address(authorization(), server_address);
             properties.dump_to_file(serverProperties_configFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        try {
             // add stub for RMI
             ServerRMI serverRMI = new ServerRMI(this, authorization());
-            ServerRMI.IntRemote stub = (ServerRMI.IntRemote) UnicastRemoteObject.exportObject(serverRMI, 0);
+            RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(serverRMI, 0);
 
             LocateRegistry.createRegistry(properties.getRegistry_port());
             Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());
@@ -61,6 +52,7 @@ public class                                                                    
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
 
 
@@ -82,9 +74,6 @@ public class                                                                    
         return this.properties;
     }
 
-    public int rmi_register(String username, String password) {
-        return 0;
-    }
 
     public void read_jsonBackup(String filename) {
     }
@@ -92,8 +81,8 @@ public class                                                                    
     public void write_jsonBackup(String filename) {
     }
 
-    public Integer register_user(String username, String password) {
-        return new Integer(0);
+    public int register_user(String username, String password, String[] tags) {
+        return 0;
     }
 
 }

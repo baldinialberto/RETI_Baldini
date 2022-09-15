@@ -3,35 +3,22 @@ package winsome;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
+import java.util.List;
 import java.util.Objects;
 
-public class ServerRMI extends RemoteObject {
+public class ServerRMI extends RemoteObject implements RMI_registration_int {
 	private final Server server;
 
-	public static class IntRemote implements Remote {
-		private int value;
-
-		public IntRemote(int value) {
-			this.value = value;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public void setValue(int value) {
-			this.value = value;
-		}
+	public ServerRMI(Server server, Server.ServerAuthorization authorization) {
+		Objects.requireNonNull(authorization);
+		this.server = Objects.requireNonNull(server);
 	}
 
-	public ServerRMI(Server server, Server.ServerAuthorization auth) throws RemoteException {
-		super();
-		Objects.requireNonNull(auth);
-		this.server = server;
+	@Override
+	public int registerUser(String username, String password, String[] tags) throws RemoteException {
+		synchronized (server) {
+			return server.register_user(username, password, tags);
+		}
 	}
-	public IntRemote ServerRMI_registerUser(String username, String password) throws RemoteException {
-		return new IntRemote(server.register_user(username, password));
-	}
-
 }
 

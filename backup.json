@@ -1,5 +1,10 @@
 {
   "pippo" : {
-    "_login_status" : null
+    "follows": [],
+    "followers": [],
+    "tags": [
+      "disney"
+    ],
+    "blog": []
+    }
   }
-}

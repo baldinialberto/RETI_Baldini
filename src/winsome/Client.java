@@ -49,7 +49,7 @@ public class Client {
     }
 
     public String get_username() {
-        return user.username();
+        return user.getUsername();
     }
     public boolean is_logged() {
         return _logged;

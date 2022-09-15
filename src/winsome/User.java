@@ -16,10 +16,77 @@ public class User implements JSON_Serializable {
     protected Wallet wallet;
 
     protected String username;
+
     protected String password;
     protected String id;
-    
+
     protected Boolean login_status;
+
+    public ArrayList<String> getFollows() {
+        return follows;
+    }
+
+    public void setFollows(ArrayList<String> follows) {
+        this.follows = follows;
+    }
+
+    public ArrayList<String> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(ArrayList<String> followers) {
+        this.followers = followers;
+    }
+
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
+    }
+
+    public Blog getBlog() {
+        return blog;
+    }
+
+    public void setBlog(Blog blog) {
+        this.blog = blog;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
 
     public User(String username, String password, String[] tags) {
         assert tags != null && username != null && password != null;
@@ -39,9 +106,7 @@ public class User implements JSON_Serializable {
         return this.password.equals(password);
     }
 
-    public String username() {
-        return this.username;
-    }
+
     
     public void set_login_status(Boolean status, Server.ServerAuthorization sa) {
         Objects.requireNonNull(sa);

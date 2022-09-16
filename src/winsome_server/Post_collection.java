@@ -7,9 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Post_collection extends ConcurrentHashMap<Post_ID, Post> implements JSON_Serializable {
+public class Post_collection extends ConcurrentHashMap<String, Post> implements JSON_Serializable {
 	// Member variables
 	private static Post_collection instance;
+
+
+	private String last_post_id;
 
 	// Constructor
 	private Post_collection() {
@@ -41,6 +44,34 @@ public class Post_collection extends ConcurrentHashMap<Post_ID, Post> implements
 		return instance;
 	}
 
+	public void add_post(String author, String title, String text) {
+		/*
+		 * This method is used to add a post to the post collection.
+		 *
+		 * 1. Create a new post_id that is the last post_id plus one.
+		 * 2. Add the post to the post collection.
+		 * 3. Set the last post_id to the new post_id.
+		 */
+
+		// 1. Create a new post_id that is the last post_id plus one.
+		String post_id = last_post_id == null ? "0" : Integer.toString(Integer.parseInt(last_post_id) + 1);
+
+		// 2. Add the post to the post collection.
+		this.put(post_id, new Post(post_id, author, title, text));
+
+		// 3. Set the last post_id to the new post_id.
+		last_post_id = post_id;
+	}
+
+	// Getters
+	public String getLast_post_id() {
+		return last_post_id;
+	}
+
+	// Setters
+	public void setLast_post_id(String last_post_id) {
+		this.last_post_id = last_post_id;
+	}
 
 	// Other methods
 	@Override

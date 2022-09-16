@@ -61,6 +61,21 @@ public class Server_DB {
 		return 0;
 	}
 
+	public int add_post(String author, String username, String title, String text) {
+		/*
+		 * This method is used to add a post to the database.
+		 *
+		 * 1. Add the post to the posts.
+		 * 2. Add the post to the user.
+		 */
+
+		// 1. Add the post to the posts.
+		posts.add_post(author, title, text);
+
+		// 2. Add the post to the user.
+		return users.add_post(username, posts.getLast_post_id());
+	}
+
 	private void load_posts() {
 		/*
 		 * This method is used to load the posts from the posts file.
@@ -73,7 +88,11 @@ public class Server_DB {
 		try {
 			posts = Post_collection.JSON_read(posts_file_path);
 		} catch (IOException e) {
-			e.printStackTrace();
+			// if it's not a FileNotFoundException, print the stack trace
+			if (!(e instanceof java.io.FileNotFoundException)) {
+				e.printStackTrace();
+			}
+
 			// 2. If the posts file does not exist, create a new posts file.
 			posts = Post_collection.getInstance();
 			save_posts();
@@ -92,7 +111,11 @@ public class Server_DB {
 		try {
 			users = User_collection.JSON_read(users_file_path);
 		} catch (IOException e) {
-			e.printStackTrace();
+			// if it's not a FileNotFoundException, print the stack trace
+			if (!(e instanceof java.io.FileNotFoundException)) {
+				e.printStackTrace();
+			}
+
 			// 2. If the users file does not exist, create a new users file.
 			users = User_collection.getInstance();
 			save_users();

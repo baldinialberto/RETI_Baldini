@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class User implements JSON_Serializable {
@@ -15,9 +16,11 @@ public class User implements JSON_Serializable {
 	private String password;
 	private String[] tags;
 	private Wallet wallet;
-	private List<Post_ID> posts;
+	private ArrayList<String> posts;
 
-	// Constructor
+	// Constructors
+
+	// Default constructor
 	public User(String username, String password, String[] tags) {
 		/*
 		 * This constructor is used when we want to create a new user.
@@ -45,7 +48,18 @@ public class User implements JSON_Serializable {
 		this.posts = new ArrayList<>();
 	}
 
+	// Jackson constructor
+	public User() {
+		/*
+		 * This constructor is used by Jackson when it reads a JSON file.
+		 */
+	}
+
 	// Methods
+
+	void add_post(String postID) {
+		this.posts.add(postID);
+	}
 
 	// Getters
 
@@ -65,7 +79,7 @@ public class User implements JSON_Serializable {
 		return this.wallet;
 	}
 
-	public List<Post_ID> getPosts() {
+	public ArrayList<String> getPosts() {
 		return this.posts;
 	}
 
@@ -87,8 +101,20 @@ public class User implements JSON_Serializable {
 		this.wallet = wallet;
 	}
 
-	public void setPosts(List<Post_ID> posts) {
+	public void setPosts(ArrayList<String> posts) {
 		this.posts = posts;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "User{" +
+				"username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", tags=" + Arrays.toString(tags) +
+				", wallet=" + wallet +
+				", posts=" + posts +
+				'}';
 	}
 
 	// Other methods

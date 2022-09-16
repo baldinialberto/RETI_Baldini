@@ -14,7 +14,9 @@ public class Wallet implements JSON_Serializable {
     private double balance;
     private List<Transaction> transactions;
 
-    // Constructor
+    // Constructors
+
+    // Default constructor
     public Wallet(String username) {
         /*
          * This constructor is used when we want to create a new wallet.
@@ -32,6 +34,13 @@ public class Wallet implements JSON_Serializable {
 
         // 3. Create a new list of transactions for this wallet.
         this.transactions = new ArrayList<>();
+    }
+
+    // Jackson constructor
+    public Wallet() {
+        /*
+         * This constructor is used by Jackson when it reads a JSON file.
+         */
     }
 
     // Methods

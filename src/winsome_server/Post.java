@@ -12,18 +12,19 @@ import java.util.List;
 public class Post implements JSON_Serializable {
 
     // Member variables
-    private Post_ID id;
+    private String id;
     private String author;
 
     private String title;
     private String text;
-    private List<Comment> comments;
-    private List<Vote> votes;
+    private ArrayList<Comment> comments;
+    private ArrayList<Vote> votes;
 
     private Timestamp time_created;
 
-    // Constructor
-    public Post(String author, String title, String text) {
+    // Constructors
+    // Default Constructor
+    public Post(String id, String author, String title, String text) {
         /*
          * This constructor is used when we want to create a new post.
          *
@@ -37,7 +38,7 @@ public class Post implements JSON_Serializable {
          */
 
         // 1. Create a new post id for this post.
-        this.id = new Post_ID();
+        this.id = id;
 
         // 2. Set the author of this post.
         this.author = author;
@@ -56,6 +57,12 @@ public class Post implements JSON_Serializable {
 
         // 7. Set the time_created Timestamp
         this.time_created = new Timestamp(System.currentTimeMillis());
+    }
+
+    // Jackson Constructor
+    public Post()
+    {
+
     }
 
     // Methods
@@ -83,7 +90,7 @@ public class Post implements JSON_Serializable {
 
     // Getters
 
-    public Post_ID getId() {
+    public String getId() {
         return id;
     }
 
@@ -99,11 +106,11 @@ public class Post implements JSON_Serializable {
         return text;
     }
 
-    public List<Comment> getComments() {
+    public ArrayList<Comment> getComments() {
         return comments;
     }
 
-    public List<Vote> getVotes() {
+    public ArrayList<Vote> getVotes() {
         return votes;
     }
 
@@ -114,7 +121,7 @@ public class Post implements JSON_Serializable {
 
     // Setters
 
-    public void setId(Post_ID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -130,11 +137,11 @@ public class Post implements JSON_Serializable {
         this.text = text;
     }
 
-    public void setComments(List<Comment> comments) {
+    public void setComments(ArrayList<Comment> comments) {
         this.comments = comments;
     }
 
-    public void setVotes(List<Vote> votes) {
+    public void setVotes(ArrayList<Vote> votes) {
         this.votes = votes;
     }
 

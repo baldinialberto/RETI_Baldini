@@ -62,6 +62,27 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		return -1;
 	}
 
+	public int add_post(String username, String post_id)
+	{
+		/*
+		 * This method is used to add a post to the user collection.
+		 *
+		 * 1. If the user collection contains the user, add the post to the user.
+		 * 2. Return 0.
+		 * 3. If the user collection does not contain the user, return -1.
+		 */
+
+		// 1. If the user collection contains the user, add the post to the user.
+		if (this.containsKey(username)) {
+			this.get(username).add_post(post_id);
+			// 2. Return 0.
+			return 0;
+		}
+
+		// 3. If the user collection does not contain the user, return -1.
+		return -1;
+	}
+
 	// Other methods
 	@Override
 	public void JSON_write(String filePath) throws IOException {

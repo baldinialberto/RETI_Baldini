@@ -488,7 +488,7 @@ public class Client {
         if (user == null) {
             throw new WinsomeExceptions.UserNotLogged();
         }
-        return new Post(this.user.getUsername(), title, content);
+        return null;//new Post(this.user.getUsername(), title, content);
     }
 
     public Comment create_comment(String comment) throws WinsomeExceptions.UserNotLogged {

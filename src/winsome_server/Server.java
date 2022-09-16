@@ -97,14 +97,17 @@ public class Server {
 		}
 
 		// 3. For each user, add 1-5 Post with random title and text.
-//		for (int i = 0; i < 10; i++) {
-//			for (int j = 0; j < (int) (Math.random() * 5); j++) {
-//				server_db.get_posts().add_post("user" + i, "title" + j, "text" + j);
-//			}
-//		}
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < (int) (Math.random() * 5); j++) {
+				server_db.add_post("user_" + i, "user_" + i, "title_" + j + "_" + i, "text" + j);
+			}
+		}
 
 		// 4. Save the server_db.
 		server_db.save_DB();
+
+		// 5. Print the server_db.
+		System.out.println(server_db.get_users().toString());
 	}
 
 	public void add_client(Socket client_socket) {

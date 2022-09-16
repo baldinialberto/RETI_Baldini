@@ -10,7 +10,6 @@ import java.util.List;
 
 public class Post implements JSON_Serializable {
 
-
     // Member variables
     private Post_ID id;
     private String author;
@@ -47,6 +46,27 @@ public class Post implements JSON_Serializable {
     }
 
     // Methods
+    public void addComment(Comment comment) {
+        /*
+         * This method is used to add a comment to the list of comments of this post.
+         *
+         * 1. Add the comment to the list of comments of this post.
+         */
+
+        // 1. Add the comment to the list of comments of this post.
+        this.comments.add(comment);
+    }
+
+    public void addVote(Vote vote) {
+        /*
+         * This method is used to add a vote to the list of votes of this post.
+         *
+         * 1. Add the vote to the list of votes of this post.
+         */
+
+        // 1. Add the vote to the list of votes of this post.
+        this.votes.add(vote);
+    }
 
     // Getters
 
@@ -87,7 +107,7 @@ public class Post implements JSON_Serializable {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
-    
+
     public void setVotes(List<Vote> votes) {
         this.votes = votes;
     }

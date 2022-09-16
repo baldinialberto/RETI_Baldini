@@ -7,40 +7,31 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import winsome.WinsomeExceptions.UnauthorizedAction;
 
 public class Wallet {
-    private float value;
+    // Member variables
+    private String username;
+    private double balance;
     private ConcurrentLinkedQueue<Transaction> transactions;
-    private final User _owner;
 
-    public Wallet(User owner) {
-        value = 0.0f;
-        transactions = new ConcurrentLinkedQueue<>();
-        this._owner = owner;
+    // Constructor
+    public Wallet(String username) {
+        /*
+         * This constructor is used when we want to create a new wallet.
+         *
+         * 1. Set the username of this wallet.
+         * 2. Set the balance of this wallet to 0.
+         * 3. Create a new list of transactions for this wallet.
+         */
+
+        // 1. Set the username of this wallet.
+        this.username = username;
+
+        // 2. Set the balance of this wallet to 0.
+        this.balance = 0;
+
+        // 3. Create a new list of transactions for this wallet.
+        this.transactions = new ConcurrentLinkedQueue<>();
     }
 
-    public Transaction addTransaction(float amount, Server.ServerAuthorization authorization)
-            throws UnauthorizedAction {
-        Transaction newTransaction = new Transaction(amount, authorization);
-        this.transactions.offer(newTransaction);
-        return newTransaction;
-    }
+    // Methods
 
-    public class Transaction {
-        public final float _amount;
-        public final Date _time;
-
-        public Transaction(float amount, Server.ServerAuthorization authorization)
-                throws WinsomeExceptions.UnauthorizedAction {
-            if (authorization == null) {
-                throw new WinsomeExceptions.UnauthorizedAction();
-            }
-            this._amount = amount;
-            this._time = new Date(System.currentTimeMillis());
-        }
-
-        @Override
-        public String toString() {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
-            return _amount + " : " + formatter.format(_time);
-        }
-    }
 }

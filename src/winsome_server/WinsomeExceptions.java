@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 public class WinsomeExceptions {
     public static class WrongPassword extends Exception {

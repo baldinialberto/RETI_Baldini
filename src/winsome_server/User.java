@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +39,7 @@ public class User implements JSON_Serializable {
         this.tags = tags;
 
         // 4. Create a new wallet for this user.
-        this.wallet = new Wallet();
+        this.wallet = new Wallet(username);
 
         // 5. Create a new list of posts for this user.
         this.posts = new ArrayList<>();

@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -8,7 +8,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

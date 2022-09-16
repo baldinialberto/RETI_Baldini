@@ -1,10 +1,11 @@
-package winsome;
+package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 
 public class Vote extends User_interaction {
@@ -20,8 +21,21 @@ public class Vote extends User_interaction {
     // Constructor
     public Vote(String username, VoteType vote)
     {
-        this.vote = vote == VoteType.UPVOTE;
+        /*
+         * This constructor is used when we want to create a new vote.
+         * 1. Set the username of this vote.
+         * 2. Set the vote of this vote.
+         * 3. Set the time created of this vote.
+         */
+
+        // 1. Set the username of this vote.
         this.username = username;
+
+        // 2. Set the vote of this vote.
+        this.vote = vote == VoteType.UPVOTE;
+
+        // 3. Set the time created of this vote.
+        this.time_created = new Timestamp(System.currentTimeMillis());
     }
 
     // Getters
@@ -33,6 +47,10 @@ public class Vote extends User_interaction {
         return this.username;
     }
 
+    public Timestamp getTime_created() {
+        return this.time_created;
+    }
+
     // Setters
     public void setUsername(String username) {
         this.username = username;
@@ -40,6 +58,10 @@ public class Vote extends User_interaction {
 
     public void setVote(boolean vote) {
         this.vote = vote;
+    }
+
+    public void setTime_created(Timestamp time_created) {
+        this.time_created = time_created;
     }
 
 

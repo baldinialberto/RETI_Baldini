@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 public class ErrorHandler {
     public static void printError(String method, String error) {

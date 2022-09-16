@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

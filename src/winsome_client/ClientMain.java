@@ -1,4 +1,4 @@
-package winsome;
+package winsome_client;
 
 public class ClientMain {
     public static void main(String[] args) {

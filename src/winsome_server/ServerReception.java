@@ -1,8 +1,6 @@
-package winsome;
+package winsome_server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ServerReception extends Thread {

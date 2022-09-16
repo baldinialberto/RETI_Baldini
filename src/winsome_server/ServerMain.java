@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 public class ServerMain {
     public static void main(String[] args) {

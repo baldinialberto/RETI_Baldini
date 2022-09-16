@@ -1,9 +1,11 @@
-package winsome;
+package winsome_client;
+
+import winsome_server.RMI_registration_int;
+import winsome_server.ServerProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

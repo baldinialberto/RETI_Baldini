@@ -1,4 +1,4 @@
-package winsome;
+package winsome_server;
 
 
 import java.rmi.Remote;

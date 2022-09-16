@@ -1,10 +1,11 @@
-package winsome;
+package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 public class Comment extends User_interaction {
     // Member variables
@@ -12,8 +13,23 @@ public class Comment extends User_interaction {
 
     // Constructor
     public Comment(String username, String comment) {
+        /*
+        * This constructor is used when we want to create a new comment.
+        *
+        * 1. Set the username of this comment.
+        * 2. Set the comment of this comment.
+        * 3. Set the time created of this comment.
+        *
+        */
+
+        // 1. Set the username of this comment.
         this.comment = comment;
+
+        // 2. Set the comment of this comment.
         this.username = username;
+
+        // 3. Set the time created of this comment.
+        this.time_created = new Timestamp(System.currentTimeMillis());
     }
 
     // Getters
@@ -25,6 +41,10 @@ public class Comment extends User_interaction {
         return this.username;
     }
 
+    public Timestamp getTime_created() {
+        return this.time_created;
+    }
+
     // Setters
     public void setComment(String comment) {
         this.comment = comment;
@@ -32,6 +52,10 @@ public class Comment extends User_interaction {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setTime_created(Timestamp time_created) {
+        this.time_created = time_created;
     }
 
     // Methods

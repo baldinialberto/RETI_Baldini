@@ -1,10 +1,11 @@
-package winsome;
+package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class Post implements JSON_Serializable {
     private List<Comment> comments;
     private List<Vote> votes;
 
+    private Timestamp time_created;
+
     // Constructor
     public Post(String author, String text) {
         /*
@@ -27,6 +30,7 @@ public class Post implements JSON_Serializable {
          * 3. Set the text of this post.
          * 4. Create a new list of comments for this post.
          * 5. Create a new list of votes for this post.
+         * 6. Set the time_created Timestamp
          */
 
         // 1. Create a new post id for this post.
@@ -43,6 +47,9 @@ public class Post implements JSON_Serializable {
 
         // 5. Create a new list of votes for this post.
         this.votes = new ArrayList<>();
+
+        // 6. Set the time_created Timestamp
+        this.time_created = new Timestamp(System.currentTimeMillis());
     }
 
     // Methods
@@ -90,6 +97,11 @@ public class Post implements JSON_Serializable {
         return votes;
     }
 
+    public Timestamp getTime_created()
+    {
+        return time_created;
+    }
+
     // Setters
 
     public void setId(Post_ID id) {
@@ -110,6 +122,11 @@ public class Post implements JSON_Serializable {
 
     public void setVotes(List<Vote> votes) {
         this.votes = votes;
+    }
+
+    public void setTime_created(Timestamp time_created)
+    {
+        this.time_created = time_created;
     }
 
     // Interface methods

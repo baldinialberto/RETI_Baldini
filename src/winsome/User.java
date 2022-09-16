@@ -124,8 +124,7 @@ public class User implements JSON_Serializable {
         mapper.writeValue(new File(filePath), this);
     }
 
-    @Override
-    public User JSON_read(String filePath) throws IOException {
+    public static User JSON_read(String filePath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(new File(filePath), User.class);
     }

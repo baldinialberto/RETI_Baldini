@@ -55,6 +55,6 @@ public class ServerWorker implements Runnable {
         System.out.println("worker is closing connection to " + client_address);
 
 
-        server.write_jsonBackup();
+        // TODO server.write_jsonBackup();
     }
 }

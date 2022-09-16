@@ -42,6 +42,26 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 	}
 
 
+	public int add_user(String username, String password, String[] tags) {
+		/*
+		 * This method is used to add a user to the user collection.
+		 *
+		 * 1. If the user collection does not contain the user, add the user to the user collection.
+		 * 2. Return 0.
+		 * 3. If the user collection contains the user, return -1.
+		 */
+
+		// 1. If the user collection does not contain the user, add the user to the user collection.
+		if (!this.containsKey(username)) {
+			this.put(username, new User(username, password, tags));
+			// 2. Return 0.
+			return 0;
+		}
+
+		// 3. If the user collection contains the user, return -1.
+		return -1;
+	}
+
 	// Other methods
 	@Override
 	public void JSON_write(String filePath) throws IOException {

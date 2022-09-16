@@ -12,23 +12,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-	class ServerAuthorization {
+	static class ServerAuthorization {
 		private ServerAuthorization() {
 		}
-
-		;
 	}
-
-	;
 
 	private final ServerProperties properties;
 	public ServerSocket tcp_server_socket;
 	public ServerSocket udp_server_socket;
 	private final ExecutorService workers_thread_poll;
 
-	private ArrayList<User_serializable> users;
-
 	private Server_DB server_db;
+
+	private User_collection users;
+	private Post_collection posts;
 
 	private ServerAuthorization authorization() {
 		return new ServerAuthorization();
@@ -38,38 +35,76 @@ public class Server {
 
 		this.workers_thread_poll = Executors.newCachedThreadPool();
 		this.properties = ServerProperties.readFile(serverProperties_configFile);
-		server_db = new Server_DB();
 
-		try {
-			assert properties != null;
+		test_func();
 
-			//server_db.JSON_read(this.properties.getBackup_file());
+//		server_db = new Server_DB();
+//
+//		try {
+//			assert properties != null;
+//
+//			//server_db.JSON_read(this.properties.getBackup_file());
+//
+//			this.tcp_server_socket = new ServerSocket(properties.getTcp_port());
+//			this.udp_server_socket = new ServerSocket(properties.getUdp_port());
+//
+//			String server_address = InetAddress.getLocalHost().getHostAddress();
+//			properties.setServer_address(authorization(), server_address);
+//			properties.dump_to_file(serverProperties_configFile);
+//
+//			// add stub for RMI
+//			ServerRMI serverRMI = new ServerRMI(this, authorization());
+//			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(serverRMI, 0);
+//
+//			LocateRegistry.createRegistry(properties.getRegistry_port());
+//			Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());
+//
+//			r.rebind("ServerRMI", stub);
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.exit(1);
+//		}
+//
+//
+//		// submit server welcome service
+//		Thread reception_thread = new ServerReception(this);
+//		reception_thread.start();
+	}
 
-			this.tcp_server_socket = new ServerSocket(properties.getTcp_port());
-			this.udp_server_socket = new ServerSocket(properties.getUdp_port());
+	private void test_func()
+	{
+		/*
+		 * This method is used to test the server.
+		 *
+		 * 1. Create a new server_db and load it.
+		 * 2. Add 10 different users with their password and 1-5 tags.
+		 * 3. For each user, add 1-5 Post with random title and text.
+		 * 4. Save the server_db.
+		 */
 
-			String server_address = InetAddress.getLocalHost().getHostAddress();
-			properties.setServer_address(authorization(), server_address);
-			properties.dump_to_file(serverProperties_configFile);
+		// 1. Create a new server_db and load it.
+		Server_DB server_db = new Server_DB("posts.json", "users.json");
+		server_db.load_DB();
 
-			// add stub for RMI
-			ServerRMI serverRMI = new ServerRMI(this, authorization());
-			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(serverRMI, 0);
-
-			LocateRegistry.createRegistry(properties.getRegistry_port());
-			Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());
-
-			r.rebind("ServerRMI", stub);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+		// 2. Add 10 different users with their password and 1-5 tags.
+		for (int i = 0; i < 10; i++) {
+			String[] tags = new String[(int) (Math.random() * 5)];
+			for (int j = 0; j < tags.length; j++) {
+				tags[j] = "tag" + j;
+			}
+			server_db.get_users().add_user("user_" + i, "password_" + i, tags);
 		}
 
+		// 3. For each user, add 1-5 Post with random title and text.
+//		for (int i = 0; i < 10; i++) {
+//			for (int j = 0; j < (int) (Math.random() * 5); j++) {
+//				server_db.get_posts().add_post("user" + i, "title" + j, "text" + j);
+//			}
+//		}
 
-		// submit server welcome service
-		Thread reception_thread = new ServerReception(this);
-		reception_thread.start();
+		// 4. Save the server_db.
+		server_db.save_DB();
 	}
 
 	public void add_client(Socket client_socket) {
@@ -85,21 +120,7 @@ public class Server {
 	}
 
 
-	public void read_jsonBackup() {
-		try {
-			server_db.JSON_read(this.properties.getBackup_file());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
-	public void write_jsonBackup() {
-		try {
-			server_db.JSON_write(this.properties.getBackup_file());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	public int register_user(String username, String password, String[] tags) {
 		/*
@@ -111,12 +132,12 @@ public class Server {
 		 */
 
 		// 1. check if username is already taken
-		if (server_db.get_user(username) != null) {
-			return -1;
-		}
-
-		// 2. if not, add user to the database
-		server_db.add_user(new User(username, password, tags));
+//		if (server_db.get_user(username) != null) {
+//			return -1;
+//		}
+//
+//		// 2. if not, add user to the database
+//		server_db.add_user(new User(username, password, tags));
 
 		// 3. return 0 if success, -1 if username is already taken
 		return 0;
@@ -133,20 +154,18 @@ public class Server {
 		  4. return 0 if success, -1 if username does not exist, -2 if password is incorrect
 		 */
 
-		// 1. check if username exists
-		User user = server_db.get_user(username);
-
-		if (user == null) {
-			return -1;
-		}
+//		// 1. check if username exists
+//		User user = server_db.get_user(username);
+//
+//		if (user == null) {
+//			return -1;
+//		}
 
 		// 2. if yes, check if password is correct
-		if (!user.check_psw(password, authorization())) {
-			return -2;
-		}
+		// TODO
 
 		// 3. set user as logged in
-		user.set_login_status(true, authorization());
+		// TODO
 
 		// 4. return 0 if success, -1 if username does not exist, -2 if password is incorrect
 		return 0;
@@ -162,20 +181,18 @@ public class Server {
 		  4. return 0 if success, -1 if username does not exist, -2 if user is not logged in
 		 */
 
-		// 1. check if username exists
-		User user = server_db.get_user(username);
-
-		if (user == null) {
-			return -1;
-		}
+//		// 1. check if username exists
+//		User user = server_db.get_user(username);
+//
+//		if (user == null) {
+//			return -1;
+//		}
 
 		// 2. if yes, check if user is logged in
-		if (!user.get_login_status()) {
-			return -2;
-		}
+		// TODO
 
 		// 3. if yes, logout user
-		user.set_login_status(false, authorization());
+		// TODO
 
 		return 0;
 	}

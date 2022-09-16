@@ -14,6 +14,8 @@ public class Post implements JSON_Serializable {
     // Member variables
     private Post_ID id;
     private String author;
+
+    private String title;
     private String text;
     private List<Comment> comments;
     private List<Vote> votes;
@@ -21,16 +23,17 @@ public class Post implements JSON_Serializable {
     private Timestamp time_created;
 
     // Constructor
-    public Post(String author, String text) {
+    public Post(String author, String title, String text) {
         /*
          * This constructor is used when we want to create a new post.
          *
          * 1. Create a new post id for this post.
          * 2. Set the author of this post.
-         * 3. Set the text of this post.
-         * 4. Create a new list of comments for this post.
-         * 5. Create a new list of votes for this post.
-         * 6. Set the time_created Timestamp
+         * 3. Set the title of this post.
+         * 4. Set the text of this post.
+         * 5. Create a new list of comments for this post.
+         * 6. Create a new list of votes for this post.
+         * 7. Set the time_created Timestamp
          */
 
         // 1. Create a new post id for this post.
@@ -39,16 +42,19 @@ public class Post implements JSON_Serializable {
         // 2. Set the author of this post.
         this.author = author;
 
-        // 3. Set the text of this post.
+        // 3. Set the title of this post.
+        this.title = title;
+
+        // 4. Set the text of this post.
         this.text = text;
 
-        // 4. Create a new list of comments for this post.
+        // 5. Create a new list of comments for this post.
         this.comments = new ArrayList<>();
 
-        // 5. Create a new list of votes for this post.
+        // 6. Create a new list of votes for this post.
         this.votes = new ArrayList<>();
 
-        // 6. Set the time_created Timestamp
+        // 7. Set the time_created Timestamp
         this.time_created = new Timestamp(System.currentTimeMillis());
     }
 
@@ -85,6 +91,10 @@ public class Post implements JSON_Serializable {
         return author;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public String getText() {
         return text;
     }
@@ -110,6 +120,10 @@ public class Post implements JSON_Serializable {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setText(String text) {

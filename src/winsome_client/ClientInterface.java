@@ -1,5 +1,6 @@
 package winsome_client;
 
+import winsome_server.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -372,7 +373,7 @@ public class ClientInterface {
 		try
 		{
 			Post post = client.create_post(title, content);
-			client.createPost(post.title_obj(), post.content_obj());
+			// TODO client.createPost(post.title_obj(), post.content_obj());
 			// 3. print the result
 			System.out.println("post command : Post created");
 		}

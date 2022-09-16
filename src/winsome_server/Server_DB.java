@@ -1,65 +1,144 @@
 package winsome_server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
-public class Server_DB extends HashMap<String, User> implements JSON_Serializable {
-	public Server_DB() {
-		super();
+public class Server_DB {
+	// Member variables
+	Post_collection posts;
+	User_collection users;
+	final String posts_file_path;
+	final String users_file_path;
+
+	// Constructor
+	public Server_DB(String posts_file_path, String users_file_path) {
+		/*
+		 * This constructor is used when we want to create a new server database.
+		 *
+		 *
+		 * 1. Set the file path of the posts file.
+		 * 2. Set the file path of the users file.
+		 */
+
+		// 1. Set the file path of the posts file.
+		this.posts_file_path = posts_file_path;
+
+		// 2. Set the file path of the users file.
+		this.users_file_path = users_file_path;
 	}
 
-	public int add_user(User user) {
-		if (this.containsKey(user.username))
-			return -1;
-		this.put(user.username, user);
+	// Methods
+	public int load_DB() {
+		/*
+		 * This method is used to load the database from the files.
+		 *
+		 * 1. Load the posts from the posts file.
+		 * 2. Load the users from the users file.
+		 */
+
+		// 1. Load the posts from the posts file.
+		load_posts();
+
+		// 2. Load the users from the users file.
+		load_users();
+
 		return 0;
 	}
 
-	public int remove_user(String username) {
-		if (!this.containsKey(username))
-			return -1;
-		this.remove(username);
+	public int save_DB() {
+		/*
+		 * This method is used to save the database to the files.
+		 *
+		 * 1. Save the posts to the posts file.
+		 * 2. Save the users to the users file.
+		 */
+
+		// 1. Save the posts to the posts file.
+		save_posts();
+
+		// 2. Save the users to the users file.
+		save_users();
+
 		return 0;
 	}
 
-	public User get_user(String username) {
-		return this.get(username);
-	}
+	private void load_posts() {
+		/*
+		 * This method is used to load the posts from the posts file.
+		 *
+		 * 1. Try to load the posts from the posts file.
+		 * 2. If the posts file does not exist, create a new posts file.
+		 */
 
-	public int login(String username, String password, Server.ServerAuthorization sa) {
-		if (!this.containsKey(username))
-			return -1;
-		User u = this.get(username);
-		if (u.check_psw(password, sa))
-		{
-			// TODO: set login status
-			return 0;
+		// 1. Try to load the posts from the posts file.
+		try {
+			posts = Post_collection.JSON_read(posts_file_path);
+		} catch (IOException e) {
+			e.printStackTrace();
+			// 2. If the posts file does not exist, create a new posts file.
+			posts = Post_collection.getInstance();
+			save_posts();
 		}
-		return -1;
 	}
 
-	public int logout(String username, Server.ServerAuthorization sa) {
-		if (!this.containsKey(username))
-			return -1;
-		User u = this.get(username);
-		// TODO: set logout status
-		return 0;
+	private void load_users() {
+		/*
+		 * This method is used to load the users from the users file.
+		 *
+		 * 1. Try to load the users from the users file.
+		 * 2. If the users file does not exist, create a new users file.
+		 */
+
+		// 1. Try to load the users from the users file.
+		try {
+			users = User_collection.JSON_read(users_file_path);
+		} catch (IOException e) {
+			e.printStackTrace();
+			// 2. If the users file does not exist, create a new users file.
+			users = User_collection.getInstance();
+			save_users();
+		}
 	}
 
-	@Override
-	public void JSON_write(String filePath) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		mapper.writeValue(new File(filePath), this);
+	private void save_posts() {
+		/*
+		 * This method is used to save the posts to the posts file.
+		 *
+		 * 1. Try to save the posts to the posts file.
+		 */
+
+		// 1. Try to save the posts to the posts file.
+		try {
+			posts.JSON_write(posts_file_path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	@Override
-	public JSON_Serializable JSON_read(String filePath) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(new File(filePath), Server_DB.class);
+	private void save_users() {
+		/*
+		 * This method is used to save the users to the users file.
+		 *
+		 * 1. Try to save the users to the users file.
+		 */
+
+		// 1. Try to save the users to the users file.
+		try {
+			users.JSON_write(users_file_path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+
+
+	// Getters
+	public Post_collection get_posts() {
+		return posts;
+	}
+
+	public User_collection get_users() {
+		return users;
+	}
+
+	// Setters
+	// None
 }

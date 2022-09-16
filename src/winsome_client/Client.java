@@ -1,7 +1,6 @@
 package winsome_client;
 
-import winsome_server.RMI_registration_int;
-import winsome_server.ServerProperties;
+import winsome_server.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -364,9 +363,9 @@ public class Client {
      * @param contenuto
      * @return
      */
-    public Post createPost(Post.Title titolo, Post.Content contenuto) {
-        return null;
-    }
+//    public Post createPost(Post.Title titolo, Post.Content contenuto) {
+//        return null;
+//    }
 
     /**
      * Operazione per recuperare la lista dei post nel proprio feed. Viene
@@ -489,14 +488,14 @@ public class Client {
         if (user == null) {
             throw new WinsomeExceptions.UserNotLogged();
         }
-        return new Post(this.user, title, content);
+        return new Post(this.user.getUsername(), title, content);
     }
 
     public Comment create_comment(String comment) throws WinsomeExceptions.UserNotLogged {
         if (user == null) {
             throw new WinsomeExceptions.UserNotLogged();
         }
-        return new Comment(this.user, comment);
+        return new Comment(this.user.getUsername(), comment);
     }
 
     public void exit() {

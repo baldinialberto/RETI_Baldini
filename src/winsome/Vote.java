@@ -1,26 +1,29 @@
 package winsome;
 
-import java.util.Collection;
+import java.io.IOException;
 
-public class Vote {
-    private final VoteEnum vote;
-    private final User owner;
 
-    public Vote(VoteEnum vote, User owner) {
-        this.vote = vote;
-        this.owner = owner;
+public class Vote extends User_interaction {
+
+    // vote == true means upvote, vote == false means downvote
+    private final boolean vote;
+    public enum VoteType {
+        UPVOTE,
+        DOWNVOTE
+    }
+    public Vote(String username, VoteType vote)
+    {
+        super();
+        this.vote = vote == VoteType.UPVOTE;
     }
 
-    public int get_value() {
-        return vote.equals(VoteEnum.upVote) ? 1 : -1;
+    @Override
+    public void JSON_write(String filePath) throws IOException {
+
     }
 
-    public static Pair<Integer, Integer> get_votes_count(Collection<Vote> votes) {
-        int total = 0;
-        int size = votes.size();
-        for (Vote v : votes) {
-            total += v.get_value();
-        }
-        return new Pair<Integer, Integer>((size + total) / 2, size - ((size + total) / 2));
+    @Override
+    public void JSON_read(String filePath) throws IOException {
+
     }
 }

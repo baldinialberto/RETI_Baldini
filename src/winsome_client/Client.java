@@ -1,9 +1,13 @@
 package winsome_client;
 
+import winsome_comunication.WinsomeMessage;
+import winsome_comunication.Winsome_Confirmation;
 import winsome_server.*;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -161,7 +165,7 @@ public class Client {
      * @return
      * @throws Winsome_exceptions.WrongPassword
      */
-    public User login(String username, String password)
+    public int login(String username, String password)
             throws Winsome_exceptions.WrongPassword {
         /*
          * login to server
@@ -170,7 +174,7 @@ public class Client {
          * 2. Send login request to server
          * 3. Receive login response from server
          * 4. If login is successful, set _logged to true
-         * 5. Return the user
+         * 5. Return the result
          */
 
         System.out.println("login");
@@ -181,24 +185,25 @@ public class Client {
             connect();
 
             // 2. Send login request to server
-            OutputStream out = socket.getOutputStream();
-            out.write("login\n".getBytes());
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write("login " + username + " " + password);
 
             // 3. Receive login response from server
-            // TODO
+            Winsome_Confirmation confirmation = WinsomeMessage.receive_message(socket);
 
             // 4. If login is successful, set _logged to true
-            logged = true;
+            logged = confirmation.get_success();
 
-            // 5. Return the user
-            return null;
+            if (!logged) { System.out.println(confirmation.get_message()); }
+
+            // 5. Return the result
+            return 0;
 
         } catch (IOException e) {
             e.printStackTrace();
-            //throw new RuntimeException(e);
-            return null;
         }
 
+        return -1;
     }
 
     /**

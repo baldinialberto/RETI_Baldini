@@ -1,5 +1,8 @@
 package winsome_server;
 
+import winsome_comunication.WinsomeMessage;
+import winsome_comunication.Winsome_Confirmation;
+
 import java.io.IOException;
 import java.net.*;
 import java.rmi.registry.LocateRegistry;
@@ -20,13 +23,9 @@ public class Server {
 	public ServerSocket tcp_server_socket;
 	public ServerSocket udp_server_socket;
 	private final ExecutorService workers_thread_poll;
-
 	private Thread welcome_thread;
-
 	private Server_DB server_db;
-
-	private User_collection users;
-	private Post_collection posts;
+	private Client_connections_Manager clients_manager;
 
 	private ServerAuthorization authorization() {
 		return new ServerAuthorization();
@@ -139,7 +138,7 @@ public class Server {
 			for (int j = 0; j < tags.length; j++) {
 				tags[j] = "tag" + j;
 			}
-			server_db.get_users().add_user("user_" + i, "password_" + i, tags);
+			server_db.add_user("user_" + i, "password_" + i, tags);
 		}
 
 		// 3. For each user, add 1-5 Post with random title and text.
@@ -151,12 +150,9 @@ public class Server {
 
 		// 4. Save the server_db.
 		server_db.save_DB();
-
-		// 5. Print the server_db.
-		System.out.println(server_db.get_users().toString());
 	}
 
-	public void add_client(Socket client_socket) {
+	public void serve_new_client(Socket client_socket) {
 		workers_thread_poll.submit(new Server_worker(this, client_socket));
 	}
 
@@ -168,8 +164,32 @@ public class Server {
 		return this.properties;
 	}
 
+	public void add_client(String username, Socket socket)
+	{
+		/*
+		 * add a new client to the list of connected clients
+		 *
+		 * 1. Add the client to the list of connected clients
+		 *
+		 */
 
+		// 1. Add the client to the list of connected clients
+		this.clients_manager.put(username,
+				new Client_connection(username, socket.getRemoteSocketAddress().toString(), socket.getPort()));
+	}
 
+	public void remove_client(String username)
+	{
+		/*
+		 * remove a client from the list of connected clients
+		 *
+		 * 1. Remove the client from the list of connected clients
+		 *
+		 */
+
+		// 1. Remove the client from the list of connected clients
+		this.clients_manager.remove(username);
+	}
 
 	public int register_user(String username, String password, String[] tags) {
 		/*
@@ -182,34 +202,35 @@ public class Server {
 		return this.server_db.add_user(username, password, tags);
 	}
 
-	public int login_user(String username, String password) {
+	public WinsomeMessage login_user(String username, String password) {
 		/*
 		  login a user
 
 		  1. check if username exists
 		  2. if yes, check if password is correct
-		  3. set user as logged in
-		  4. return 0 if success, -1 if username does not exist, -2 if password is incorrect
+		  3. check if user is already logged in ( is in the clients list )
+		  4. return the confirmation message
 		 */
 
-//		// 1. check if username exists
-//		User user = server_db.get_user(username);
-//
-//		if (user == null) {
-//			return -1;
-//		}
+		// 1. check if username exists
+		if (server_db.user_exists(username)) {
+			// 2. if yes, check if password is correct
+			if (server_db.user_check_password(username, password)) {
+				// 3. check if user is already logged in ( is in the clients list )
+				if (this.clients_manager.containsKey(username)) {
+					return new WinsomeMessage(new Winsome_Confirmation("UserAlreadyLoggedIn", false));
+				}
+				// 4. return the confirmation message
+				return new WinsomeMessage(new Winsome_Confirmation("Success", true));
+			}
 
-		// 2. if yes, check if password is correct
-		// TODO
+			return new WinsomeMessage(new Winsome_Confirmation("Wrong password", false));
+		}
 
-		// 3. set user as logged in
-		// TODO
-
-		// 4. return 0 if success, -1 if username does not exist, -2 if password is incorrect
-		return 0;
+		return new WinsomeMessage(new Winsome_Confirmation("UserNotFound", false));
 	}
 
-	public int logout_user(String username) {
+	public void logout_user(String username) {
 		/*
 		  logout a user
 
@@ -231,8 +252,6 @@ public class Server {
 
 		// 3. if yes, logout user
 		// TODO
-
-		return 0;
 	}
 
 }

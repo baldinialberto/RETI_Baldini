@@ -21,7 +21,7 @@ public class Server_welcome_thread extends Thread {
             try {
                 Socket newConnection = server.tcp_server_socket.accept();
                 print_new_client(newConnection.getInetAddress().getHostAddress(), newConnection.getPort());
-                server.add_client(newConnection);
+                server.serve_new_client(newConnection);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

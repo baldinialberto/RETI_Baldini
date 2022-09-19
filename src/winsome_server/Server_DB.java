@@ -163,6 +163,25 @@ public class Server_DB {
 		return users.get(username) != null;
 	}
 
+	public boolean user_check_password(String username, String password)
+	{
+		/*
+		 * This method is used to check if a user exists.
+		 *
+		 * 1. Check if the user exists.
+		 */
+
+		// 1. Check if the user exists.
+		if (user_exists(username))
+		{
+			return users.get(username).getPassword().equals(password);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public int add_user(String username, String password, String[] tags) {
 		/*
 		 * This method is used to add a user to the database.
@@ -175,13 +194,7 @@ public class Server_DB {
 	}
 
 	// Getters
-	public Post_collection get_posts() {
-		return posts;
-	}
-
-	public User_collection get_users() {
-		return users;
-	}
+	// None
 
 	// Setters
 	// None

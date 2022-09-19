@@ -3,10 +3,10 @@ package winsome_server;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ServerReception extends Thread {
+public class Server_welcome_thread extends Thread {
     private final Server server;
 
-    public ServerReception(Server server) {
+    public Server_welcome_thread(Server server) {
         this.server = server;
     }
 

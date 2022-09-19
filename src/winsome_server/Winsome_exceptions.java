@@ -1,6 +1,6 @@
 package winsome_server;
 
-public class WinsomeExceptions {
+public class Winsome_exceptions {
     public static class WrongPassword extends Exception {
         @Override
         public String toString() {

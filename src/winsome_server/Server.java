@@ -1,13 +1,11 @@
 package winsome_server;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,10 +15,12 @@ public class Server {
 		}
 	}
 
-	private final ServerProperties properties;
+	private final Server_properties properties;
 	public ServerSocket tcp_server_socket;
 	public ServerSocket udp_server_socket;
 	private final ExecutorService workers_thread_poll;
+
+	private Thread welcome_thread;
 
 	private Server_DB server_db;
 
@@ -31,45 +31,62 @@ public class Server {
 		return new ServerAuthorization();
 	}
 
-	public Server(String serverProperties_configFile) {
+	// constructor
+	public Server(String serverProperties_configFile, String clientProperties_configFile) {
+		/*
+		 * create a new server object
+		 *
+		 * 1. Create a new worker thread poll
+		 * 2. Create a new server properties object
+		 * 3. Create a new server database object
+		 * 3.1 Try to load the server database
+		 * 3.2 If an error occurred, exit the program
+		 * 4. Create a new tcp server socket
+		 * 5. Create a new udp server socket
+		 * 6. Create a new server RMI object and bind it to the registry
+		 * 7. Start the welcome thread
+		 *
+		 */
 
+		// 1. Create a new worker thread poll
 		this.workers_thread_poll = Executors.newCachedThreadPool();
-		this.properties = ServerProperties.readFile(serverProperties_configFile);
 
-		test_func();
+		// 2. Create a new server properties object
+		this.properties = new Server_properties(serverProperties_configFile, clientProperties_configFile);
 
-//		server_db = new Server_DB();
-//
-//		try {
-//			assert properties != null;
-//
-//			//server_db.JSON_read(this.properties.getBackup_file());
-//
-//			this.tcp_server_socket = new ServerSocket(properties.getTcp_port());
-//			this.udp_server_socket = new ServerSocket(properties.getUdp_port());
-//
-//			String server_address = InetAddress.getLocalHost().getHostAddress();
-//			properties.setServer_address(authorization(), server_address);
-//			properties.dump_to_file(serverProperties_configFile);
-//
-//			// add stub for RMI
-//			ServerRMI serverRMI = new ServerRMI(this, authorization());
-//			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(serverRMI, 0);
-//
-//			LocateRegistry.createRegistry(properties.getRegistry_port());
-//			Registry r = LocateRegistry.getRegistry(properties.getRegistry_port());
-//
-//			r.rebind("ServerRMI", stub);
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			System.exit(1);
-//		}
-//
-//
-//		// submit server welcome service
-//		Thread reception_thread = new ServerReception(this);
-//		reception_thread.start();
+		// 3. Create a new server database object
+		this.server_db = new Server_DB(this.properties.get_users_database(), this.properties.get_posts_database());
+
+		// 3.1 Try to load the server database
+		if (this.server_db.load_DB() != 0) {
+			// 3.2 If an error occurred, exit the program
+			System.out.println("Error: failed to load the server database");
+			System.exit(1);
+		}
+
+		try {
+			// 4. Create a new tcp server socket
+			this.tcp_server_socket = new ServerSocket(this.properties.get_tcp_port());
+
+			// 5. Create a new udp server socket
+			this.udp_server_socket = new ServerSocket(this.properties.get_udp_port());
+
+			// 6. Create a new server RMI object and bind it to the registry
+			Server_RMI server_rmi = new Server_RMI(this);
+			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(server_rmi, 0);
+			Registry registry = LocateRegistry.getRegistry();
+			registry.rebind("RMI_registration_int", stub);
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (Exception e) {
+			System.err.println("Server exception: " + e);
+			e.printStackTrace();
+		}
+
+		// 7. Start the welcome thread
+		this.welcome_thread = new Server_welcome_thread(this);
+		this.welcome_thread.start();
 	}
 
 	private void test_func()
@@ -111,14 +128,14 @@ public class Server {
 	}
 
 	public void add_client(Socket client_socket) {
-		workers_thread_poll.submit(new ServerWorker(this, client_socket));
+		workers_thread_poll.submit(new Server_worker(this, client_socket));
 	}
 
 	public String get_properties_toString() {
 		return this.properties.toString();
 	}
 
-	public ServerProperties get_properties() {
+	public Server_properties get_properties() {
 		return this.properties;
 	}
 

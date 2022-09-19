@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Client {
     private ClientInterface c_interface;
-    private ServerProperties s_properties;
+    private Client_properties properties;
     private Socket socket;
 
     private RMI_registration_int remote_registration_result;
@@ -32,7 +32,7 @@ public class Client {
          */
 
         // 1. load server properties
-        s_properties = ServerProperties.readFile(properties_filepath);
+        properties = new Client_properties("client_config.txt");
 
         // 2. create client interface
         c_interface = new ClientInterface(this);
@@ -122,10 +122,10 @@ public class Client {
      * @param username
      * @param password
      * @param tags
-     * @throws WinsomeExceptions.UsernameAlreadyExists
+     * @throws Winsome_exceptions.UsernameAlreadyExists
      */
     public void register(String username, String password, List<String> tags)
-            throws WinsomeExceptions.UsernameAlreadyExists, RemoteException {
+            throws Winsome_exceptions.UsernameAlreadyExists, RemoteException {
         /*
         * register a new user
         *
@@ -159,10 +159,10 @@ public class Client {
      * @param username
      * @param password
      * @return
-     * @throws WinsomeExceptions.WrongPassword
+     * @throws Winsome_exceptions.WrongPassword
      */
     public User login(String username, String password)
-            throws WinsomeExceptions.WrongPassword {
+            throws Winsome_exceptions.WrongPassword {
         /*
          * login to server
          *
@@ -484,16 +484,16 @@ public class Client {
         System.out.println("Client:test()");
     }
 
-    public Post create_post(String title, String content) throws WinsomeExceptions.UserNotLogged {
+    public Post create_post(String title, String content) throws Winsome_exceptions.UserNotLogged {
         if (user == null) {
-            throw new WinsomeExceptions.UserNotLogged();
+            throw new Winsome_exceptions.UserNotLogged();
         }
         return null;//new Post(this.user.getUsername(), title, content);
     }
 
-    public Comment create_comment(String comment) throws WinsomeExceptions.UserNotLogged {
+    public Comment create_comment(String comment) throws Winsome_exceptions.UserNotLogged {
         if (user == null) {
-            throw new WinsomeExceptions.UserNotLogged();
+            throw new Winsome_exceptions.UserNotLogged();
         }
         return new Comment(this.user.getUsername(), comment);
     }

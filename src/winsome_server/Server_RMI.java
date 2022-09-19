@@ -4,11 +4,10 @@ import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
 import java.util.Objects;
 
-public class ServerRMI extends RemoteObject implements RMI_registration_int {
+public class Server_RMI extends RemoteObject implements RMI_registration_int {
 	private final Server server;
 
-	public ServerRMI(Server server, Server.ServerAuthorization authorization) {
-		Objects.requireNonNull(authorization);
+	public Server_RMI(Server server) {
 		this.server = Objects.requireNonNull(server);
 	}
 

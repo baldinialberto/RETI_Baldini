@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class ServerWorker implements Runnable {
+public class Server_worker implements Runnable {
     private final Server server;
     private final Socket socket;
 
-    public ServerWorker(Server server, Socket socket) {
+    public Server_worker(Server server, Socket socket) {
         this.server = server;
         this.socket = socket;
     }

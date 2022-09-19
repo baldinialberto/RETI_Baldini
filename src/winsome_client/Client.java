@@ -80,7 +80,7 @@ public class Client {
          */
 
         // 1. Create a TCP socket
-        socket = new Socket(s_properties.getServer_address(), s_properties.getTcp_port());
+        socket = new Socket(properties.get_server_address(), properties.get_tcp_port());
 
         // 2. Create a UDP socket
         // TODO

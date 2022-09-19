@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User_collection extends ConcurrentHashMap<String, User> implements JSON_Serializable {
@@ -48,17 +49,25 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		 *
 		 * 1. If the user collection does not contain the user, add the user to the user collection.
 		 * 2. Return 0.
-		 * 3. If the user collection contains the user, return -1.
+		 * 3. If the user is not valid, return -1.
 		 */
 
 		// 1. If the user collection does not contain the user, add the user to the user collection.
-		if (!this.containsKey(username)) {
+		if (!this.containsKey(username) || tags.length != 0) {
+			/* 1.1 Make sure that tags contains at least one tag and a maximum of 5 tags.
+			 * if no tags are provided, return -1.
+			 * if more than 5 tags are provided, add only the first 5 tags.
+			 */
+			if (tags.length > 5) {
+				tags = Arrays.copyOfRange(tags, 0, 5);
+			}
+
 			this.put(username, new User(username, password, tags));
 			// 2. Return 0.
 			return 0;
 		}
 
-		// 3. If the user collection contains the user, return -1.
+		// 3. If the user is not valid, return -1.
 		return -1;
 	}
 

@@ -1,0 +1,24 @@
+{
+  "pluto" : {
+    "username" : "pluto",
+    "password" : "pluto00",
+    "tags" : [ "disney", "dogslife" ],
+    "wallet" : {
+      "username" : "pluto",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ]
+  },
+  "pippo" : {
+    "username" : "pippo",
+    "password" : "pippo00",
+    "tags" : [ "disney" ],
+    "wallet" : {
+      "username" : "pippo",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ]
+  }
+}

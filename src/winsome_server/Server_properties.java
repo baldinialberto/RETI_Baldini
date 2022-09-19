@@ -43,6 +43,7 @@ public class Server_properties {
 		this.serverProperties_file = serverProperties_file;
 		this.clientProperties_file = clientProperties_file;
 		this.properties = new HashMap<>();
+		read_properties();
 	}
 
 	// getters

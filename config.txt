@@ -16,5 +16,5 @@ REGPORT=8100
 TIMEOUT=100
 # Files di backup
 USERS_BACKUP=users_backup.json
-FILES_BACKUP=files_backup.json
+POSTS_BACKUP=posts_backup.json
 

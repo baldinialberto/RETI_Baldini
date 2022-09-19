@@ -1,8 +1,7 @@
 package winsome_server;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -10,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
+
+
 	static class ServerAuthorization {
 		private ServerAuthorization() {
 		}
@@ -36,6 +37,7 @@ public class Server {
 		/*
 		 * create a new server object
 		 *
+		 * 0. Set a Shutdown hook
 		 * 1. Create a new worker thread poll
 		 * 2. Create a new server properties object
 		 * 3. Create a new server database object
@@ -48,14 +50,25 @@ public class Server {
 		 *
 		 */
 
+		// 0. Set a Shutdown hook
+		Runtime.getRuntime().addShutdownHook(new Server_shudown_hook(this));
+
 		// 1. Create a new worker thread poll
 		this.workers_thread_poll = Executors.newCachedThreadPool();
 
 		// 2. Create a new server properties object
 		this.properties = new Server_properties(serverProperties_configFile, clientProperties_configFile);
+		// 2.1 Store the server address in the properties file
+		try {
+			this.properties.set_server_address(InetAddress.getLocalHost().getHostAddress());
+		} catch (UnknownHostException e) {
+			throw new RuntimeException(e);
+		}
+		// 2.2 save the properties to the client properties file
+		this.properties.write_properties();
 
 		// 3. Create a new server database object
-		this.server_db = new Server_DB(this.properties.get_users_database(), this.properties.get_posts_database());
+		this.server_db = new Server_DB(this.properties.get_posts_database(), this.properties.get_users_database());
 
 		// 3.1 Try to load the server database
 		if (this.server_db.load_DB() != 0) {
@@ -74,8 +87,9 @@ public class Server {
 			// 6. Create a new server RMI object and bind it to the registry
 			Server_RMI server_rmi = new Server_RMI(this);
 			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(server_rmi, 0);
-			Registry registry = LocateRegistry.getRegistry();
-			registry.rebind("RMI_registration_int", stub);
+			LocateRegistry.createRegistry(this.properties.get_registry_port());
+			Registry registry = LocateRegistry.getRegistry(this.properties.get_registry_port());
+			registry.rebind(this.properties.get_rmi_name(), stub);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -88,7 +102,22 @@ public class Server {
 		this.welcome_thread = new Server_welcome_thread(this);
 		this.welcome_thread.start();
 	}
+	public void save_DB() {
+		/*
+		 * save the server database
+		 *
+		 * 1. Try to save the server database
+		 * 2. If an error occurred, exit the program
+		 *
+		 */
 
+		// 1. Try to save the server database
+		if (this.server_db.save_DB() != 0) {
+			// 2. If an error occurred, exit the program
+			System.out.println("Error: failed to save the server database");
+			System.exit(1);
+		}
+	}
 	private void test_func()
 	{
 		/*
@@ -146,22 +175,11 @@ public class Server {
 		/*
 		  register a new user
 
-		  1. check if username is already taken
-		  2. if not, add user to the database
-		  3. return 0 if success, -1 if username is already taken
+		  1. add the user to database and return the result
+
 		 */
 
-		// 1. check if username is already taken
-//		if (server_db.get_user(username) != null) {
-//			return -1;
-//		}
-//
-//		// 2. if not, add user to the database
-//		server_db.add_user(new User(username, password, tags));
-
-		// 3. return 0 if success, -1 if username is already taken
-		return 0;
-
+		return this.server_db.add_user(username, password, tags);
 	}
 
 	public int login_user(String username, String password) {

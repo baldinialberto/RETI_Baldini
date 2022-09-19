@@ -152,6 +152,27 @@ public class Server_DB {
 		}
 	}
 
+	public boolean user_exists(String username) {
+		/*
+		 * This method is used to check if a user exists.
+		 *
+		 * 1. Check if the user exists.
+		 */
+
+		// 1. Check if the user exists.
+		return users.get(username) != null;
+	}
+
+	public int add_user(String username, String password, String[] tags) {
+		/*
+		 * This method is used to add a user to the database.
+		 *
+		 * 1. Add the user to the users.
+		 */
+
+		// 1. Add the user to the users.
+		return users.add_user(username, password, tags);
+	}
 
 	// Getters
 	public Post_collection get_posts() {

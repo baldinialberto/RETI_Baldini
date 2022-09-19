@@ -18,8 +18,8 @@ public class Client {
     private RMI_registration_int remote_registration_result;
     private User user;
     private boolean _on = false;
-    private boolean _connected = false;
-    private boolean _logged = false;
+    private boolean connected = false;
+    private boolean logged = false;
 
     public Client(String properties_filepath) {
         /*
@@ -42,8 +42,8 @@ public class Client {
 
         // 4. connect to server's RMI
         try {
-            Registry r = LocateRegistry.getRegistry(s_properties.getRegistry_port());
-            remote_registration_result = (RMI_registration_int) r.lookup("ServerRMI");
+            Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
+            remote_registration_result = (RMI_registration_int) r.lookup(properties.get_rmi_name());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,12 +52,12 @@ public class Client {
     public String get_username() {
         return user.getUsername();
     }
-    public boolean is_logged() {
-        return _logged;
+    public boolean isLogged() {
+        return logged;
     }
 
-    public boolean is_connected() {
-        return _connected;
+    public boolean isConnected() {
+        return connected;
     }
 
     public boolean is_on() {
@@ -86,7 +86,7 @@ public class Client {
         // TODO
 
         // 3. If the connection is established, set _connected to true
-        _connected = true;
+        connected = true;
     }
 
     private void disconnect() throws IOException {
@@ -98,11 +98,11 @@ public class Client {
          * 3. Set _connected to false
          */
 
-        if (!_connected)
+        if (!connected)
             return;
 
         socket.close();
-        _connected = false;
+        connected = false;
     }
 
     /**
@@ -188,7 +188,7 @@ public class Client {
             // TODO
 
             // 4. If login is successful, set _logged to true
-            _logged = true;
+            logged = true;
 
             // 5. Return the user
             return null;
@@ -230,7 +230,7 @@ public class Client {
             // TODO
 
             // 3. If logout is successful, set _logged to false
-            _logged = false;
+            logged = false;
 
             //4. Disconnect from server
             disconnect();
@@ -239,7 +239,7 @@ public class Client {
             user = null;
 
             //6. set _connected to false
-            _connected = false;
+            connected = false;
 
         } catch (Exception e) {
             e.printStackTrace();

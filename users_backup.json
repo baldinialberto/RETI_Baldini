@@ -1,4 +1,15 @@
 {
+  "topolino" : {
+    "username" : "topolino",
+    "password" : "topolino00",
+    "tags" : [ "disney", "formaggio" ],
+    "wallet" : {
+      "username" : "topolino",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ]
+  },
   "pluto" : {
     "username" : "pluto",
     "password" : "pluto00",

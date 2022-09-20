@@ -22,13 +22,10 @@ public class WinsomeMessage {
 
 	// member variables
 	private String message;
-	private int message_length;
-
 
 	// constructor
 	public WinsomeMessage(Winsome_Serializable message) {
 		this.message = message.serialize();
-		this.message_length = this.message.length();
 	}
 
 	// getters
@@ -46,45 +43,35 @@ public class WinsomeMessage {
 		/*
 		 * This method is used to send a message to a socket
 		 *
-		 * 1. send the message length
-		 * 2. send the message
+		 * 1. send the message
 		 */
 
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-		// 1. send the message length
-		out.write(message_length);
-
-		// 2. send the message
+		// 1. send the message
 		out.write(message);
+		out.write('\n');
+		out.flush();
+		out.close();
 	}
 
 	public static <T extends Winsome_Serializable> T receive_message(Socket socket) throws IOException {
 		/*
 		 * This method is used to receive a message from a socket
 		 *
-		 * 1. receive the message length
-		 * 2. receive the message
-		 * 3. return the Object
+		 * 1. receive the message
+		 * 2. return the Object
 		 */
 
-		// 1. receive the message length
-		int message_length = socket.getInputStream().read();
-		// 2. receive the message
-		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		char[] message = new char[message_length];
-		int bytes_readen = br.read(message, 0, message_length);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String message = null;
 
-		if (bytes_readen != message_length) {
-			System.out.println("Error: bytes_readen != message_length : " + bytes_readen + " != " + message_length);
-		}
+		// 1. receive the message
+		message = in.readLine();
+		in.close();
 
-		// 3. return the Object
-		return T.deserialize(new String(message));
-	}
-
-	public int get_message_length() {
-		return message_length;
+		// 2. return the Object
+		return T.deserialize(message);
 	}
 }
 

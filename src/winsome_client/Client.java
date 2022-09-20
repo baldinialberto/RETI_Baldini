@@ -186,7 +186,8 @@ public class Client {
 
             // 2. Send login request to server
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write("login " + username + " " + password);
+            out.write("login " + username + " " + password + "\n");
+            out.flush();
 
             // 3. Receive login response from server
             Winsome_Confirmation confirmation = WinsomeMessage.receive_message(socket);

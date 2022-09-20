@@ -102,9 +102,15 @@ public class ClientInterface {
 
 		try
 		{
-			client.login(username, password);
-			// 3. print the result
-			System.out.println("login command : User " + username + " logged in");
+			if (client.login(username, password) == 0)
+			{
+				// 3. print the result
+				System.out.println("login command : User " + username + " logged in");
+			}
+			else
+			{
+				System.out.println("login command : User " + username + " not logged in");
+			}
 		}
 		catch (Exception e)
 		{

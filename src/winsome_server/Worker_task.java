@@ -1,7 +1,13 @@
 package winsome_server;
 
+import winsome_comunication.WinStringArray;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.Collections;
 
 public class Worker_task implements Runnable {
     // member variables
@@ -36,14 +42,44 @@ public class Worker_task implements Runnable {
         /* 1. read the message from the client
          * the first message from the client is an array of strings
          */
+        SocketChannel socket_channel = (SocketChannel) selection_key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        try {
+            StringBuilder message = new StringBuilder();
+            while (socket_channel.read(buffer) > 0) {
+                buffer.flip();
+                message.append(new String(buffer.array(), 0, buffer.limit()));
+                buffer.clear();
+            }
 
-        // 2. process the message
-        // TODO
+            // 2. process the message
+            if (message.toString().equals("")) {
+                // the client has closed the connection
+                // close the connection
+                socket_channel.close();
+                selection_key.cancel();
+                return;
+            }
+            if (message.toString().equals("exit")) {
+                // the client has closed the connection
+                // close the connection
+                socket_channel.close();
+                selection_key.cancel();
+                return;
+            }
+            WinStringArray response = process_message(message.toString());
+            ByteBuffer byte_buffer = ByteBuffer.wrap(response.serialize());
 
-        // 3. put the answer into the buffer
-        // TODO
+            // 3. put the answer into the buffer + // 4. register the key as writable
+            socket_channel.register(selector, SelectionKey.OP_WRITE, byte_buffer);
 
-        // 4. register the key as writable
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public WinStringArray process_message(String request) {
         // TODO
+        return new WinStringArray(Collections.singletonList("test"));
     }
 }

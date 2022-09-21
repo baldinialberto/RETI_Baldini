@@ -67,4 +67,9 @@ public class WinStringArray implements WinsomeSerializable{
 	public int indexOf(String message) {
 		return this.message.indexOf(message);
 	}
+
+	@Override
+	public String toString() {
+		return message.toString();
+	}
 }

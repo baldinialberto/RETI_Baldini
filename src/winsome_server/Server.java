@@ -1,5 +1,7 @@
 package winsome_server;
 
+import winsome_comunication.WinStringArray;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -164,12 +166,14 @@ public class Server {
 						// Debug
 						System.out.println("client : " + client + " is ready to write");
 
-						String echoAnsw= (String) key.attachment();
-						ByteBuffer bbEchoAnsw = ByteBuffer.wrap(echoAnsw.getBytes());
+						ByteBuffer bbEchoAnsw = (ByteBuffer) key.attachment();;
 						client.write(bbEchoAnsw);
 
+						WinStringArray winStringArray = new WinStringArray();
+						winStringArray.deserialize(bbEchoAnsw.array());
+
 						// Debug
-						System.out.println("Server: " + echoAnsw + " inviato al client " + client.getRemoteAddress());
+						System.out.println("Server: " + winStringArray + " inviato al client " + client.getRemoteAddress());
 
 						if (!bbEchoAnsw.hasRemaining()) {
 							bbEchoAnsw.clear();

@@ -16,4 +16,5 @@ public interface WinsomeSerializable {
 	void deserialize(byte[] data);
 	MessageType get_type();
 	int get_length();
+
 }

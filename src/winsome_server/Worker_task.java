@@ -33,8 +33,9 @@ public class Worker_task implements Runnable {
          * 4. register the key as writable
          */
 
-        // 1. read the message from the client
-        // TODO
+        /* 1. read the message from the client
+         * the first message from the client is an array of strings
+         */
 
         // 2. process the message
         // TODO

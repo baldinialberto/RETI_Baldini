@@ -8,6 +8,8 @@ import java.net.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +28,10 @@ public class Server {
 	private Thread welcome_thread;
 	private Server_DB server_db;
 	private Client_connections_Manager clients_manager;
+
+	private ConcurrentLinkedQueue<Client_to_serve> client_queue;
+
+	private ConcurrentHashMap<String, Response> response_queue;
 
 	private ServerAuthorization authorization() {
 		return new ServerAuthorization();
@@ -191,6 +197,58 @@ public class Server {
 		this.clients_manager.remove(username);
 	}
 
+	// ConcurrentQueue Interactions
+	public void add_client_to_serve(Client_to_serve client)
+	{
+		/*
+		 * add a new client to the queue of clients to serve
+		 *
+		 * 1. Add the client to the queue of clients to serve
+		 *
+		 */
+
+		// 1. Add the client to the queue of clients to serve
+		this.client_queue.offer(client);
+	}
+
+	public Client_to_serve get_client_to_serve()
+	{
+		/*
+		 * get a client from the queue of clients to serve
+		 *
+		 * 1. Return the client from the queue of clients to serve
+		 */
+
+		// 1. Return the client from the queue of clients to serve
+		return this.client_queue.poll();
+	}
+
+	public void add_response(Response response)
+	{
+		/*
+		 * add a new response to the queue of responses to send
+		 *
+		 * 1. Add the response to the queue of responses to send
+		 *
+		 */
+
+		// 1. Add the response to the queue of responses to send
+		this.response_queue.put(response.get_client_address(), response);
+	}
+
+	public Response get_response(String client_address)
+	{
+		/*
+		 * get a response from the queue of responses to send
+		 *
+		 * 1. Return the response from the queue of responses to send
+		 */
+
+		// 1. Return the response from the queue of responses to send
+		return this.response_queue.remove(client_address);
+	}
+
+	// Client Interactions
 	public int register_user(String username, String password, String[] tags) {
 		/*
 		  register a new user

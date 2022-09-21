@@ -1,14 +1,13 @@
 package winsome_client;
 
-import winsome_comunication.WinsomeMessage;
-import winsome_comunication.Winsome_Confirmation;
 import winsome_server.*;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -74,20 +73,15 @@ public class Client {
         /*
          * connect to server
          *
-         * TCP and UDP port are specified in the server properties file
-         * Timeout is set in the server properties file
-         * Server address is set in the server properties file
-         *
-         * 1. Create a TCP socket
-         * 2. Create a UDP socket
-         * 3. If the connection is established, set _connected to true
-         */
+        */
 
-        // 1. Create a TCP socket
-        socket = new Socket(properties.get_server_address(), properties.get_tcp_port());
+        try {
+            SocketAddress address = new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port());
+            SocketChannel client = SocketChannel.open(address);
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
 
-        // 2. Create a UDP socket
-        // TODO
 
         // 3. If the connection is established, set _connected to true
         connected = true;
@@ -179,30 +173,35 @@ public class Client {
 
         System.out.println("login");
 
-
         try {
-            // 1. Connect to server
             connect();
-
-            // 2. Send login request to server
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write("login " + username + " " + password + "\n");
-            out.flush();
-
-            // 3. Receive login response from server
-            Winsome_Confirmation confirmation = WinsomeMessage.receive_message(socket);
-
-            // 4. If login is successful, set _logged to true
-            logged = confirmation.get_success();
-
-            if (!logged) { System.out.println(confirmation.get_message()); }
-
-            // 5. Return the result
-            return 0;
-
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
+//        try {
+//            // 1. Connect to server
+//            connect();
+//
+//            // 2. Send login request to server
+//            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+//            out.write("login " + username + " " + password + "\n");
+//            out.flush();
+//
+//            // 3. Receive login response from server
+//            Winsome_Confirmation confirmation = WinsomeMessage.receive_message(socket);
+//
+//            // 4. If login is successful, set _logged to true
+//            logged = confirmation.get_success();
+//
+//            if (!logged) { System.out.println(confirmation.get_message()); }
+//
+//            // 5. Return the result
+//            return 0;
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return -1;
     }

@@ -1,50 +1,43 @@
 package winsome_server;
 
-import winsome_comunication.WinsomeMessage;
-import winsome_comunication.Winsome_Confirmation;
-
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-
-
-	static class ServerAuthorization {
-		private ServerAuthorization() {
-		}
-	}
-
+	// Server Properties
 	private final Server_properties properties;
-	public ServerSocket tcp_server_socket;
-	public ServerSocket udp_server_socket;
+	// Worker thread-pool
 	private final ExecutorService workers_thread_poll;
-	private Thread welcome_thread;
-	private Server_DB server_db;
-	private Client_connections_Manager clients_manager;
+	// Server Database
+	private final Server_DB server_db;
+	// Server socket and selector
+	private ServerSocketChannel server_socket;
+	private Selector selector;
+	// Connection Manager
+	private final CConnections_Manager connections_manager = new CConnections_Manager();
+	// Client addresses
+	private final ConcurrentHashMap<String, String> client_addresses = new ConcurrentHashMap<>();
+	// Client messages
 
-	private ConcurrentLinkedQueue<Client_to_serve> client_queue;
-
-	private ConcurrentHashMap<String, Response> response_queue;
-
-	private ServerAuthorization authorization() {
-		return new ServerAuthorization();
-	}
 
 	// constructor
 	public Server(String serverProperties_configFile, String clientProperties_configFile) {
 		/*
 		 * create a new server object
 		 *
-		 * 0. Set a Shutdown hook
-		 * 1. Create a new worker thread poll
-		 * 2. Create a new server properties object
+		 * 1. Create a new server properties object
+		 * 2. Create a new worker thread poll
 		 * 3. Create a new server database object
 		 * 3.1 Try to load the server database
 		 * 3.2 If an error occurred, exit the program
@@ -54,23 +47,19 @@ public class Server {
 		 * 7. Start the welcome thread
 		 *
 		 */
-
-		// 0. Set a Shutdown hook
-		Runtime.getRuntime().addShutdownHook(new Server_shudown_hook(this));
-
-		// 1. Create a new worker thread poll
-		this.workers_thread_poll = Executors.newCachedThreadPool();
-
-		// 2. Create a new server properties object
+		// 1. Create a new server properties object
 		this.properties = new Server_properties(serverProperties_configFile, clientProperties_configFile);
-		// 2.1 Store the server address in the properties file
+		// 1.1 Store the server address in the properties file
 		try {
 			this.properties.set_server_address(InetAddress.getLocalHost().getHostAddress());
 		} catch (UnknownHostException e) {
 			throw new RuntimeException(e);
 		}
-		// 2.2 save the properties to the client properties file
+		// 1.2 save the properties to the client properties file
 		this.properties.write_properties();
+
+		// 2. Create a new worker thread poll
+		this.workers_thread_poll = Executors.newFixedThreadPool(properties.get_workers());
 
 		// 3. Create a new server database object
 		this.server_db = new Server_DB(this.properties.get_posts_database(), this.properties.get_users_database());
@@ -82,12 +71,17 @@ public class Server {
 			System.exit(1);
 		}
 
+
 		try {
 			// 4. Create a new tcp server socket
-			this.tcp_server_socket = new ServerSocket(this.properties.get_tcp_port());
+			this.server_socket = ServerSocketChannel.open();
+			this.server_socket.socket().bind(new InetSocketAddress(this.properties.get_tcp_port()));
+			this.server_socket.configureBlocking(false);
+			this.selector = Selector.open();
+			this.server_socket.register(this.selector, SelectionKey.OP_ACCEPT);
 
 			// 5. Create a new udp server socket
-			this.udp_server_socket = new ServerSocket(this.properties.get_udp_port());
+			// TODO: create a new udp server socket
 
 			// 6. Create a new server RMI object and bind it to the registry
 			Server_RMI server_rmi = new Server_RMI(this);
@@ -102,11 +96,117 @@ public class Server {
 			System.err.println("Server exception: " + e);
 			e.printStackTrace();
 		}
-
-		// 7. Start the welcome thread
-		this.welcome_thread = new Server_welcome_thread(this);
-		this.welcome_thread.start();
 	}
+
+	public void server_welcome_service()
+	{
+		/*
+		 * Welcome_service for the server :
+		 *
+		 * 1. Loop
+		 * 1.1. Wait for a new connection or a new request
+		 * 1.2. If a new connection is accepted, put it in the selector
+		 * 1.3. If a new request is received, add it to the queue of requests to serve
+		 * 1.4. If a client is ready to write, write the response to it
+		 * 2. Close the server socket channel
+		 */
+
+		// 1. Loop
+		while (true) {
+			// 1.1. Wait for a new connection or a new request
+			try {
+				selector.select(1000);
+			} catch (IOException e) {
+				e.printStackTrace();
+				break;
+			}
+
+			// Debug print the number of channel in the selector
+			System.out.println("Number of channels in the selector: " + selector.keys().size());
+
+			Set<SelectionKey> ready_keys = selector.selectedKeys();
+			Iterator<SelectionKey> iterator = ready_keys.iterator();
+
+			while (iterator.hasNext()) {
+				SelectionKey key = iterator.next();
+				iterator.remove();
+				try {
+					// 1.2. If a new connection is accepted, put it in the selector
+					if (key.isAcceptable()) {
+						ServerSocketChannel server_socket = (ServerSocketChannel) key.channel();
+						SocketChannel client = server_socket.accept();
+						client.configureBlocking(false);
+
+						// Debug
+						System.out.println("new client accepted : " + client);
+
+						client.register(selector, SelectionKey.OP_READ);
+					}
+
+					// 1.3. If a new request is received, add it to the queue of requests to serve
+					if (key.isReadable()) {
+						SocketChannel client = (SocketChannel) key.channel();
+
+						// Debug
+						System.out.println("client : " + client + " is ready to read");
+
+						key.interestOps(0);
+
+						workers_thread_poll.submit(new Worker_task(this, selector, key));
+
+						continue;
+					}
+
+					// 1.4. If a client is ready to write, write the response to it
+					if (key.isWritable()) {
+						SocketChannel client = (SocketChannel) key.channel();
+
+						// Debug
+						System.out.println("client : " + client + " is ready to write");
+
+						String echoAnsw= (String) key.attachment();
+						ByteBuffer bbEchoAnsw = ByteBuffer.wrap(echoAnsw.getBytes());
+						client.write(bbEchoAnsw);
+
+						// Debug
+						System.out.println("Server: " + echoAnsw + " inviato al client " + client.getRemoteAddress());
+
+						if (!bbEchoAnsw.hasRemaining()) {
+							bbEchoAnsw.clear();
+							key.interestOps(SelectionKey.OP_READ);
+						}
+					}
+				} catch (IOException e) {
+					key.cancel();
+					try {
+						// Debug
+						System.out.println("client disconnected : " + key.channel());
+
+						key.channel().close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} catch (CancelledKeyException e) {
+					try {
+						// Debug
+						System.out.println("client disconnected : " + key.channel());
+
+						key.channel().close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+
+		// 2. Close the server socket channel
+		try {
+			this.server_socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void save_DB() {
 		/*
 		 * save the server database
@@ -158,94 +258,35 @@ public class Server {
 		server_db.save_DB();
 	}
 
-	public void serve_new_client(Socket client_socket) {
-		workers_thread_poll.submit(new Server_worker(this, client_socket));
-	}
-
-	public String get_properties_toString() {
-		return this.properties.toString();
-	}
-
 	public Server_properties get_properties() {
 		return this.properties;
 	}
 
-	public void add_client(String username, Socket socket)
+	// CConnection_manager methods
+	public void add_client_to_ccm(SocketChannel client)
 	{
 		/*
-		 * add a new client to the list of connected clients
+		 * Add a client to the client connection manager
 		 *
-		 * 1. Add the client to the list of connected clients
-		 *
+		 * 1. Add the client to the client connection manager
 		 */
 
-		// 1. Add the client to the list of connected clients
-		this.clients_manager.put(username,
-				new Client_connection(username, socket.getRemoteSocketAddress().toString(), socket.getPort()));
+		// 1. Add the client to the client connection manager
+		this.connections_manager.add_connection(new CConnection(client));
 	}
 
-	public void remove_client(String username)
+	public SocketChannel get_client_channel(String address)
 	{
 		/*
-		 * remove a client from the list of connected clients
+		 * Get the client channel from the client connection manager
 		 *
-		 * 1. Remove the client from the list of connected clients
-		 *
+		 * 1. Get the client channel from the client connection manager
+		 * 2. Return the client channel
 		 */
 
-		// 1. Remove the client from the list of connected clients
-		this.clients_manager.remove(username);
-	}
-
-	// ConcurrentQueue Interactions
-	public void add_client_to_serve(Client_to_serve client)
-	{
-		/*
-		 * add a new client to the queue of clients to serve
-		 *
-		 * 1. Add the client to the queue of clients to serve
-		 *
-		 */
-
-		// 1. Add the client to the queue of clients to serve
-		this.client_queue.offer(client);
-	}
-
-	public Client_to_serve get_client_to_serve()
-	{
-		/*
-		 * get a client from the queue of clients to serve
-		 *
-		 * 1. Return the client from the queue of clients to serve
-		 */
-
-		// 1. Return the client from the queue of clients to serve
-		return this.client_queue.poll();
-	}
-
-	public void add_response(Response response)
-	{
-		/*
-		 * add a new response to the queue of responses to send
-		 *
-		 * 1. Add the response to the queue of responses to send
-		 *
-		 */
-
-		// 1. Add the response to the queue of responses to send
-		this.response_queue.put(response.get_client_address(), response);
-	}
-
-	public Response get_response(String client_address)
-	{
-		/*
-		 * get a response from the queue of responses to send
-		 *
-		 * 1. Return the response from the queue of responses to send
-		 */
-
-		// 1. Return the response from the queue of responses to send
-		return this.response_queue.remove(client_address);
+		// 1. Get the client channel from the client connection manager
+		// 2. Return the client channel
+		return this.connections_manager.get_connection(address).get_socket_channel();
 	}
 
 	// Client Interactions
@@ -258,58 +299,6 @@ public class Server {
 		 */
 
 		return this.server_db.add_user(username, password, tags);
-	}
-
-	public WinsomeMessage login_user(String username, String password) {
-		/*
-		  login a user
-
-		  1. check if username exists
-		  2. if yes, check if password is correct
-		  3. check if user is already logged in ( is in the clients list )
-		  4. return the confirmation message
-		 */
-
-		// 1. check if username exists
-		if (server_db.user_exists(username)) {
-			// 2. if yes, check if password is correct
-			if (server_db.user_check_password(username, password)) {
-				// 3. check if user is already logged in ( is in the clients list )
-				if (this.clients_manager.containsKey(username)) {
-					return new WinsomeMessage(new Winsome_Confirmation("UserAlreadyLoggedIn", false));
-				}
-				// 4. return the confirmation message
-				return new WinsomeMessage(new Winsome_Confirmation("Success", true));
-			}
-
-			return new WinsomeMessage(new Winsome_Confirmation("Wrong password", false));
-		}
-
-		return new WinsomeMessage(new Winsome_Confirmation("UserNotFound", false));
-	}
-
-	public void logout_user(String username) {
-		/*
-		  logout a user
-
-		  1. check if username exists
-		  2. if yes, check if user is logged in
-		  3. if yes, logout user
-		  4. return 0 if success, -1 if username does not exist, -2 if user is not logged in
-		 */
-
-//		// 1. check if username exists
-//		User user = server_db.get_user(username);
-//
-//		if (user == null) {
-//			return -1;
-//		}
-
-		// 2. if yes, check if user is logged in
-		// TODO
-
-		// 3. if yes, logout user
-		// TODO
 	}
 
 }

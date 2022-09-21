@@ -1,6 +1,8 @@
 package winsome_server;
 
-public class Client_connection {
+import java.nio.channels.SocketChannel;
+
+public class CConnection {
 	/*
 	 * This class is used to store the information of a client connection
 	 * the server is connected to a client through a socket
@@ -17,29 +19,33 @@ public class Client_connection {
 	 */
 
 	// member variables
+	private final SocketChannel socket_channel;
+
 	private String username;
-	private String ip_address;
-	private int port;
 
 	// constructor
-	public Client_connection(String username, String ip_address, int port) {
-		this.username = username;
-		this.ip_address = ip_address;
-		this.port = port;
+	public CConnection(SocketChannel socket_channel) {
+		this.socket_channel = socket_channel;
 	}
 
 	// getters
-	public String getUsername() {
-		return username;
+	public SocketChannel get_socket_channel() {
+		return this.socket_channel;
 	}
-	public String getIp_address() {
-		return ip_address;
+	public String get_username() {
+		return this.username;
 	}
-	public int getPort() {
-		return port;
+	public String get_ip_address() {
+		return this.socket_channel.socket().getInetAddress().getHostAddress();
+	}
+	public int get_port() {
+		return this.socket_channel.socket().getPort();
 	}
 
-	// setters // not used
+	// setters
+	public void set_username(String username) {
+		this.username = username;
+	}
 
 	// methods
 	public void update_wallet(float amount) {
@@ -51,7 +57,5 @@ public class Client_connection {
 	public void follower_left(String username) {
 		// TODO
 	}
-	public void close_connection() {
-		// TODO
-	}
+
 }

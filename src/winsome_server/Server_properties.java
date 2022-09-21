@@ -22,6 +22,7 @@ public class Server_properties {
      * 8. MULTICAST_ADDRESS=<multicast_address> (no default value)
      * 9. MULTICAST_PORT=<multicast_port> (default: 8000)
      * 10. TIME_OUT=<time_out> (default: 1000)
+     * 11. WORKERS=<number of worker threads> (default: 10)
      *
      * the properties are stored in a HashMap<String, String>
      *
@@ -121,6 +122,16 @@ public class Server_properties {
 			return 1000;
 		}
 	}
+	public int get_workers() {
+		/*
+		 * return the number of worker threads if it exists, otherwise return the default value
+		 */
+		if (this.properties.containsKey("WORKERS")) {
+			return Integer.parseInt(this.properties.get("WORKERS"));
+		} else {
+			return 10;
+		}
+	}
 
 	// setters
 	public void set_server_address(String server_address) {
@@ -194,6 +205,7 @@ public class Server_properties {
 		properties.put("RMI_NAME", "Server_registration_RMI");
 		properties.put("MULTICAST_PORT", "8000");
 		properties.put("TIME_OUT", "1000");
+		properties.put("WORKERS", "10");
 
 		// write the properties to the file
 		write_properties();

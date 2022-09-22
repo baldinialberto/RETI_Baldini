@@ -1,6 +1,6 @@
 package winsome_server;
 
-import winsome_comunication.WinStringArray;
+import winsome_comunication.Win_message;
 
 import java.io.IOException;
 import java.net.*;
@@ -12,7 +12,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -166,19 +165,13 @@ public class Server {
 						// Debug
 						System.out.println("client : " + client + " is ready to write");
 
-						ByteBuffer bbEchoAnsw = (ByteBuffer) key.attachment();;
-						client.write(bbEchoAnsw);
-
-						WinStringArray winStringArray = new WinStringArray();
-						winStringArray.deserialize(bbEchoAnsw.array());
+						Win_message win_message = (Win_message) key.attachment();
+						win_message.send(client);
 
 						// Debug
-						System.out.println("Server: " + winStringArray + " inviato al client " + client.getRemoteAddress());
+						System.out.println("Server: " + win_message + " inviato al client " + client.getRemoteAddress());
 
-						if (!bbEchoAnsw.hasRemaining()) {
-							bbEchoAnsw.clear();
-							key.interestOps(SelectionKey.OP_READ);
-						}
+						key.interestOps(SelectionKey.OP_READ);
 					}
 				} catch (IOException e) {
 					key.cancel();

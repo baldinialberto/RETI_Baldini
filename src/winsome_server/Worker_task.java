@@ -1,6 +1,6 @@
 package winsome_server;
 
-import winsome_comunication.WinStringArray;
+import winsome_comunication.Win_message;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,14 +43,9 @@ public class Worker_task implements Runnable {
          * the first message from the client is an array of strings
          */
         SocketChannel socket_channel = (SocketChannel) selection_key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+
         try {
-            StringBuilder message = new StringBuilder();
-            while (socket_channel.read(buffer) > 0) {
-                buffer.flip();
-                message.append(new String(buffer.array(), 0, buffer.limit()));
-                buffer.clear();
-            }
+            Win_message message = Win_message.receive(socket_channel);
 
             // 2. process the message
             if (message.toString().equals("")) {
@@ -67,19 +62,18 @@ public class Worker_task implements Runnable {
                 selection_key.cancel();
                 return;
             }
-            WinStringArray response = process_message(message.toString());
-            ByteBuffer byte_buffer = ByteBuffer.wrap(response.serialize());
+            Win_message response = process_message(message.toString());
 
             // 3. put the answer into the buffer + // 4. register the key as writable
-            socket_channel.register(selector, SelectionKey.OP_WRITE, byte_buffer);
+            socket_channel.register(selector, SelectionKey.OP_WRITE, response);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public WinStringArray process_message(String request) {
+    public Win_message process_message(String request) {
         // TODO
-        return new WinStringArray(Collections.singletonList("test"));
+        return new Win_message(Collections.singletonList("test"));
     }
 }

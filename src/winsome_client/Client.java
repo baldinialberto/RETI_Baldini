@@ -1,13 +1,12 @@
 package winsome_client;
 
-import winsome_comunication.WinStringArray;
+import winsome_comunication.Win_message;
 import winsome_server.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
@@ -86,9 +85,15 @@ public class Client {
 			 socket_channel = SocketChannel.open(
 					new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port()));
 			// 3. If the connection is established, set _connected to true
+			while (!socket_channel.finishConnect()) {
+				// wait for connection to finish (1 second)
+				Thread.sleep(1000);
+			}
 			connected = true;
 		} catch (IOException e) {
 			throw new IOException(e);
+		} catch (InterruptedException e) {
+			System.out.println("Connection interrupted");
 		}
 	}
 
@@ -183,35 +188,21 @@ public class Client {
 			// 1. Connect to server
 			if (!connected) connect();
 
-			List<String> request = new ArrayList<>();
-			request.add("login");
-			request.add(username);
-			request.add(password);
-			WinStringArray wsa = new WinStringArray(request);
-			byte[] request_bytes = wsa.serialize();
+			Win_message login_request = new Win_message();
+
+			login_request.addString("login");
+			login_request.addString(username);
+			login_request.addString(password);
+
 
 			// 2. Send login request to server
-			ByteBuffer buffer = ByteBuffer.wrap(request_bytes);
+			login_request.send(socket_channel);
 
-			socket_channel.write(buffer);
-			buffer.clear();
-
-			// 3. Receive login response from server
-			ByteBuffer reply = ByteBuffer.allocate(1024);
-
-			socket_channel.read(reply);
-			reply.flip();
-
-			byte[] response_bytes = new byte[reply.limit()];
-			reply.get(response_bytes);
-			reply.clear();
-
-			WinStringArray response = new WinStringArray();
-
-			response.deserialize(response_bytes);
+			// 3. Receive login response from server of unknown size
+			Win_message login_response = Win_message.receive(socket_channel);
 
 			// DEBUG
-			System.out.println("response: " + response);
+			System.out.println("response: " + login_response);
 
 		} catch (IOException e) {
 			e.printStackTrace();

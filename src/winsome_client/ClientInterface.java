@@ -137,9 +137,16 @@ public class ClientInterface {
 		// 2. call the logout method of the client
 		try
 		{
-			client.logout();
-			// 3. print the result
-			System.out.println("logout command : User " + client.get_username() + " logged out");
+			String username = client.get_username();
+			if (client.logout() == 0)
+			{
+				// 3. print the result
+				System.out.println("logout command : User " + username + " logged out");
+			}
+			else
+			{
+				System.out.println("logout command : User " + username + " not logged out");
+			}
 		}
 		catch (Exception e)
 		{

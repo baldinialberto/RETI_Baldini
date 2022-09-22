@@ -48,14 +48,7 @@ public class Worker_task implements Runnable {
             Win_message message = Win_message.receive(socket_channel);
 
             // 2. process the message
-            if (message.toString().equals("")) {
-                // the client has closed the connection
-                // close the connection
-                socket_channel.close();
-                selection_key.cancel();
-                return;
-            }
-            if (message.toString().equals("exit")) {
+            if (message.getString(0).equals(Win_message.EXIT)) {
                 // the client has closed the connection
                 // close the connection
                 socket_channel.close();

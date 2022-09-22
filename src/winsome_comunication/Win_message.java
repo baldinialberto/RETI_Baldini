@@ -10,6 +10,7 @@ import java.util.List;
 public class Win_message {
 	public final static String ERROR = "ERROR";
 	public final static String SUCCESS = "SUCCESS";
+	public final static String EXIT = "EXIT";
 	private final List<String> message = new ArrayList<>();
 	byte[] bytes;
 	boolean serialized = false;

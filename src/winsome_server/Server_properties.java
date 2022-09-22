@@ -82,13 +82,13 @@ public class Server_properties {
 		/*
 		 * return the users database name if it exists, otherwise return the default value
 		 */
-		return this.properties.getOrDefault("USERS_DATABASE", "users.json");
+		return this.properties.getOrDefault("USERS_DATABASE", "users_backup.json");
 	}
 	public String get_posts_database() {
 		/*
 		 * return the posts database name if it exists, otherwise return the default value
 		 */
-		return this.properties.getOrDefault("POSTS_DATABASE", "posts.json");
+		return this.properties.getOrDefault("POSTS_DATABASE", "posts_backup.json");
 	}
 	public String get_rmi_name() {
 		/*
@@ -200,8 +200,8 @@ public class Server_properties {
 		properties.put("TCP_PORT", "8080");
 		properties.put("UDP_PORT", "8070");
 		properties.put("REGISTRY_PORT", "1099");
-		properties.put("USERS_DATABASE", "users.json");
-		properties.put("POSTS_DATABASE", "posts.json");
+		properties.put("USERS_DATABASE", "users_backup.json");
+		properties.put("POSTS_DATABASE", "posts_backup.json");
 		properties.put("RMI_NAME", "Server_registration_RMI");
 		properties.put("MULTICAST_PORT", "8000");
 		properties.put("TIME_OUT", "1000");

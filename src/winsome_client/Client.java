@@ -54,7 +54,7 @@ public class Client {
 	}
 
 	public String get_username() {
-		return user.getUsername();
+		return user;
 	}
 
 	public boolean isLogged() {
@@ -102,6 +102,10 @@ public class Client {
 
 		if (!connected)
 			return;
+
+		Win_message message = new Win_message();
+		message.addString(Win_message.EXIT);
+		message.send(socket_channel);
 
 		connected = false;
 		user = null;
@@ -204,11 +208,13 @@ public class Client {
 			{
 				logged = true;
 				this.user = username;
+				return 0;
 			} else if (login_response.getString(0).equals(Win_message.ERROR))
 			{
 				logged = false;
 				this.user = null;
 				System.out.println("Login failed : " + login_response.getString(1));
+				return -1;
 			}
 
 		} catch (IOException e) {
@@ -223,7 +229,7 @@ public class Client {
 	 *
 	 * @throws NullPointerException
 	 */
-	public void logout()
+	public int logout()
 			throws NullPointerException {
 		/*
 		 * logout from server
@@ -238,20 +244,24 @@ public class Client {
 
 		System.out.println("logout");
 
-		if (!connected) return;
+		if (!connected) {
+			System.out.println("Not connected");
+			return -1;
+		}
 
 		try {
 			// 1. Send logout request to server
 			Win_message logout_request = new Win_message();
 			logout_request.addString("logout");
+			logout_request.send(socket_channel);
 
 			// 2. Receive logout response from server
 			Win_message logout_response = Win_message.receive(socket_channel);
 
 			// 3. If logout is successful, set _logged to false
-			if (!logout_response.getString(0).equals("success")) {
-				System.out.println("Logout failed");
-				return;
+			if (!logout_response.getString(0).equals(Win_message.SUCCESS)) {
+				System.out.println("Logout failed : " + logout_response.getString(1));
+				return -1;
 			}
 
 			logged = false;
@@ -259,10 +269,13 @@ public class Client {
 			//4. Disconnect from server
 			disconnect();
 
+			return 0;
+
 		} catch (Exception e) {
 			e.printStackTrace();
-//            throw new RuntimeException(e);
 		}
+
+		return -1;
 	}
 
 	/**
@@ -516,11 +529,7 @@ public class Client {
 	}
 
 	public void exit() {
-//        try {
-//            disconnect();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+		logout();
 		_on = false;
 	}
 

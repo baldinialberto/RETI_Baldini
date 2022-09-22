@@ -28,7 +28,6 @@ public class Server {
 	private final CConnections_Manager connections_manager = new CConnections_Manager();
 	// Client addresses
 	private final ConcurrentHashMap<String, String> client_addresses = new ConcurrentHashMap<>();
-	// Client messages
 
 
 	// constructor
@@ -312,7 +311,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is already logged in
-		if (this.client_addresses.contains(address)) {
+		if (this.client_addresses.contains(username)) {
 			// 2. If the user is already logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User already logged in");
@@ -351,10 +350,10 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.contains(address)) {
+		if (!this.client_addresses.containsKey(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
-			result.addString("User not logged in");
+			result.addString("User not logged in with this address");
 			return result;
 		}
 

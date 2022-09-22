@@ -74,6 +74,8 @@ public class Worker_task implements Runnable {
 
     public Win_message process_message(String request) {
         // TODO
-        return new Win_message(Collections.singletonList("test"));
+        Win_message response = new Win_message(Collections.singletonList("response"));
+        response.addString("Login_success");
+        return response;
     }
 }

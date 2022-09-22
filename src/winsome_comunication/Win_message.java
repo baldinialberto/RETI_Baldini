@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Win_message {
+	public final static String ERROR = "ERROR";
+	public final static String SUCCESS = "SUCCESS";
 	private final List<String> message = new ArrayList<>();
 	byte[] bytes;
 	boolean serialized = false;

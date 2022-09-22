@@ -4,7 +4,6 @@ import winsome_comunication.Win_message;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -287,7 +286,7 @@ public class Server {
 	}
 
 	// Client Interactions
-	public int register_user(String username, String password, String[] tags) {
+	public int register_request(String username, String password, String[] tags) {
 		/*
 		  register a new user
 
@@ -296,6 +295,78 @@ public class Server {
 		 */
 
 		return this.server_db.add_user(username, password, tags);
+	}
+
+	public Win_message login_request(String username, String password, String address)
+	{
+		/*
+		 * Login a user
+		 *
+		 * 1. Check if the user is already logged in
+		 * 2. If the user is already logged in, return an error message
+		 * 3. If the user is not logged in, check if the username and password are correct
+		 * 4. If the username and password are correct, add the user to the logged in users
+		 * 5. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is already logged in
+		if (this.client_addresses.contains(address)) {
+			// 2. If the user is already logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User already logged in");
+			return result;
+		}
+
+		// 3. If the user is not logged in, check if the username and password are correct
+		if (this.server_db.user_check_password(username, password)) {
+			// 4. If the username and password are correct, add the user to the logged in users
+			this.client_addresses.put(address, username);
+
+			// DEBUG
+			System.out.println("User " + username + " logged in from " + address);
+
+			// 5. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 5. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Wrong username or password");
+		}
+		return result;
+	}
+
+	public Win_message logout_request(String address)
+	{
+		/*
+		 * Logout a user
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, remove the user from the logged in users
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.contains(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in");
+			return result;
+		}
+
+		// 3. If the user is logged in, remove the user from the logged in users
+		this.client_addresses.remove(address);
+
+		// DEBUG
+		System.out.println("User " + this.client_addresses.get(address) + " logged out from " + address);
+
+		// 4. Return the result
+		result.addString(Win_message.SUCCESS);
+		return result;
 	}
 
 }

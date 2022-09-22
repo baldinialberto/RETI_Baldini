@@ -22,7 +22,7 @@ public class Client {
 
 	SocketChannel socket_channel;
 	private RMI_registration_int remote_registration_result;
-	private User user;
+	private String user;
 	private boolean _on = false;
 	private boolean connected = false;
 	private boolean logged = false;
@@ -33,8 +33,7 @@ public class Client {
 		 *
 		 * 1. load server properties
 		 * 2. create client interface
-		 * 3. set state on = true
-		 * 4. connect to server's RMI
+		 * 3. connect to server's RMI
 		 */
 
 		// 1. load server properties
@@ -43,15 +42,14 @@ public class Client {
 		// 2. create client interface
 		c_interface = new ClientInterface(this);
 
-		// 3. set state on = true
-		_on = true;
-
-		// 4. connect to server's RMI
+		// 3. connect to server's RMI
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
 			remote_registration_result = (RMI_registration_int) r.lookup(properties.get_rmi_name());
-		} catch (Exception e) {
-			e.printStackTrace();
+			_on = true;
+		}
+		catch (Exception e) {
+			System.err.println("Client exception: " + e);
 		}
 	}
 
@@ -80,20 +78,16 @@ public class Client {
 		 * connect to server
 		 *
 		 */
+		if (connected) {
+			return;
+		}
 
 		try {
 			 socket_channel = SocketChannel.open(
 					new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port()));
-			// 3. If the connection is established, set _connected to true
-			while (!socket_channel.finishConnect()) {
-				// wait for connection to finish (1 second)
-				Thread.sleep(1000);
-			}
 			connected = true;
 		} catch (IOException e) {
 			throw new IOException(e);
-		} catch (InterruptedException e) {
-			System.out.println("Connection interrupted");
 		}
 	}
 
@@ -109,8 +103,9 @@ public class Client {
 		if (!connected)
 			return;
 
-		socket.close();
 		connected = false;
+		user = null;
+		socket_channel.close();
 	}
 
 	/**
@@ -204,6 +199,18 @@ public class Client {
 			// DEBUG
 			System.out.println("response: " + login_response);
 
+			// 4. If login is successful, set _logged to true
+			if (login_response.getString(0).equals(Win_message.SUCCESS))
+			{
+				logged = true;
+				this.user = username;
+			} else if (login_response.getString(0).equals(Win_message.ERROR))
+			{
+				logged = false;
+				this.user = null;
+				System.out.println("Login failed : " + login_response.getString(1));
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -231,25 +238,26 @@ public class Client {
 
 		System.out.println("logout");
 
+		if (!connected) return;
+
 		try {
 			// 1. Send logout request to server
-			OutputStream out = socket.getOutputStream();
-			out.write("logout\n".getBytes());
+			Win_message logout_request = new Win_message();
+			logout_request.addString("logout");
 
 			// 2. Receive logout response from server
-			// TODO
+			Win_message logout_response = Win_message.receive(socket_channel);
 
 			// 3. If logout is successful, set _logged to false
+			if (!logout_response.getString(0).equals("success")) {
+				System.out.println("Logout failed");
+				return;
+			}
+
 			logged = false;
 
 			//4. Disconnect from server
 			disconnect();
-
-			//5. Set user to null
-			user = null;
-
-			//6. set _connected to false
-			connected = false;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -504,7 +512,7 @@ public class Client {
 		if (user == null) {
 			throw new Winsome_exceptions.UserNotLogged();
 		}
-		return new Comment(this.user.getUsername(), comment);
+		return null;//new Comment(this.user.getUsername(), comment);
 	}
 
 	public void exit() {

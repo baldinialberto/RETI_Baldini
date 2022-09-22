@@ -62,7 +62,10 @@ public class Worker_task implements Runnable {
                 selection_key.cancel();
                 return;
             }
-            Win_message response = process_message(message.toString());
+            Win_message response = process_message(
+                    message.getStringsArray(),
+                    socket_channel.getRemoteAddress().toString()
+            );
 
             // 3. put the answer into the buffer + // 4. register the key as writable
             socket_channel.register(selector, SelectionKey.OP_WRITE, response);
@@ -72,10 +75,53 @@ public class Worker_task implements Runnable {
         }
     }
 
-    public Win_message process_message(String request) {
-        // TODO
-        Win_message response = new Win_message(Collections.singletonList("response"));
-        response.addString("Login_success");
+    public Win_message process_message(String[] request, String address) {
+        /*
+         * This method will process the request and return the response
+         *
+         * 1. parse the request
+         * 2. process the request
+         * 3. return the response
+         */
+
+        /* 1. parse the request (an array of strings)
+         * the first string is the type of the request
+         * the rest of the strings are the parameters of the request
+         * the type must be one of the following:
+         * 1. login
+         * 2. logout
+         * 3. ...
+         *
+         * If the type is not one of the above, an error message will be returned
+         */
+        Win_message response = new Win_message();
+        String type = request[0];
+        String[] parameters = new String[request.length - 1];
+        System.arraycopy(request, 1, parameters, 0, request.length - 1);
+
+        /* 2. process the request
+         * the request will be processed by the server
+         * the server will return a response
+         */
+
+        // 2.1 login
+        if (type.equals("login")) {
+            // the request is a login request
+            // the parameters are username and password
+            // the response will be a string "success" or "error, reason"
+            String username = parameters[0];
+            String password = parameters[1];
+            response = this.server.login_request(username, password, address);
+        }
+        // 2.2 logout
+        else if (type.equals("logout")) {
+            // the request is a logout request
+            // no parameters are provided by the client
+            // the response will be a string "success" or "error, reason"
+            response = this.server.logout_request(address);
+        }
+
+        // 3. return the response
         return response;
     }
 }

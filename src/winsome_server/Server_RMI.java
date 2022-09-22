@@ -15,7 +15,7 @@ public class Server_RMI extends RemoteObject implements RMI_registration_int {
 	public int registerUser(String username, String password, String[] tags) throws RemoteException {
 		int res;
 		synchronized (server) {
-			res =  server.register_user(username, password, tags);
+			res =  server.register_request(username, password, tags);
 		}
 		return res;
 	}

@@ -3,11 +3,9 @@ package winsome_server;
 import winsome_comunication.Win_message;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
 
 public class Worker_task implements Runnable {
     // member variables
@@ -83,7 +81,8 @@ public class Worker_task implements Runnable {
          * the type must be one of the following:
          * 1. login
          * 2. logout
-         * 3. ...
+         * 3. list_users
+         * 4. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -112,6 +111,13 @@ public class Worker_task implements Runnable {
             // no parameters are provided by the client
             // the response will be a string "success" or "error, reason"
             response = this.server.logout_request(address);
+        }
+        // 2.3 list_users
+        else if (type.equals("list_users")) {
+            // the request is a list_users request
+            // no parameters are provided by the client
+            // the response will be a string "success" or "error, reason"
+            response = this.server.list_users_request(address);
         }
 
         // 3. return the response

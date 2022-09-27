@@ -356,7 +356,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message listUsers_request(String address)
+	public Win_message list_users_request(String address)
 	{
 		/*
 		 * List all the users

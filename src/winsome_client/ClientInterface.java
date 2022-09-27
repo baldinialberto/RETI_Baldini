@@ -37,7 +37,7 @@ public class ClientInterface {
 		for (Method m : methods) {
 			// the method is inserted only if "_command" is present in the name
 			if (m.getName().contains("_command")) {
-				commands.put(m.getName().split("_")[0], m);
+				commands.put(m.getName().replace("_command", ""), m);
 			}
 		}
 	}
@@ -735,20 +735,20 @@ public class ClientInterface {
 		// if the first token is "list" or "show" then the command is composed of 2 tokens
 		// otherwise the command is composed of 1 token
 
-		if (tokens[0].equals("list") || tokens[0].equals("show")) {
-			if (tokens.length != 2) {
-				System.out.println("Invalid command");
-				return;
-			}
-		} else {
-			if (tokens.length != 1) {
+
+		boolean composed = tokens[0].equals("list") || tokens[0].equals("show");
+		if (composed) {
+			if (tokens.length < 2) {
 				System.out.println("Invalid command");
 				return;
 			}
 		}
 
-		boolean composed = tokens[0].equals("list") || tokens[0].equals("show");
 		String command = composed ? tokens[0] + "_" + tokens[1] : tokens[0];
+
+		// DEBUG
+//		System.out.println("Command: " + command);
+//		System.out.println("Commands available: " + commands.keySet());
 
 		// check if the command is valid (i.e. it is in the commands map)
 		if (commands.containsKey(command)) {

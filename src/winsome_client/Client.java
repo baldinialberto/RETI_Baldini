@@ -308,14 +308,20 @@ public class Client {
 		try {
 			// 1. Send list users request to server
 			Win_message list_users_request = new Win_message();
-			list_users_request.addString("list users");
+			list_users_request.addString("list_users");
 			list_users_request.send(socket_channel);
 
 			// 2. Receive list users response from server
 			Win_message list_users_response = Win_message.receive(socket_channel);
 
-			// 3. Return the list of users
-			return list_users_response.getStrings();
+			// check if the response is an error
+			if (list_users_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("List users failed : " + list_users_response.getString(1));
+				return null;
+			} else if (list_users_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. Return the list of users
+				return list_users_response.getStrings().subList(1, list_users_response.getStrings().size());
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

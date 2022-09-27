@@ -755,8 +755,8 @@ public class ClientInterface {
 		String command = composed ? tokens[0] + "_" + tokens[1] : tokens[0];
 
 		// DEBUG
-//		System.out.println("Command: " + command);
-//		System.out.println("Commands available: " + commands.keySet());
+		// System.out.println("Command: " + command);
+		// System.out.println("Commands available: " + commands.keySet());
 
 		// check if the command is valid (i.e. it is in the commands map)
 		if (commands.containsKey(command)) {

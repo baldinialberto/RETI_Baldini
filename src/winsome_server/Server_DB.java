@@ -2,6 +2,7 @@ package winsome_server;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class Server_DB {
 	// Member variables
@@ -9,6 +10,55 @@ public class Server_DB {
 	User_collection users;
 	final String posts_file_path;
 	final String users_file_path;
+
+	// public constants
+	public enum DB_ERROR_CODE {
+		SUCCESS(0),
+		USR_NOT_FOUND(-1),
+		USR_ALREADY_EXISTS(-2),
+
+		USR_ALREADY_FOLLOWING(-3);
+
+		private final int value;
+
+		DB_ERROR_CODE(int value) {
+			this.value = value;
+		}
+
+		public static Optional<DB_ERROR_CODE> valueOf(int value) {
+			// DEBUG
+			System.out.println("DB_ERROR_CODE: valueOf: " + value);
+
+			for (DB_ERROR_CODE code : DB_ERROR_CODE.values()) {
+				if (code.value == value) {
+					return Optional.of(code);
+				}
+			}
+			return Optional.empty();
+		}
+
+		public int getValue() {
+			return value;
+		}
+		public static String getStringOf(DB_ERROR_CODE code) {
+			switch (code) {
+				case SUCCESS:
+					return "NO_ERROR";
+				case USR_NOT_FOUND:
+					return "USERNAME NOT FOUND";
+				case USR_ALREADY_EXISTS:
+					return "USERNAME ALREADY EXISTS";
+				case USR_ALREADY_FOLLOWING:
+					return "USERNAME ALREADY FOLLOWING";
+				default:
+					return "UNKNOWN_ERROR";
+			}
+		}
+		public static String getStringOf(int value) {
+			Optional<DB_ERROR_CODE> code = DB_ERROR_CODE.valueOf(value);
+			return code.map(DB_ERROR_CODE::getStringOf).orElse("UNKNOWN_ERROR");
+		}
+	}
 
 	// Constructor
 	public Server_DB(String posts_file_path, String users_file_path) {

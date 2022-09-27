@@ -385,6 +385,8 @@ public class Client {
 		 * 4. Return true
 		 */
 
+		System.out.println("follow user " + idUser);
+
 		if (!connected) {
 			System.out.println("Not connected");
 			return false;
@@ -438,6 +440,8 @@ public class Client {
 		 * 3. If unfollow user is successful, remove idUser from following list
 		 * 4. Return true
 		 */
+
+		System.out.println("unfollow user " + idUser);
 
 		if (!connected) {
 			System.out.println("Not connected");

@@ -34,6 +34,8 @@ public class User implements JSON_Serializable {
 		 * 3. Set the tags of this user.
 		 * 4. Create a new wallet for this user.
 		 * 5. Create a new list of posts for this user.
+		 * 6. Create a new list of following for this user.
+		 * 7. Create a new list of followers for this user.
 		 */
 
 		// 1. Set the username of this user.
@@ -50,6 +52,12 @@ public class User implements JSON_Serializable {
 
 		// 5. Create a new list of posts for this user.
 		this.posts = new ArrayList<>();
+
+		// 6. Create a new list of following for this user.
+		this.following = new ArrayList<>();
+
+		// 7. Create a new list of followers for this user.
+		this.followers = new ArrayList<>();
 	}
 
 	// Jackson constructor

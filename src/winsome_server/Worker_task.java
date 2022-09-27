@@ -45,6 +45,9 @@ public class Worker_task implements Runnable {
         try {
             Win_message message = Win_message.receive(socket_channel);
 
+            // DEBUG
+            System.out.println("Received message: " + message);
+
             // 2. process the message
             if (message.getString(0).equals(Win_message.EXIT)) {
                 // the client has closed the connection
@@ -94,48 +97,62 @@ public class Worker_task implements Runnable {
         System.arraycopy(request, 1, parameters, 0, request.length - 1);
 
         /* 2. process the request
-         * the request will be processed by the server
-         * the server will return a response
+         * will be processed by the server that return a response
          */
 
         // 2.1 login
-        if (type.equals("login")) {
-            // the request is a login request
-            // the parameters are username and password
-            // the response will be a string "success" or "error, reason"
-            String username = parameters[0];
-            String password = parameters[1];
-            response = this.server.login_request(username, password, address);
-        }
-        // 2.2 logout
-        else if (type.equals("logout")) {
-            // the request is a logout request
-            // no parameters are provided by the client
-            // the response will be a string "success" or "error, reason"
-            response = this.server.logout_request(address);
-        }
-        // 2.3 list_users
-        else if (type.equals("list_users")) {
-            // the request is a list_users request
-            // no parameters are provided by the client
-            // the response will be a string "success" or "error, reason"
-            response = this.server.list_users_request(address);
-        }
-        // 2.4 follow
-        else if (type.equals("follow")) {
-            // the request is a follow request
-            // the parameter is the username of the user to follow
-            // the response will be a string "success" or "error, reason"
-            String username = parameters[0];
-            response = this.server.follow_request(username, address);
-        }
-        // 2.5 unfollow
-        else if (type.equals("unfollow")) {
-            // the request is an unfollow request
-            // the parameters is the username of the user to unfollow
-            // the response will be a string "success" or "error, reason"
-            String username = parameters[0];
-            response = this.server.unfollow_request(username, address);
+        switch (type) {
+            case "login":
+                // the request is a login request
+                // the parameters are username and password
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the username
+                // parameters[1] is the password
+
+                response = this.server.login_request(parameters[0], parameters[1], address);
+                break;
+            // 2.2 logout
+            case "logout":
+                // the request is a logout request
+                // no parameters are provided by the client
+                // the response will be a string "success" or "error, reason"
+                response = this.server.logout_request(address);
+                break;
+
+            // 2.3 list_users
+            case "list_users":
+                // the request is a list_users request
+                // no parameters are provided by the client
+                // the response will be a string "success" or "error, reason"
+                response = this.server.list_users_request(address);
+                break;
+            // 2.4 follow
+            case "follow":
+                // the request is a follow request
+                // the parameter is the username of the user to follow
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the username of the user to follow
+
+                response = this.server.follow_request(parameters[0], address);
+                break;
+            // 2.5 unfollow
+            case "unfollow":
+                // the request is an unfollow request
+                // the parameters is the username of the user to unfollow
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the username of the user to unfollow
+
+                response = this.server.unfollow_request(parameters[0], address);
+                break;
+            default:
+                // the request is not valid
+                // the response will be a string "error, reason"
+                response.addString(Win_message.ERROR);
+                response.addString("Invalid request");
+                break;
         }
 
         // 3. return the response

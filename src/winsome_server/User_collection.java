@@ -151,19 +151,22 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		 * 6. Return 0.
 		 */
 
+		// DEBUG
+		System.out.println("follow_username: " + user + " " + username_to_follow + " start");
+
 		// 1. Check if the user is in the user collection.
 		if (!this.containsKey(user)) {
-			return -1;
+			return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
 		}
 
 		// 2. Check if the user to follow is in the user collection.
 		if (!this.containsKey(username_to_follow)) {
-			return -1;
+			return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
 		}
 
 		// 3. Check if the user is already following the user to follow.
 		if (this.get(user).getFollowing().contains(username_to_follow)) {
-			return -1;
+			return Server_DB.DB_ERROR_CODE.USR_ALREADY_FOLLOWING.getValue();
 		}
 
 		// 4. Add the user to follow to the user's following list.
@@ -172,8 +175,11 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		// 5. Add the user to the user to follow's followers list.
 		this.get(username_to_follow).add_follower(user);
 
+		// DEBUG
+		System.out.println("follow_username: " + user + " " + username_to_follow + " end");
+
 		// 6. Return 0.
-		return 0;
+		return Server_DB.DB_ERROR_CODE.SUCCESS.getValue();
 	}
 
 	public int unfollow_username(String user, String username_to_unfollow)

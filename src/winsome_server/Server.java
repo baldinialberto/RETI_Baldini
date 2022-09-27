@@ -9,6 +9,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -405,13 +406,14 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to follow the user
-		if (this.server_db.follow_username(this.client_addresses.get(address), username) == 0) {
+		int res = this.server_db.follow_username(this.client_addresses.get(address), username);
+		if (res == Server_DB.DB_ERROR_CODE.SUCCESS.ordinal()) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
-			result.addString("User not found");
+			result.addString(Server_DB.DB_ERROR_CODE.getStringOf(res));
 		}
 
 		return result;

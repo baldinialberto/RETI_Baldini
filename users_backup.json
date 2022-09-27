@@ -9,8 +9,8 @@
       "transactions" : [ ]
     },
     "posts" : [ ],
-    "following" : null,
-    "followers" : null
+    "following" : [ "pippo", "pluto" ],
+    "followers" : [ "pippo" ]
   },
   "pluto" : {
     "username" : "pluto",
@@ -22,8 +22,8 @@
       "transactions" : [ ]
     },
     "posts" : [ ],
-    "following" : null,
-    "followers" : null
+    "following" : [ ],
+    "followers" : [ "topolino" ]
   },
   "pippo" : {
     "username" : "pippo",
@@ -35,7 +35,7 @@
       "transactions" : [ ]
     },
     "posts" : [ ],
-    "following" : null,
-    "followers" : null
+    "following" : [ "topolino" ],
+    "followers" : [ "topolino" ]
   }
 }

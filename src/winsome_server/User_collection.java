@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User_collection extends ConcurrentHashMap<String, User> implements JSON_Serializable {
@@ -90,6 +92,45 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 
 		// 3. If the user collection does not contain the user, return -1.
 		return -1;
+	}
+
+	public List<String> users_with_common_tags(String username)
+	{
+		/*
+		 * This method is used to get the usernames that have at least one tag in common with the user.
+		 *
+		 * 1. Get the user.
+		 * 2. Get the tags of the user.
+		 * 3. Create a list of usernames that have at least one tag in common with the user.
+		 * 4. Return the list of usernames.
+		 */
+
+		// 1. Get the user.
+		User user = this.get(username);
+		if (user == null) {
+			return new ArrayList<>();
+		}
+
+		// 2. Get the tags of the user.
+		String[] tags = user.getTags();
+
+		// 3. Create a list of usernames that have at least one tag in common with the user.
+		List<String> usernames = new ArrayList<>();
+		for (User u : this.values()) {
+			if (u.getUsername().equals(username)) {
+				continue;
+			}
+
+			for (String tag : tags) {
+				if (Arrays.asList(u.getTags()).contains(tag)) {
+					usernames.add(u.getUsername());
+					break;
+				}
+			}
+		}
+
+		// 4. Return the list of usernames.
+		return usernames;
 	}
 
 	// Other methods

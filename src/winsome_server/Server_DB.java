@@ -1,6 +1,7 @@
 package winsome_server;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Server_DB {
 	// Member variables
@@ -191,6 +192,17 @@ public class Server_DB {
 
 		// 1. Add the user to the users.
 		return users.add_user(username, password, tags);
+	}
+
+	public List<String> users_with_common_tags(String username) {
+		/*
+		 * This method is used to get a list of users with common tags.
+		 *
+		 * 1. Get the list of users with common tags.
+		 */
+
+		// 1. Get the list of users with common tags.
+		return users.users_with_common_tags(username);
 	}
 
 	// Getters

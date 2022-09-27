@@ -300,18 +300,24 @@ public class Client {
 
 		System.out.println("list users");
 
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+
 		try {
 			// 1. Send list users request to server
-			OutputStream out = socket.getOutputStream();
-			out.write("list users\n".getBytes());
+			Win_message list_users_request = new Win_message();
+			list_users_request.addString("list users");
+			list_users_request.send(socket_channel);
 
 			// 2. Receive list users response from server
-			// TODO
+			Win_message list_users_response = Win_message.receive(socket_channel);
 
 			// 3. Return the list of users
-			return null;
+			return list_users_response.getStrings();
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -394,9 +400,9 @@ public class Client {
 	 * @param contenuto
 	 * @return
 	 */
-//    public Post createPost(Post.Title titolo, Post.Content contenuto) {
-//        return null;
-//    }
+    public Post createPost(String titolo, String contenuto) {
+        return null;
+    }
 
 	/**
 	 * Operazione per recuperare la lista dei post nel proprio feed. Viene

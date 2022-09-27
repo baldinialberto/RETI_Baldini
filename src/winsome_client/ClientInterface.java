@@ -731,13 +731,31 @@ public class ClientInterface {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String line = reader.readLine();
 		String[] tokens = line.split(" ");
-		String command = tokens[0];
+
+		// if the first token is "list" or "show" then the command is composed of 2 tokens
+		// otherwise the command is composed of 1 token
+
+		if (tokens[0].equals("list") || tokens[0].equals("show")) {
+			if (tokens.length != 2) {
+				System.out.println("Invalid command");
+				return;
+			}
+		} else {
+			if (tokens.length != 1) {
+				System.out.println("Invalid command");
+				return;
+			}
+		}
+
+		boolean composed = tokens[0].equals("list") || tokens[0].equals("show");
+		String command = composed ? tokens[0] + "_" + tokens[1] : tokens[0];
 
 		// check if the command is valid (i.e. it is in the commands map)
 		if (commands.containsKey(command)) {
 			try {
 				// execute the command with the arguments (not including the command itself)
-				commands.get(command).invoke(this, new ArrayList<String>(Arrays.asList(tokens).subList(1, tokens.length)));
+				commands.get(command).invoke(this, new ArrayList<>(
+						Arrays.asList(tokens).subList(composed ? 2 : 1, tokens.length)));
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage() + " " + e.getCause());
 				e.printStackTrace();

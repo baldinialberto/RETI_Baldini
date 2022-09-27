@@ -253,23 +253,6 @@ public class Server {
 		server_db.save_DB();
 	}
 
-	public Server_properties get_properties() {
-		return this.properties;
-	}
-
-	// CConnection_manager methods
-	public void add_client_to_ccm(SocketChannel client)
-	{
-		/*
-		 * Add a client to the client connection manager
-		 *
-		 * 1. Add the client to the client connection manager
-		 */
-
-		// 1. Add the client to the client connection manager
-		this.connections_manager.add_connection(new CConnection(client));
-	}
-
 	public SocketChannel get_client_channel(String address)
 	{
 		/*
@@ -302,7 +285,7 @@ public class Server {
 		 * Login a user
 		 *
 		 * 1. Check if the user is already logged in
-		 * 2. If the user is already logged in, return an error message
+		 * 2. If the user/client is already logged in, return an error message
 		 * 3. If the user is not logged in, check if the username and password are correct
 		 * 4. If the username and password are correct, add the user to the logged in users
 		 * 5. Return the result
@@ -315,6 +298,11 @@ public class Server {
 			// 2. If the user is already logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User already logged in");
+			return result;
+		} else if (this.client_addresses.containsKey(address)) {
+			// 2. If the client is already logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("Client already logged in with another user");
 			return result;
 		}
 
@@ -365,6 +353,32 @@ public class Server {
 
 		// 4. Return the result
 		result.addString(Win_message.SUCCESS);
+		return result;
+	}
+
+	public Win_message listUsers_request(String address)
+	{
+		/*
+		 * List all the users
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, return the list of users
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, return the list of users
+		result.addString(Win_message.SUCCESS);
+		result.addStrings(this.server_db.users_with_common_tags(this.client_addresses.get(address)));
 		return result;
 	}
 

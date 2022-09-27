@@ -121,7 +121,7 @@ public class Server {
 			}
 
 			// Debug print the number of channel in the selector
-			System.out.println("Number of channels in the selector: " + selector.keys().size());
+			// System.out.println("Number of channels in the selector: " + selector.keys().size());
 
 			Set<SelectionKey> ready_keys = selector.selectedKeys();
 			Iterator<SelectionKey> iterator = ready_keys.iterator();
@@ -345,11 +345,12 @@ public class Server {
 			return result;
 		}
 
+		// DEBUG
+		System.out.println("User " + this.client_addresses.get(address) + " logged out from " + address);
+
 		// 3. If the user is logged in, remove the user from the logged in users
 		this.client_addresses.remove(address);
 
-		// DEBUG
-		System.out.println("User " + this.client_addresses.get(address) + " logged out from " + address);
 
 		// 4. Return the result
 		result.addString(Win_message.SUCCESS);

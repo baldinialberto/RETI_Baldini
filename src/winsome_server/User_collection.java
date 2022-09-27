@@ -108,11 +108,16 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		// 1. Get the user.
 		User user = this.get(username);
 		if (user == null) {
+			//DEBUG
+			System.out.println("User not found");
 			return new ArrayList<>();
 		}
 
 		// 2. Get the tags of the user.
 		String[] tags = user.getTags();
+
+		//DEBUG
+		System.out.println("User tags: " + Arrays.toString(tags));
 
 		// 3. Create a list of usernames that have at least one tag in common with the user.
 		List<String> usernames = new ArrayList<>();

@@ -269,12 +269,12 @@ public class ClientInterface {
 		/*
 		 * follow <username>
 		 *
-		 * 1. check if there are exactly 1 argument
+		 * 1. check if there is one argument
 		 * 2. call the follow method of the client
 		 * 3. print the result
 		 */
 
-		// 1. check if there are exactly 1 argument
+		// 1. check if there is one argument
 		if (args.size() != 1) {
 			System.out.println("follow command : Wrong number of arguments : " +
 					"usage : follow <username>");
@@ -282,13 +282,17 @@ public class ClientInterface {
 		}
 
 		// 2. call the follow method of the client
-		String username = args.get(0);
-
 		try
 		{
-			client.followUser(username);
-			// 3. print the result
-			System.out.println("follow command : User " + username + " followed");
+			if (client.followUser(args.get(0)))
+			{
+				// 3. print the result
+				System.out.println("follow command : User " + args.get(0) + " followed");
+			}
+			else
+			{
+				System.out.println("follow command : User " + args.get(0) + " not followed");
+			}
 		}
 		catch (Exception e)
 		{
@@ -313,13 +317,17 @@ public class ClientInterface {
 		}
 
 		// 2. call the unfollow method of the client
-		String username = args.get(0);
-
 		try
 		{
-			client.unfollowUser(username);
-			// 3. print the result
-			System.out.println("unfollow command : User " + username + " unfollowed");
+			if (client.unfollowUser(args.get(0)))
+			{
+				// 3. print the result
+				System.out.println("unfollow command : User " + args.get(0) + " unfollowed");
+			}
+			else
+			{
+				System.out.println("unfollow command : User " + args.get(0) + " not unfollowed");
+			}
 		}
 		catch (Exception e)
 		{

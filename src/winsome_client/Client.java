@@ -22,7 +22,7 @@ public class Client {
 
 	SocketChannel socket_channel;
 	private RMI_registration_int remote_registration_result;
-	private String user;
+	private LocalUser user;
 	private boolean _on = false;
 	private boolean connected = false;
 	private boolean logged = false;
@@ -54,7 +54,7 @@ public class Client {
 	}
 
 	public String get_username() {
-		return user;
+		return user.get_username();
 	}
 
 	public boolean isLogged() {
@@ -207,7 +207,7 @@ public class Client {
 			if (login_response.getString(0).equals(Win_message.SUCCESS))
 			{
 				logged = true;
-				this.user = username;
+				this.user = new LocalUser(username);
 				return 0;
 			} else if (login_response.getString(0).equals(Win_message.ERROR))
 			{
@@ -244,8 +244,13 @@ public class Client {
 
 		System.out.println("logout");
 
-		if (!connected) {
+		if (!connected)
+		{
 			System.out.println("Not connected");
+			return -1;
+		}
+		if (!logged) {
+			System.out.println("Not logged in");
 			return -1;
 		}
 
@@ -302,6 +307,10 @@ public class Client {
 
 		if (!connected) {
 			System.out.println("Not connected");
+			return null;
+		}
+		if (!logged) {
+			System.out.println("Not logged");
 			return null;
 		}
 
@@ -367,6 +376,49 @@ public class Client {
 	 * @return
 	 */
 	public boolean followUser(String idUser) {
+		/*
+		 * follow user <idUser> if not already following
+		 *
+		 * 1. Send follow user request to server
+		 * 2. Receive follow user response from server
+		 * 3. If follow user is successful, add idUser to following list
+		 * 4. Return true
+		 */
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send follow user request to server
+			Win_message follow_user_request = new Win_message();
+			follow_user_request.addString("follow");
+			follow_user_request.addString(idUser);
+			follow_user_request.send(socket_channel);
+
+			// 2. Receive follow user response from server
+			Win_message follow_user_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (follow_user_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Follow user failed : " + follow_user_response.getString(1));
+				return false;
+			} else if (follow_user_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If follow user is successful, add idUser to following list
+				user.add_following(idUser);
+				// 4. Return true
+				return true;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 
@@ -378,6 +430,49 @@ public class Client {
 	 * @return
 	 */
 	public boolean unfollowUser(String idUser) {
+		/*
+		 * unfollow user <idUser> if following
+		 *
+		 * 1. Send unfollow user request to server
+		 * 2. Receive unfollow user response from server
+		 * 3. If unfollow user is successful, remove idUser from following list
+		 * 4. Return true
+		 */
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send unfollow user request to server
+			Win_message unfollow_user_request = new Win_message();
+			unfollow_user_request.addString("unfollow");
+			unfollow_user_request.addString(idUser);
+			unfollow_user_request.send(socket_channel);
+
+			// 2. Receive unfollow user response from server
+			Win_message unfollow_user_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (unfollow_user_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Unfollow user failed : " + unfollow_user_response.getString(1));
+				return false;
+			} else if (unfollow_user_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If unfollow user is successful, remove idUser from following list
+				user.remove_following(idUser);
+				// 4. Return true
+				return true;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 

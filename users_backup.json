@@ -8,7 +8,9 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ]
+    "posts" : [ ],
+    "following" : null,
+    "followers" : null
   },
   "pluto" : {
     "username" : "pluto",
@@ -19,7 +21,9 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ]
+    "posts" : [ ],
+    "following" : null,
+    "followers" : null
   },
   "pippo" : {
     "username" : "pippo",
@@ -30,6 +34,8 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ]
+    "posts" : [ ],
+    "following" : null,
+    "followers" : null
   }
 }

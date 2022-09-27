@@ -82,7 +82,9 @@ public class Worker_task implements Runnable {
          * 1. login
          * 2. logout
          * 3. list_users
-         * 4. ...
+         * 4. follow
+         * 5. unfollow
+         * 6. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -118,6 +120,22 @@ public class Worker_task implements Runnable {
             // no parameters are provided by the client
             // the response will be a string "success" or "error, reason"
             response = this.server.list_users_request(address);
+        }
+        // 2.4 follow
+        else if (type.equals("follow")) {
+            // the request is a follow request
+            // the parameter is the username of the user to follow
+            // the response will be a string "success" or "error, reason"
+            String username = parameters[0];
+            response = this.server.follow_request(username, address);
+        }
+        // 2.5 unfollow
+        else if (type.equals("unfollow")) {
+            // the request is an unfollow request
+            // the parameters is the username of the user to unfollow
+            // the response will be a string "success" or "error, reason"
+            String username = parameters[0];
+            response = this.server.unfollow_request(username, address);
         }
 
         // 3. return the response

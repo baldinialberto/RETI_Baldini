@@ -18,6 +18,10 @@ public class User implements JSON_Serializable {
 	private Wallet wallet;
 	private ArrayList<String> posts;
 
+	private ArrayList<String> following;
+
+	private ArrayList<String> followers;
+
 	// Constructors
 
 	// Default constructor
@@ -83,6 +87,14 @@ public class User implements JSON_Serializable {
 		return this.posts;
 	}
 
+	public ArrayList<String> getFollowing() {
+		return this.following;
+	}
+
+	public ArrayList<String> getFollowers() {
+		return this.followers;
+	}
+
 	// Setters
 
 	public void setUsername(String username) {
@@ -103,6 +115,35 @@ public class User implements JSON_Serializable {
 
 	public void setPosts(ArrayList<String> posts) {
 		this.posts = posts;
+	}
+
+	public void setFollowing(ArrayList<String> following) {
+		this.following = following;
+	}
+
+	public void setFollowers(ArrayList<String> followers) {
+		this.followers = followers;
+	}
+
+	// Other methods
+	public void add_follower(String follower)
+	{
+		this.followers.add(follower);
+	}
+
+	public void add_following(String following)
+	{
+		this.following.add(following);
+	}
+
+	public void remove_follower(String follower)
+	{
+		this.followers.remove(follower);
+	}
+
+	public void remove_following(String following)
+	{
+		this.following.remove(following);
 	}
 
 	@Override

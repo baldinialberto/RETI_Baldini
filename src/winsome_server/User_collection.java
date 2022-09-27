@@ -138,6 +138,83 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		return usernames;
 	}
 
+	public int follow_username(String user, String username_to_follow)
+	{
+		/*
+		 * This method is used to follow a user.
+		 *
+		 * 1. Check if the user is in the user collection.
+		 * 2. Check if the user to follow is in the user collection.
+		 * 3. Check if the user is already following the user to follow.
+		 * 4. Add the user to follow to the user's following list.
+		 * 5. Add the user to the user to follow's followers list.
+		 * 6. Return 0.
+		 */
+
+		// 1. Check if the user is in the user collection.
+		if (!this.containsKey(user)) {
+			return -1;
+		}
+
+		// 2. Check if the user to follow is in the user collection.
+		if (!this.containsKey(username_to_follow)) {
+			return -1;
+		}
+
+		// 3. Check if the user is already following the user to follow.
+		if (this.get(user).getFollowing().contains(username_to_follow)) {
+			return -1;
+		}
+
+		// 4. Add the user to follow to the user's following list.
+		this.get(user).add_following(username_to_follow);
+
+		// 5. Add the user to the user to follow's followers list.
+		this.get(username_to_follow).add_follower(user);
+
+		// 6. Return 0.
+		return 0;
+	}
+
+	public int unfollow_username(String user, String username_to_unfollow)
+	{
+		/*
+		 * This method is used to unfollow a user.
+		 *
+		 * 1. Check if the user is in the user collection.
+		 * 2. Check if the user to unfollow is in the user collection.
+		 * 3. Check if the user is following the user to unfollow.
+		 * 4. Remove the user to unfollow from the user's following list.
+		 * 5. Remove the user from the user to unfollow's followers list.
+		 * 6. Return 0.
+		 */
+
+		// 1. Check if the user is in the user collection.
+		if (!this.containsKey(user)) {
+			return -1;
+		}
+
+		// 2. Check if the user to unfollow is in the user collection.
+		if (!this.containsKey(username_to_unfollow)) {
+			return -1;
+		}
+
+		// 3. Check if the user is following the user to unfollow.
+		if (!this.get(user).getFollowing().contains(username_to_unfollow)) {
+			return -1;
+		}
+
+		// 4. Remove the user to unfollow from the user's following list.
+		this.get(user).remove_following(username_to_unfollow);
+
+		// 5. Remove the user from the user to unfollow's followers list.
+		this.get(username_to_unfollow).remove_follower(user);
+
+		// 6. Return 0.
+		return 0;
+	}
+
+
 	// Other methods
 	@Override
 	public void JSON_write(String filePath) throws IOException {

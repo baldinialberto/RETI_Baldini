@@ -205,6 +205,28 @@ public class Server_DB {
 		return users.users_with_common_tags(username);
 	}
 
+	public int follow_username(String user, String username_to_follow) {
+		/*
+		 * This method is used to follow a user.
+		 *
+		 * 1. Follow the user.
+		 */
+
+		// 1. Follow the user.
+		return users.follow_username(user, username_to_follow);
+	}
+
+	public int unfollow_username(String user, String username_to_unfollow) {
+		/*
+		 * This method is used to unfollow a user.
+		 *
+		 * 1. Unfollow the user.
+		 */
+
+		// 1. Unfollow the user.
+		return users.unfollow_username(user, username_to_unfollow);
+	}
+
 	// Getters
 	// None
 

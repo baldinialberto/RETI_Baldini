@@ -383,4 +383,72 @@ public class Server {
 		return result;
 	}
 
+	public Win_message follow_request(String username, String address)
+	{
+		/*
+		 * Follow a user
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to follow the user
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to follow the user
+		if (this.server_db.follow_username(this.client_addresses.get(address), username) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("User not found");
+		}
+
+		return result;
+	}
+
+	public Win_message unfollow_request(String username, String address)
+	{
+		/*
+		 * Unfollow a user
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to unfollow the user
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to unfollow the user
+		if (this.server_db.unfollow_username(this.client_addresses.get(address), username) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("User not found");
+		}
+
+		return result;
+	}
+
 }

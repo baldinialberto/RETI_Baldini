@@ -9,7 +9,7 @@
       "transactions" : [ ]
     },
     "posts" : [ ],
-    "following" : [ "pippo", "pluto" ],
+    "following" : [ "pippo" ],
     "followers" : [ "pippo" ]
   },
   "pluto" : {
@@ -23,7 +23,7 @@
     },
     "posts" : [ ],
     "following" : [ ],
-    "followers" : [ "topolino" ]
+    "followers" : [ ]
   },
   "pippo" : {
     "username" : "pippo",
@@ -34,7 +34,7 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ],
+    "posts" : [ "0" ],
     "following" : [ "topolino" ],
     "followers" : [ "topolino" ]
   }

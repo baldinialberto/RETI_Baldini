@@ -453,4 +453,39 @@ public class Server {
 		return result;
 	}
 
+	public Win_message create_post_request(String address, String title, String content)
+	{
+		/*
+		 * Create a post
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to create the post
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to create the post
+		if (this.server_db.add_post(this.client_addresses.get(address),
+				this.client_addresses.get(address), title, content) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error creating post");
+		}
+
+		return result;
+	}
+
 }

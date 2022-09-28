@@ -11,7 +11,6 @@ public class Post_collection extends ConcurrentHashMap<String, Post> implements 
 	// Member variables
 	private static Post_collection instance;
 
-
 	private String last_post_id;
 
 	// Constructor

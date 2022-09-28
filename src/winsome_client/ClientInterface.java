@@ -382,21 +382,51 @@ public class ClientInterface {
 		 */
 
 		// 1. check if there are exactly 2 arguments
-		if (args.size() != 2) {
+		if (args.size() < 2) {
 			System.out.println("post command : Wrong number of arguments : " +
 					"usage : post <title> <content>");
 			return;
 		}
 
 		// 2. call the post method of the client
-		String title = args.get(0);
-		String content = args.get(1);
+		// Title and Content are in args, but we need to concatenate them
+		// Each terminates with a "." so we can split them later
+		StringBuilder title = new StringBuilder();
+		StringBuilder content = new StringBuilder();
+		boolean titleDone = false;
+		for (String s : args) {
+			if (!titleDone) {
+				title.append(s).append(" ");
+				if (s.endsWith(".")) {
+					titleDone = true;
+					// remove the last space of the title
+					title.deleteCharAt(title.length() - 1);
+				}
+			}
+			else {
+				content.append(s).append(" ");
+			}
+		}
+		// remove the last space of the content
+		content.deleteCharAt(content.length() - 1);
+
+		// Check if the title and content are not empty
+		if (title.length() == 0 || content.length() == 0) {
+			System.out.println("post command : Title or content is empty");
+			return;
+		}
+
 		try
 		{
-			Post post = client.create_post(title, content);
-			// TODO client.createPost(post.title_obj(), post.content_obj());
-			// 3. print the result
-			System.out.println("post command : Post created");
+			if (client.createPost(title.toString(), content.toString()))
+			{
+				// 3. print the result
+				System.out.println("post command : Post created");
+			}
+			else
+			{
+				System.out.println("post command : Post not created");
+			}
 		}
 		catch (Exception e)
 		{

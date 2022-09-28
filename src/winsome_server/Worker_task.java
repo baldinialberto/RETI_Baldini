@@ -87,7 +87,8 @@ public class Worker_task implements Runnable {
          * 3. list_users
          * 4. follow
          * 5. unfollow
-         * 6. ...
+         * 6. create_post
+         * 7. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -109,6 +110,12 @@ public class Worker_task implements Runnable {
 
                 // parameters[0] is the username
                 // parameters[1] is the password
+                if (parameters.length != 2) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
 
                 response = this.server.login_request(parameters[0], parameters[1], address);
                 break;
@@ -135,6 +142,13 @@ public class Worker_task implements Runnable {
 
                 // parameters[0] is the username of the user to follow
 
+                if (parameters.length != 1) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
                 response = this.server.follow_request(parameters[0], address);
                 break;
             // 2.5 unfollow
@@ -145,7 +159,32 @@ public class Worker_task implements Runnable {
 
                 // parameters[0] is the username of the user to unfollow
 
+                if (parameters.length != 1) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
                 response = this.server.unfollow_request(parameters[0], address);
+                break;
+            // 2.6 create_post
+            case "post":
+                // the request is a create_post request
+                // the parameters are the title and the content of the post
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the title of the post
+                // parameters[1] is the content of the post
+
+                if (parameters.length != 2) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.create_post_request(address, parameters[0], parameters[1]);
                 break;
             default:
                 // the request is not valid

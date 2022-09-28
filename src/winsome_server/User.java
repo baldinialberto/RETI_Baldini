@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class User implements JSON_Serializable {
 	// Member variables
@@ -16,11 +14,11 @@ public class User implements JSON_Serializable {
 	private String password;
 	private String[] tags;
 	private Wallet wallet;
-	private ArrayList<String> posts;
+	private HashSet<String> posts;
 
-	private ArrayList<String> following;
+	private HashSet<String> following;
 
-	private ArrayList<String> followers;
+	private HashSet<String> followers;
 
 	// Constructors
 
@@ -51,13 +49,13 @@ public class User implements JSON_Serializable {
 		this.wallet = new Wallet(username);
 
 		// 5. Create a new list of posts for this user.
-		this.posts = new ArrayList<>();
+		this.posts = new HashSet<>();
 
 		// 6. Create a new list of following for this user.
-		this.following = new ArrayList<>();
+		this.following = new HashSet<>();
 
 		// 7. Create a new list of followers for this user.
-		this.followers = new ArrayList<>();
+		this.followers = new HashSet<>();
 	}
 
 	// Jackson constructor
@@ -91,15 +89,15 @@ public class User implements JSON_Serializable {
 		return this.wallet;
 	}
 
-	public ArrayList<String> getPosts() {
+	public HashSet<String> getPosts() {
 		return this.posts;
 	}
 
-	public ArrayList<String> getFollowing() {
+	public HashSet<String> getFollowing() {
 		return this.following;
 	}
 
-	public ArrayList<String> getFollowers() {
+	public HashSet<String> getFollowers() {
 		return this.followers;
 	}
 
@@ -121,15 +119,15 @@ public class User implements JSON_Serializable {
 		this.wallet = wallet;
 	}
 
-	public void setPosts(ArrayList<String> posts) {
+	public void setPosts(HashSet<String> posts) {
 		this.posts = posts;
 	}
 
-	public void setFollowing(ArrayList<String> following) {
+	public void setFollowing(HashSet<String> following) {
 		this.following = following;
 	}
 
-	public void setFollowers(ArrayList<String> followers) {
+	public void setFollowers(HashSet<String> followers) {
 		this.followers = followers;
 	}
 

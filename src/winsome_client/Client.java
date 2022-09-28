@@ -47,8 +47,7 @@ public class Client {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
 			remote_registration_result = (RMI_registration_int) r.lookup(properties.get_rmi_name());
 			_on = true;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println("Client exception: " + e);
 		}
 	}
@@ -83,7 +82,7 @@ public class Client {
 		}
 
 		try {
-			 socket_channel = SocketChannel.open(
+			socket_channel = SocketChannel.open(
 					new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port()));
 			connected = true;
 		} catch (IOException e) {
@@ -204,13 +203,11 @@ public class Client {
 			System.out.println("response: " + login_response);
 
 			// 4. If login is successful, set _logged to true
-			if (login_response.getString(0).equals(Win_message.SUCCESS))
-			{
+			if (login_response.getString(0).equals(Win_message.SUCCESS)) {
 				logged = true;
 				this.user = new LocalUser(username);
 				return 0;
-			} else if (login_response.getString(0).equals(Win_message.ERROR))
-			{
+			} else if (login_response.getString(0).equals(Win_message.ERROR)) {
 				logged = false;
 				this.user = null;
 				System.out.println("Login failed : " + login_response.getString(1));
@@ -244,8 +241,7 @@ public class Client {
 
 		System.out.println("logout");
 
-		if (!connected)
-		{
+		if (!connected) {
 			System.out.println("Not connected");
 			return -1;
 		}
@@ -505,9 +501,67 @@ public class Client {
 	 * @param contenuto
 	 * @return
 	 */
-    public Post createPost(String titolo, String contenuto) {
-        return null;
-    }
+	public boolean createPost(String titolo, String contenuto) {
+		/*
+		 * create post <titolo> <contenuto>
+		 *
+		 * 1. Send create post request to server
+		 * 2. Receive create post response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return true
+		 */
+
+		System.out.println("create post " + titolo + " " + contenuto);
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+
+		}
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		if (titolo.length() > 20) {
+			System.out.println("Title too long (max 20 characters)");
+			// trim the title to 20 characters
+			titolo = titolo.substring(0, 20);
+		}
+
+		if (contenuto.length() > 500) {
+			System.out.println("Content too long (max 500 characters)");
+			// trim the content to 500 characters
+			contenuto = contenuto.substring(0, 500);
+		}
+
+		try {
+			// 1. Send create post request to server
+			Win_message create_post_request = new Win_message();
+			create_post_request.addString("post");
+			create_post_request.addString(titolo);
+			create_post_request.addString(contenuto);
+			create_post_request.send(socket_channel);
+
+			// 2. Receive create post response from server
+			Win_message create_post_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (create_post_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Create post failed : " + create_post_response.getString(1));
+				return false;
+			} else if (create_post_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Post created");
+				// 4. Return true
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
 
 	/**
 	 * Operazione per recuperare la lista dei post nel proprio feed. Viene

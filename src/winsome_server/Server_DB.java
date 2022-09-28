@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
 
 import java.io.IOException;
@@ -298,6 +299,13 @@ public class Server_DB {
 			return null;
 		}
 	}
+
+	public Post_detailed get_post_detailed(String post_id) {
+		// TODO do it
+
+		return null;
+	}
+
 
 	// Getters
 	// None

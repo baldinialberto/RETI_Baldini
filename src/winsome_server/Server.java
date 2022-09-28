@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
 import winsome_comunication.Win_message;
 
@@ -548,7 +549,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the blog
-		Post post = this.server_db.get_post(post_id);
+		Post_detailed post = this.server_db.get_post_detailed(post_id);
 		if (post == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);

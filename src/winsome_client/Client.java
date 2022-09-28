@@ -660,7 +660,7 @@ public class Client {
 		try {
 			// 1. Send show post request to server
 			Win_message show_post_request = new Win_message();
-			show_post_request.addString("show post");
+			show_post_request.addString("show_post");
 			show_post_request.addString(idPost);
 			show_post_request.send(socket_channel);
 

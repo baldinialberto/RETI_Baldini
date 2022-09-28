@@ -208,16 +208,6 @@ public class Server_DB {
 		}
 	}
 
-	public boolean user_exists(String username) {
-		/*
-		 * This method is used to check if a user exists.
-		 *
-		 * 1. Check if the user exists.
-		 */
-
-		// 1. Check if the user exists.
-		return users.get(username) != null;
-	}
 
 	public boolean user_check_password(String username, String password)
 	{
@@ -228,9 +218,9 @@ public class Server_DB {
 		 */
 
 		// 1. Check if the user exists.
-		if (user_exists(username))
+		if (users.user_exists(username))
 		{
-			return users.get(username).getPassword().equals(password);
+			return users.check_password(username, password);
 		}
 		else
 		{
@@ -289,7 +279,7 @@ public class Server_DB {
 		 * 1. Get the user's blog.
 		 */
 
-		if (user_exists(user))
+		if (users.user_exists(user))
 		{
 			// 1. Get the user's blog.
 			return posts.get_postsimple_from_idlist(users.get_user_postids(user));
@@ -301,9 +291,21 @@ public class Server_DB {
 	}
 
 	public Post_detailed get_post_detailed(String post_id) {
-		// TODO do it
+		/*
+		 * This method is used to get detailed information about a post.
+		 *
+		 * 1. Get the post.
+		 */
 
-		return null;
+		if (posts.post_exists(post_id))
+		{
+			// 1. Get the post.
+			return posts.get_post_detailed(post_id);
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 

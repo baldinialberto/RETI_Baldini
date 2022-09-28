@@ -2,6 +2,7 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
 
 import java.io.File;
@@ -84,14 +85,33 @@ public class Post_collection implements JSON_Serializable {
 			Post post = this.posts.get(id);
 
 			// 4. Add the post to the list of posts.
-			posts.add(post.get_post_simple());
+			posts.add(post.to_post_simple());
 		}
 
 		// 5. Return the list of posts.
-		return posts;
+		return posts.isEmpty() ? null : posts;
 
 	}
+	public boolean post_exists(String post_id) {
+		return posts.containsKey(post_id);
+	}
+	public Post_detailed get_post_detailed(String post_id) {
+		/*
+		 * This method is used to get detailed information about a post in the post collection.
+		 *
+		 * 1. Get the post from the post collection.
+		 * 2. Return the Post_detail object derived from the post.
+		 */
 
+		// 1. Get the post from the post collection.
+		Post post = this.posts.get(post_id);
+		if (post == null) {
+			return null;
+		}
+
+		// 2. Return the Post_detail object derived from the post.
+		return post.to_post_detailed();
+	}
 	@Override
 	public void JSON_write(String filePath) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
@@ -103,4 +123,7 @@ public class Post_collection implements JSON_Serializable {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(new File(filePath), Post_collection.class);
 	}
+
+
+
 }

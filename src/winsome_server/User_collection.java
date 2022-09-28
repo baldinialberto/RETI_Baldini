@@ -237,7 +237,15 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		// 3. Return the post ids.
 		return new ArrayList<>(user.getPosts());
 	}
-
+	public boolean user_exists(String user) {
+		return this.containsKey(user);
+	}
+	public boolean check_password(String username, String password) {
+		if (this.containsKey(username)) {
+			return this.get(username).getPassword().equals(password);
+		}
+		return false;
+	}
 
 	// Other methods
 	@Override
@@ -251,5 +259,8 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(new File(filePath), User_collection.class);
 	}
+
+
+
 }
 

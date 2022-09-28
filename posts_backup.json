@@ -3,30 +3,12 @@
     "0" : {
       "id" : "0",
       "author" : "pippo",
-      "title" : "oggi ho fatto.",
-      "text" : "la cacca viola.",
+      "title" : "la mia giornata.",
+      "text" : "Ho cazzeggiato tutto il giorno.",
       "comments" : [ ],
       "votes" : [ ],
-      "time_created" : 1664366672519
-    },
-    "1" : {
-      "id" : "1",
-      "author" : "pippo",
-      "title" : "oggi ho fatto.",
-      "text" : "la cacca arancione.",
-      "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664366712848
-    },
-    "2" : {
-      "id" : "2",
-      "author" : "topolino",
-      "title" : "basta con questa cac",
-      "text" : "Pippo la devi smettere di postare notizie della tua cacca",
-      "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664366780322
+      "time_created" : 1664378688167
     }
   },
-  "last_post_id" : "2"
+  "last_post_id" : "0"
 }

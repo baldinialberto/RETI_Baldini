@@ -34,8 +34,26 @@ public class Post_detailed extends Post_simple {
 		 */
 
 		// 1. Serialize the object
+		StringBuilder serialized = new StringBuilder(super.serialize());
+		serialized.append("|-|");
+		serialized.append(this.upvotes);
+		serialized.append("|-|");
+
+		serialized.append(this.downvotes);
+		serialized.append("|-|");
+
+		serialized.append(this.comments.size());
+		serialized.append("|-|");
+
+		for (Comment_simple comment : this.comments) {
+			serialized.append(comment.serialize());
+			serialized.append("|-|");
+		}
+		// remove the last "|-|"
+		serialized.delete(serialized.length() - 3, serialized.length());
+
 		// 2. Return the serialized object
-		return super.serialize() + "|-|" + upvotes + "|-|" + downvotes + "|-|" + comments;
+		return serialized.toString();
 	}
 
 	@Override
@@ -44,18 +62,19 @@ public class Post_detailed extends Post_simple {
 		 * Deserialize the object from a string
 		 *
 		 * the post is formatted as follows:
-		 * <Post_simple_serialization>|-|upvotes|-|downvotes|-|comments
+		 * <Post_simple_serialization>|-|upvotes|-|downvotes|-|ncomments|-|comments
 		 *
 		 * 1. Deserialize the object
 		 */
 
 		// 1. Deserialize the object
-		String[] parts = string.split("|-|");
+		String[] parts = string.split("\\|-\\|");
 		super.deserialize(string);
 		upvotes = Integer.parseInt(parts[4]);
 		downvotes = Integer.parseInt(parts[5]);
+		int ncomments = Integer.parseInt(parts[6]);
 		comments = new ArrayList<>();
-		for (int i = 6; i < parts.length; i++) {
+		for (int i = 7; i < parts.length; i++) {
 			comments.add(new Comment_simple(parts[i]));
 		}
 	}
@@ -75,7 +94,7 @@ public class Post_detailed extends Post_simple {
 
 		// 1. Return the string representation
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString());
+		sb.append(super.toString()).append("\n");
 		sb.append("Upvotes: ").append(upvotes).append(", Downvotes: ").append(downvotes).append("\n");
 		sb.append("Comments: \n");
 		for (Comment_simple comment : comments) {

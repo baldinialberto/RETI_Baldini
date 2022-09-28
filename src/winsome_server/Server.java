@@ -563,4 +563,42 @@ public class Server {
 
 		return result;
 	}
+
+	public Win_message show_feed_request(String address) {
+		/*
+		 * Get the feed of the user
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to get the feed
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to get the feed
+		ArrayList<Post_simple> posts = this.server_db.get_feed(this.client_addresses.get(address));
+		if (posts == null) {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error getting feed");
+			return result;
+		}
+
+		// 4. Return the result
+		result.addString(Win_message.SUCCESS);
+		for (Post_simple post : posts) {
+			result.addString(post.serialize());
+		}
+
+		return result;
+	}
 }

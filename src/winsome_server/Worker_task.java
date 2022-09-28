@@ -90,7 +90,12 @@ public class Worker_task implements Runnable {
          * 6. post
          * 7. blog
          * 8. show_post
-         * 9. ...
+         * 9. show_feed
+         * 10. delete_post
+         * 11. rewin_post
+         * 12. comment
+         * 13. rate
+         * 14. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -211,6 +216,83 @@ public class Worker_task implements Runnable {
                 }
 
                 response = this.server.show_post_request(address, parameters[0]);
+                break;
+            // 2.9 show_feed
+            case "show_feed":
+                // the request is a show_feed request
+                // the response will be a string "success" or "error, reason"
+
+                response = this.server.show_feed_request(address);
+                break;
+            // 2.10 delete_post
+            case "delete_post":
+                // the request is a delete_post request
+                // the parameter is the id of the post
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the id of the post
+
+                if (parameters.length != 1) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.delete_post_request(address, parameters[0]);
+                break;
+            // 2.11 rewin_post
+            case "rewin_post":
+                // the request is a rewin_post request
+                // the parameter is the id of the post
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the id of the post
+
+                if (parameters.length != 1) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.rewin_post_request(address, parameters[0]);
+                break;
+            // 2.12 comment
+            case "comment":
+                // the request is a comment request
+                // the parameters are the id of the post and the content of the comment
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the id of the post
+                // parameters[1] is the content of the comment
+
+                if (parameters.length != 2) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.comment_request(address, parameters[0], parameters[1]);
+                break;
+            // 2.13 rate
+            case "rate":
+                // the request is a show_comments request
+                // the parameter is the id of the post
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the id of the post
+                // parameters[1] is the rating
+
+                if (parameters.length != 2) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.rate_request(address, parameters[0], parameters[1]);
                 break;
             default:
                 // the request is not valid

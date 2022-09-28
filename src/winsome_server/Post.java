@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-public class Post implements JSON_Serializable {
+public class Post implements JSON_Serializable, Comparable<Post> {
 
     // Member variables
     private String id;
@@ -199,4 +199,13 @@ public class Post implements JSON_Serializable {
     }
 
 
+    @Override
+    public int compareTo(Post o) {
+        /*
+         * This method is used to compare this Post object with another Post object.
+         * the comparison is based on the time_created field, the most recent post is the smallest.
+         */
+
+        return this.time_created.compareTo(o.time_created);
+    }
 }

@@ -53,7 +53,6 @@ public class Post_collection implements JSON_Serializable {
 		return posts;
 	}
 
-
 	// Setters
 	public void setLast_post_id(String last_post_id) {
 		this.last_post_id = last_post_id;
@@ -73,23 +72,33 @@ public class Post_collection implements JSON_Serializable {
 		 * 2. For each post_id in the list of post_ids:
 		 * 3. Get the post from the post collection.
 		 * 4. Add the post to the list of posts.
-		 * 5. Return the list of posts.
+		 * 5. Sort the list of posts.
+		 * 6. Populate the list of post_simples;
+		 * 7. Return the list of posts_simples.
 		 */
 
 		// 1. Create a new list of posts.
-		ArrayList<Post_simple> posts = new ArrayList<>();
+		ArrayList<Post> posts = new ArrayList<>();
+		ArrayList<Post_simple> post_simples = new ArrayList<>();
 
 		// 2. For each post_id in the list of post_ids:
 		for (String id : ids) {
 			// 3. Get the post from the post collection.
 			Post post = this.posts.get(id);
-
 			// 4. Add the post to the list of posts.
-			posts.add(post.to_post_simple());
+			posts.add(post);
 		}
 
-		// 5. Return the list of posts.
-		return posts.isEmpty() ? null : posts;
+		// 5. Sort the list of posts.
+		posts.sort(Post::compareTo);
+
+		// 6. Populate the list of post_simples;
+		for (Post post : posts) {
+			post_simples.add(post.to_post_simple());
+		}
+
+		// 7. Return the list of post_simples.
+		return post_simples.isEmpty() ? null : post_simples;
 
 	}
 	public boolean post_exists(String post_id) {

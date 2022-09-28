@@ -455,11 +455,11 @@ public class ClientInterface {
 		try
 		{
 			// 2. call the show_feed method of the client
-			List<Post> post = client.showFeed();
+			List<Post_simple> post = client.showFeed();
 			// 3. print the result
 			if (post.size() > 0) {
 				System.out.println("show_feed command : Posts :");
-				for (Post p : post) {
+				for (Post_simple p : post) {
 					System.out.println(p);
 				}
 			}

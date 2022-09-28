@@ -220,7 +220,7 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		return 0;
 	}
 
-	public ArrayList<String> get_user_postids(String username)
+	public ArrayList<String> get_user_blog(String username)
 	{
 		/*
 		 * This method is used to get the post ids of a user.
@@ -230,6 +230,10 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		 * 3. Return the post ids.
 		 */
 
+		if (!this.containsKey(username)) {
+			return null;
+		}
+
 		// 1. Get the user.
 		User user = this.get(username);
 
@@ -237,6 +241,27 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		// 3. Return the post ids.
 		return new ArrayList<>(user.getPosts());
 	}
+
+	public ArrayList<String> get_user_feed(String username)
+	{
+		/*
+		 * This method is used to get the post ids of a user.
+		 *
+		 * 1. Get the user.
+		 */
+
+		if (!this.containsKey(username)) {
+			return null;
+		}
+
+		// 1. Get the user.
+		User user = this.get(username);
+
+		// TODO continue here
+
+		return null;
+	}
+
 	public boolean user_exists(String user) {
 		return this.containsKey(user);
 	}
@@ -245,6 +270,25 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 			return this.get(username).getPassword().equals(password);
 		}
 		return false;
+	}
+	public ArrayList<String> get_users_following(String user) {
+		if (this.containsKey(user)) {
+			return new ArrayList<>(this.get(user).getFollowing());
+		}
+		return null;
+	}
+	public ArrayList<String> get_users_followers(String user) {
+		if (this.containsKey(user)) {
+			return new ArrayList<>(this.get(user).getFollowers());
+		}
+		return null;
+	}
+	public List<String> get_users_blogs(ArrayList<String> users) {
+		List<String> blogs = new ArrayList<>();
+		for (String user : users) {
+			blogs.addAll(this.get(user).getPosts());
+		}
+		return blogs;
 	}
 
 	// Other methods

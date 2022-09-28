@@ -619,7 +619,53 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public List<Post> showFeed() {
+	public List<Post_simple> showFeed() {
+		/*
+		 * show feed
+		 *
+		 * 1. Send show feed request to server
+		 * 2. Receive show feed response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return list of posts
+		 */
+
+		System.out.println("show feed");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		try {
+			// 1. Send show feed request to server
+			Win_message show_feed_request = new Win_message();
+			show_feed_request.addString("show_feed");
+			show_feed_request.send(socket_channel);
+
+			// 2. Receive show feed response from server
+			Win_message show_feed_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (show_feed_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Show feed failed : " + show_feed_response.getString(1));
+				return null;
+			} else if (show_feed_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				// 4. Return list of posts
+				List<Post_simple> posts = new ArrayList<>();
+				for (int i = 1; i < show_feed_response.size(); i++) {
+					posts.add(new Post_simple(show_feed_response.getString(i)));
+				}
+				return posts;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 

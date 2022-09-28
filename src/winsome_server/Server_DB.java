@@ -5,6 +5,7 @@ import winsome_comunication.Post_simple;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,8 @@ public class Server_DB {
 	User_collection users;
 	final String posts_file_path;
 	final String users_file_path;
+
+
 
 
 	// public constants
@@ -274,7 +277,7 @@ public class Server_DB {
 
 	public ArrayList<Post_simple> get_blog(String user) {
 		/*
-		 * This method is used to get a blog.
+		 * This method is used to get a blog of a <user>.
 		 *
 		 * 1. Get the user's blog.
 		 */
@@ -282,12 +285,29 @@ public class Server_DB {
 		if (users.user_exists(user))
 		{
 			// 1. Get the user's blog.
-			return posts.get_postsimple_from_idlist(users.get_user_postids(user));
+			return posts.get_postsimple_from_idlist(users.get_user_blog(user));
 		}
 		else
 		{
 			return null;
 		}
+	}
+
+	public ArrayList<Post_simple> get_feed(String user) {
+		/*
+		 * This method is used to get a feed of a <user>.
+		 *
+		 * 1. Get the list of users that the user is following.
+		 * 2. Get the list of posts from the users that the user is following.
+		 * 3. Return the list of posts.
+		 */
+
+		// 1. Get the list of users that the user is following.
+		ArrayList<String> users_following = users.get_users_following(user);
+
+		// 2. Get the list of posts from the users that the user is following.
+		// 3. Return the list of posts.
+		return posts.get_postsimple_from_idlist(users.get_users_blogs(users_following));
 	}
 
 	public Post_detailed get_post_detailed(String post_id) {

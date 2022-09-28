@@ -1,5 +1,7 @@
 package winsome_client;
 
+import winsome_comunication.Post_detailed;
+import winsome_comunication.Post_simple;
 import winsome_server.*;
 
 import java.io.BufferedReader;
@@ -354,11 +356,11 @@ public class ClientInterface {
 		try
 		{
 			// 2. call the blog method of the client
-			List<Post> post = client.viewBlog();
+			List<Post_simple> post = client.viewBlog();
 			// 3. print the result
-			if (post.size() > 0) {
+			if (post != null && post.size() > 0) {
 				System.out.println("blog command : Posts :");
-				for (Post p : post) {
+				for (Post_simple p : post) {
 					System.out.println(p);
 				}
 			}
@@ -491,10 +493,15 @@ public class ClientInterface {
 		String post_id = args.get(0);
 		try
 		{
-			Post post = client.showPost(post_id);
+			Post_detailed post = client.showPost(post_id);
 			// 3. print the result
-			System.out.println("show_post command : Post :");
-			System.out.println(post);
+			if (post != null) {
+				System.out.println("show_post command : Post :");
+				System.out.println(post);
+			}
+			else {
+				System.out.println("show_post command : Post not found");
+			}
 		}
 		catch (Exception e)
 		{

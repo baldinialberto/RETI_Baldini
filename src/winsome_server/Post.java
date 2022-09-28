@@ -2,12 +2,13 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.Post_simple;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Post implements JSON_Serializable {
 
@@ -86,6 +87,17 @@ public class Post implements JSON_Serializable {
 
         // 1. Add the vote to the list of votes of this post.
         this.votes.add(vote);
+    }
+
+    public Post_simple get_post_simple() {
+        /*
+         * This method is used to get a Post_simple object from this Post object.
+         *
+         * 1. Return the Post_simple object.
+         */
+
+        // 1. Return the Post_simple object.
+        return new Post_simple(this.title, this.text, this.author, this.id);
     }
 
     // Getters

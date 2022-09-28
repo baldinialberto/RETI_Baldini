@@ -87,8 +87,10 @@ public class Worker_task implements Runnable {
          * 3. list_users
          * 4. follow
          * 5. unfollow
-         * 6. create_post
-         * 7. ...
+         * 6. post
+         * 7. blog
+         * 8. show_post
+         * 9. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -185,6 +187,30 @@ public class Worker_task implements Runnable {
                 }
 
                 response = this.server.create_post_request(address, parameters[0], parameters[1]);
+                break;
+            // 2.7 blog
+            case "blog":
+                // the request is a blog request
+                // the response will be a string "success" or "error, reason"
+
+                response = this.server.blog_request(address);
+                break;
+            // 2.8 show_post
+            case "show_post":
+                // the request is a show_post request
+                // the parameter is the id of the post
+                // the response will be a string "success" or "error, reason"
+
+                // parameters[0] is the id of the post
+
+                if (parameters.length != 1) {
+                    // the request is not valid
+                    response.addString(Win_message.ERROR);
+                    response.addString("Invalid request");
+                    break;
+                }
+
+                response = this.server.show_post_request(address, parameters[0]);
                 break;
             default:
                 // the request is not valid

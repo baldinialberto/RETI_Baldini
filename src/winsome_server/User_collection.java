@@ -220,6 +220,24 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		return 0;
 	}
 
+	public ArrayList<String> get_user_postids(String username)
+	{
+		/*
+		 * This method is used to get the post ids of a user.
+		 *
+		 * 1. Get the user.
+		 * 2. Get the post ids of the user.
+		 * 3. Return the post ids.
+		 */
+
+		// 1. Get the user.
+		User user = this.get(username);
+
+		// 2. Get the post ids of the user.
+		// 3. Return the post ids.
+		return new ArrayList<>(user.getPosts());
+	}
+
 
 	// Other methods
 	@Override

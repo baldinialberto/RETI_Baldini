@@ -1,6 +1,9 @@
 package winsome_server;
 
+import winsome_comunication.Post_simple;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +13,7 @@ public class Server_DB {
 	User_collection users;
 	final String posts_file_path;
 	final String users_file_path;
+
 
 	// public constants
 	public enum DB_ERROR_CODE {
@@ -145,7 +149,7 @@ public class Server_DB {
 			}
 
 			// 2. If the posts file does not exist, create a new posts file.
-			posts = Post_collection.getInstance();
+			posts = new Post_collection();
 			save_posts();
 		}
 	}
@@ -275,6 +279,24 @@ public class Server_DB {
 
 		// 1. Unfollow the user.
 		return users.unfollow_username(user, username_to_unfollow);
+	}
+
+	public ArrayList<Post_simple> get_blog(String user) {
+		/*
+		 * This method is used to get a blog.
+		 *
+		 * 1. Get the user's blog.
+		 */
+
+		if (user_exists(user))
+		{
+			// 1. Get the user's blog.
+			return posts.get_postsimple_from_idlist(users.get_user_postids(user));
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	// Getters

@@ -1,5 +1,7 @@
 package winsome_client;
 
+import winsome_comunication.Post_detailed;
+import winsome_comunication.Post_simple;
 import winsome_comunication.Win_message;
 import winsome_server.*;
 
@@ -484,7 +486,54 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public List<Post> viewBlog() {
+	public List<Post_simple> viewBlog() {
+		/*
+		 * view blog
+		 *
+		 * 1. Send view blog request to server
+		 * 2. Receive view blog response from server
+		 * 3. If view blog is successful, return list of posts
+		 * 4. Return null
+		 */
+
+		System.out.println("view blog");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		try {
+			// 1. Send view blog request to server
+			Win_message view_blog_request = new Win_message();
+			view_blog_request.addString("blog");
+			view_blog_request.send(socket_channel);
+
+			// 2. Receive view blog response from server
+			Win_message view_blog_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (view_blog_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("View blog failed : " + view_blog_response.getString(1));
+				return null;
+			} else if (view_blog_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If view blog is successful, return list of posts
+				List<Post_simple> posts = new ArrayList<>();
+				for (int i = 1; i < view_blog_response.size(); i++) {
+					posts.add(new Post_simple(view_blog_response.getString(i)));
+				}
+				return posts;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 
@@ -586,7 +635,52 @@ public class Client {
 	 * @param idPost
 	 * @return
 	 */
-	public Post showPost(String idPost) {
+	public Post_detailed showPost(String idPost) {
+		/*
+		 * show post <idPost>
+		 *
+		 * 1. Send show post request to server
+		 * 2. Receive show post response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return post
+		 */
+
+		System.out.println("show post " + idPost);
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		try {
+			// 1. Send show post request to server
+			Win_message show_post_request = new Win_message();
+			show_post_request.addString("show post");
+			show_post_request.addString(idPost);
+			show_post_request.send(socket_channel);
+
+			// 2. Receive show post response from server
+			Win_message show_post_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (show_post_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Show post failed : " + show_post_response.getString(1));
+				return null;
+			} else if (show_post_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Post shown");
+				// 4. Return post
+				return new Post_detailed(show_post_response.getString(1));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 

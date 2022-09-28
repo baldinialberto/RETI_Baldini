@@ -8,7 +8,7 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ],
+    "posts" : [ "2" ],
     "following" : [ "pippo" ],
     "followers" : [ "pippo" ]
   },
@@ -34,7 +34,7 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ "0" ],
+    "posts" : [ "0", "1" ],
     "following" : [ "topolino" ],
     "followers" : [ "topolino" ]
   }

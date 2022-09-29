@@ -1,18 +1,18 @@
 package winsome_client;
 
-import winsome_comunication.Post_detailed;
-import winsome_comunication.Post_simple;
-import winsome_comunication.Server_RMI_Interface;
-import winsome_comunication.Win_message;
+import winsome_comunication.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Client {
@@ -21,7 +21,9 @@ public class Client {
 	private Socket socket;
 
 	SocketChannel socket_channel;
-	private Server_RMI_Interface remote_registration_result;
+	private Server_RMI_Interface server_rmi_interface;
+	private Client_RMI_Imp client_rmi;
+	private Client_RMI_Interface client_rmi_stub;
 	private LocalUser user;
 	private boolean _on = false;
 	private boolean connected = false;
@@ -34,6 +36,7 @@ public class Client {
 		 * 1. load server properties
 		 * 2. create client interface
 		 * 3. connect to server's RMI
+		 * 4. create client's RMI
 		 */
 
 		// 1. load server properties
@@ -45,10 +48,19 @@ public class Client {
 		// 3. connect to server's RMI
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
-			remote_registration_result = (Server_RMI_Interface) r.lookup(properties.get_rmi_name());
+			server_rmi_interface = (Server_RMI_Interface) r.lookup(properties.get_rmi_name());
 			_on = true;
 		} catch (Exception e) {
 			System.err.println("Client exception: " + e);
+		}
+
+		// 4. create client's RMI
+		try {
+			client_rmi = new Client_RMI_Imp(this);
+			client_rmi_stub = (Client_RMI_Interface) UnicastRemoteObject.exportObject(client_rmi, 0);
+		} catch (RemoteException e) {
+			System.err.println("Client exception: " + e.getMessage());
+			_on = false;
 		}
 	}
 
@@ -65,6 +77,7 @@ public class Client {
 	}
 
 	public boolean is_on() {
+		// DEBUG
 		return _on;
 	}
 
@@ -142,7 +155,7 @@ public class Client {
 
 		String[] tags_array = new String[tags.size()];
 		tags_array = tags.toArray(tags_array);
-		int result = remote_registration_result.register_user(username, password, tags_array);
+		int result = server_rmi_interface.register_user(username, password, tags_array);
 
 		// 2. Print the result
 		if (result == 0)
@@ -203,6 +216,20 @@ public class Client {
 			if (login_response.getString(0).equals(Win_message.SUCCESS)) {
 				logged = true;
 				this.user = new LocalUser(username);
+				try {
+					if (server_rmi_interface.receive_updates(client_rmi_stub, username)==0) {
+						System.out.println("RMI registered");
+					} else {
+						System.out.println("RMI not registered");
+						logout();
+						return -1;
+					}
+				} catch (RemoteException e) {
+					System.out.println(e.getMessage());
+					System.out.println("RMI not registered");
+					logout();
+					return -1;
+				}
 				return 0;
 			} else if (login_response.getString(0).equals(Win_message.ERROR)) {
 				System.out.println("Login failed : " + login_response.getString(1));
@@ -261,6 +288,8 @@ public class Client {
 			}
 
 			logged = false;
+
+			user = null;
 
 			//4. Disconnect from server
 			disconnect();
@@ -341,9 +370,26 @@ public class Client {
 	 * @return
 	 * @throws NullPointerException
 	 */
-	public List<String> listFollowers()
-			throws NullPointerException {
-		return null;
+	public List<String> listFollowers() {
+		/*
+		 * list followers
+		 *
+		 * 1. Return the list of followers
+		 */
+
+		System.out.println("list followers");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		// 1. Return the list of followers
+		return user.get_followers();
 	}
 
 	/**
@@ -351,10 +397,50 @@ public class Client {
 	 * follower. Questo metodo è corrispondente al comando list following.
 	 *
 	 * @return
-	 * @throws NullPointerException
 	 */
-	public List<String> listFollowing()
-			throws NullPointerException {
+	public List<String> listFollowing() {
+		/*
+		 * list following
+		 *
+		 * 1. Send list following request to server
+		 * 2. Receive list following response from server
+		 * 3. Return the list of following
+		 */
+
+		System.out.println("list following");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		try {
+			// 1. Send list following request to server
+			Win_message list_following_request = new Win_message();
+			list_following_request.addString(Win_message.LIST_FOLLOWING_REQUEST);
+			list_following_request.send(socket_channel);
+
+			// 2. Receive list following response from server
+			Win_message list_following_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (list_following_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("List following failed : " + list_following_response.getString(1));
+				return null;
+			} else if (list_following_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. Return the list of following
+				return list_following_response.getStrings().subList(1, list_following_response.getStrings().size());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 
@@ -372,8 +458,7 @@ public class Client {
 		 *
 		 * 1. Send follow user request to server
 		 * 2. Receive follow user response from server
-		 * 3. If follow user is successful, add idUser to following list
-		 * 4. Return true
+		 * 3. Return true
 		 */
 
 		System.out.println("follow user " + idUser);
@@ -402,9 +487,7 @@ public class Client {
 				System.out.println("Follow user failed : " + follow_user_response.getString(1));
 				return false;
 			} else if (follow_user_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If follow user is successful, add idUser to following list
-				user.add_following(idUser);
-				// 4. Return true
+				// 3. Return true
 				return true;
 			}
 
@@ -428,8 +511,7 @@ public class Client {
 		 *
 		 * 1. Send unfollow user request to server
 		 * 2. Receive unfollow user response from server
-		 * 3. If unfollow user is successful, remove idUser from following list
-		 * 4. Return true
+		 * 3. Return true
 		 */
 
 		System.out.println("unfollow user " + idUser);
@@ -458,9 +540,7 @@ public class Client {
 				System.out.println("Unfollow user failed : " + unfollow_user_response.getString(1));
 				return false;
 			} else if (unfollow_user_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If unfollow user is successful, remove idUser from following list
-				user.remove_following(idUser);
-				// 4. Return true
+				// 3. Return true
 				return true;
 			}
 
@@ -996,20 +1076,75 @@ public class Client {
 
 
 	public void exit() {
+
+		try {
+			UnicastRemoteObject.unexportObject(client_rmi, true);
+		} catch (NoSuchObjectException ignored) {
+		}
+
+		System.out.flush();
+
 		logout();
 		_on = false;
 	}
 
 
 	public int add_follower(String username) {
-		return 0;
+		/*
+		 * this method is used to add a follower to the local user
+		 *
+		 * 1. add the follower to the local user if it is not already present
+		 * 2. return the result
+		 */
+
+		if (username == null) return -1;
+
+		if (user.get_followers().contains(username)) {
+			return -1;
+		} else {
+			user.add_follower(username);
+			return 0;
+		}
 	}
 
 	public int addAll_followers(String[] followers) {
+		/*
+		 * this method is used to add a list of followers to the local user
+		 *
+		 * 1. add the followers to the local user if they are not already present
+		 * 2. return the result
+		 */
+
+		if (followers == null) return -1;
+
+		for (String follower : followers) {
+			if (!user.get_followers().contains(follower)) {
+				user.add_follower(follower);
+			}
+		}
+
 		return 0;
 	}
 
 	public int set_multicast(String ip, int port) {
 		return 0;
+	}
+
+	public int remove_follower(String username) {
+		/*
+		 * this method is used to remove a follower from the local user
+		 *
+		 * 1. remove the follower from the local user if it is present
+		 * 2. return the result
+		 */
+
+		if (username == null) return -1;
+
+		if (user.get_followers().contains(username)) {
+			user.remove_follower(username);
+			return 0;
+		} else {
+			return -1;
+		}
 	}
 }

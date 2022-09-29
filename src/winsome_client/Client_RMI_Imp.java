@@ -12,10 +12,14 @@ public class Client_RMI_Imp extends RemoteObject implements Client_RMI_Interface
 	}
 
 	@Override
-	public int send_follower_update(String username) throws java.rmi.RemoteException {
+	public int send_follower_update(String username, boolean add) throws java.rmi.RemoteException {
 		int res;
 		synchronized (client) {
-			res = client.add_follower(username);
+			if (add) {
+				res = client.add_follower(username);
+			} else {
+				res = client.remove_follower(username);
+			}
 		}
 		return res;
 	}

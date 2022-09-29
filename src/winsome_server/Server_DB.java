@@ -18,7 +18,6 @@ public class Server_DB {
 
 
 
-
 	// public constants
 	public enum DB_ERROR_CODE {
 		SUCCESS(0),
@@ -330,6 +329,27 @@ public class Server_DB {
 
 		// 1. Get the list of users with common tags.
 		return users.users_with_common_tags(username);
+	}
+
+	public List<String> user_followings(String username) {
+		/*
+		 * This method is used to get a list of users that the user is following.
+		 *
+		 * 1. Get the list of users that the user is following.
+		 */
+
+		// 1. Get the list of users that the user is following.
+		return users.get_users_following(username);
+	}
+	public List<String> user_followers(String username) {
+		/*
+		 * This method is used to get a list of users that are following the user.
+		 *
+		 * 1. Get the list of users that are following the user.
+		 */
+
+		// 1. Get the list of users that are following the user.
+		return users.get_users_followers(username);
 	}
 
 	public int follow_username(String user, String username_to_follow) {

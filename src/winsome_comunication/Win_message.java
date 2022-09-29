@@ -12,7 +12,6 @@ public class Win_message {
 	public static final String LOGIN_REQUEST = "LOGIN";
 	public static final String LOGOUT_REQUEST = "LOGOUT";
 	public static final String LIST_USERS_REQUEST = "LIST_USERS";
-	public static final String LIST_FOLLOWERS_REQUEST = "LIST_FOLLOWERS";
 	public static final String LIST_FOLLOWING_REQUEST = "LIST_FOLLOWING";
 	public static final String FOLLOW_REQUEST = "FOLLOW";
 	public static final String UNFOLLOW_REQUEST = "UNFOLLOW";

@@ -5,13 +5,13 @@ import winsome_comunication.*;
 import java.io.IOException;
 import java.net.*;
 import java.nio.channels.*;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -345,7 +345,6 @@ public class Server {
 		// 3. If the user is logged in, remove the user from the logged in users
 		this.connections_manager.remove_connection(address);
 
-
 		// 4. Return the result
 		result.addString(Win_message.SUCCESS);
 		return result;
@@ -374,6 +373,32 @@ public class Server {
 		// 3. If the user is logged in, return the list of users
 		result.addString(Win_message.SUCCESS);
 		result.addStrings(this.server_db.users_with_common_tags(this.connections_manager.get_username(address)));
+		return result;
+	}
+
+	public Win_message list_followings_request(String address)
+	{
+		/*
+		 * list all the users that the user is following
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, return the list of users
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.connections_manager.is_address_connected(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, return the list of users
+		result.addString(Win_message.SUCCESS);
+		result.addStrings(this.server_db.user_followings(this.connections_manager.get_username(address)));
 		return result;
 	}
 
@@ -740,6 +765,7 @@ public class Server {
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
 		 * 3. If the user is logged in, register the client to receive updates
+		 * 4. send to the newly registered client the user's followers
 		 */
 
 		// 1. Check if the user is logged in
@@ -750,6 +776,13 @@ public class Server {
 
 		// 3. If the user is logged in, register the client to receive updates
 		this.connections_manager.register_callback_of_user(username, callback);
+
+		// 4. send to the newly registered client the user's followers
+		try {
+			callback.send_followers(this.server_db.user_followers(username).toArray(new String[0]));
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
 
 		return 0;
 	}

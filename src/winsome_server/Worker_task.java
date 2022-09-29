@@ -95,7 +95,8 @@ public class Worker_task implements Runnable {
          * 11. rewin_post
          * 12. comment
          * 13. rate
-         * 14. ...
+         * 14. list_following
+         * 15. ...
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -293,6 +294,13 @@ public class Worker_task implements Runnable {
                 }
 
                 response = this.server.rate_request(address, parameters[0], parameters[1]);
+                break;
+            // 2.14 list_following
+            case Win_message.LIST_FOLLOWING_REQUEST:
+                // the request is a list_followings request
+                // the response will be a string "success" or "error, reason"
+
+                response = this.server.list_followings_request(address);
                 break;
             default:
                 // the request is not valid

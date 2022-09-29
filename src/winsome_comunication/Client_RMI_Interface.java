@@ -19,6 +19,7 @@ public interface Client_RMI_Interface extends Remote {
 	 * the method returns a boolean value to indicate if the update was successful or not
 	 *
 	 * @param username the username of the user that has been followed
+	 * @param add a boolean value to indicate if the user has been followed or unfollowed
 	 * @return a boolean value to indicate if the update was successful or not
 	 * @throws java.rmi.RemoteException
 	 *
@@ -26,7 +27,7 @@ public interface Client_RMI_Interface extends Remote {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	int send_follower_update(String username) throws java.rmi.RemoteException;
+	int send_follower_update(String username, boolean add) throws java.rmi.RemoteException;
 
 	/**
 	 * send_followers is used to send the followers of a user to the client

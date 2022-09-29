@@ -12,6 +12,19 @@
     "following" : [ "pippo" ],
     "followers" : [ "pippo" ]
   },
+  "tigre" : {
+    "username" : "tigre",
+    "password" : "tigre00",
+    "tags" : [ "dogslife", "cibo", "corsa" ],
+    "wallet" : {
+      "username" : "tigre",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ ],
+    "followers" : [ ]
+  },
   "pluto" : {
     "username" : "pluto",
     "password" : "pluto00",

@@ -9,6 +9,6 @@ public class Client_shutdown_hook extends Thread {
 
 	@Override
 	public void run() {
-		client.exit();
+		if (client.is_on()) client.exit();
 	}
 }

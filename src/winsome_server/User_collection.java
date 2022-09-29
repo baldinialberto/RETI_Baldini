@@ -344,8 +344,5 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(new File(filePath), User_collection.class);
 	}
-
-
-
 }
 

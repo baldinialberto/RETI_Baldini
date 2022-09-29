@@ -21,9 +21,9 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ ],
-    "following" : [ ],
-    "followers" : [ ]
+    "posts" : [ "1" ],
+    "following" : [ "nina" ],
+    "followers" : [ "nina" ]
   },
   "pippo" : {
     "username" : "pippo",
@@ -34,8 +34,21 @@
       "balance" : 0.0,
       "transactions" : [ ]
     },
-    "posts" : [ "0" ],
+    "posts" : [ ],
     "following" : [ "topolino" ],
     "followers" : [ "topolino" ]
+  },
+  "nina" : {
+    "username" : "nina",
+    "password" : "puppettina",
+    "tags" : [ "gioco", "cibo", "dogslife" ],
+    "wallet" : {
+      "username" : "nina",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ "0", "1" ],
+    "following" : [ "pluto" ],
+    "followers" : [ "pluto" ]
   }
 }

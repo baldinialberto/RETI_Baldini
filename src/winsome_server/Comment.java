@@ -33,6 +33,9 @@ public class Comment extends User_interaction {
         // 3. Set the time created of this comment.
         this.time_created = new Timestamp(System.currentTimeMillis());
     }
+    // Empty constructor
+    public Comment() {
+    }
 
     public Comment_simple to_comment_simple() {
         /*

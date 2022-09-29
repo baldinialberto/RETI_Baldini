@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_comunication.Client_RMI_Interface;
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
 import winsome_comunication.Win_message;
@@ -732,5 +733,8 @@ public class Server {
 		}
 
 		return result;
+	}
+
+	public int receive_updates(Client_RMI_Interface callback) {
 	}
 }

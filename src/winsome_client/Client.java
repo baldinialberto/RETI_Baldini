@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-	private ClientInterface c_interface;
+	private ClientCLI c_interface;
 	private Client_properties properties;
 	private Socket socket;
 
@@ -40,7 +40,7 @@ public class Client {
 		properties = new Client_properties("client_config.txt");
 
 		// 2. create client interface
-		c_interface = new ClientInterface(this);
+		c_interface = new ClientCLI(this);
 
 		// 3. connect to server's RMI
 		try {
@@ -208,8 +208,6 @@ public class Client {
 				this.user = new LocalUser(username);
 				return 0;
 			} else if (login_response.getString(0).equals(Win_message.ERROR)) {
-				logged = false;
-				this.user = null;
 				System.out.println("Login failed : " + login_response.getString(1));
 				return -1;
 			}
@@ -921,7 +919,7 @@ public class Client {
 	 * @param comment
 	 * @return
 	 */
-	public boolean addComment(String idPost, Comment comment) {
+	public boolean addComment(String idPost, String comment) {
 		/*
 		 * comment <idPost> <comment>
 		 *
@@ -948,7 +946,7 @@ public class Client {
 			Win_message comment_request = new Win_message();
 			comment_request.addString(Win_message.COMMENT_REQUEST);
 			comment_request.addString(idPost);
-			comment_request.addString(comment.toString());
+			comment_request.addString(comment);
 			comment_request.send(socket_channel);
 
 			// 2. Receive comment response from server

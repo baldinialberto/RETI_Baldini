@@ -13,12 +13,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class ClientInterface {
+public class ClientCLI {
 
 	private final Client client;
 	HashMap<String, Method> commands;
 
-	public ClientInterface(Client client) {
+	public ClientCLI(Client client) {
 		this.client = client;
 		populate_commands();
 	}
@@ -648,7 +648,7 @@ public class ClientInterface {
 		}
 		try
 		{
-			if (client.addComment(post_id, client.create_comment(comment.toString())))
+			if (client.addComment(post_id, comment.toString()))
 			{
 				// 3. print the result
 				System.out.println("comment command : Comment added");

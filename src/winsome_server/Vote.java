@@ -37,6 +37,9 @@ public class Vote extends User_interaction {
         // 3. Set the time created of this vote.
         this.time_created = new Timestamp(System.currentTimeMillis());
     }
+    // Empty constructor
+    public Vote() {
+    }
 
     // Getters
     public boolean getVote() {

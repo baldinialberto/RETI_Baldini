@@ -7,13 +7,19 @@ public class CConnection {
 	// member variables
 	private final String address;
 	private final String username;
-	private final Client_RMI_Interface callback;
+	private Client_RMI_Interface callback;
 
 	// constructor
 	public CConnection(String address, String username, Client_RMI_Interface callback) {
 		this.address = address;
 		this.username = username;
 		this.callback = callback;
+	}
+	// partial constructor
+	public CConnection(String address, String username) {
+		this.address = address;
+		this.username = username;
+		this.callback = null;
 	}
 
 	// getters
@@ -28,5 +34,7 @@ public class CConnection {
 	}
 
 	// setters
-	// none
+	public void set_callback(Client_RMI_Interface callback) {
+		 this.callback = callback;
+	}
 }

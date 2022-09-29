@@ -13,7 +13,7 @@ public class Server_RMI_Imp extends RemoteObject implements Server_RMI_Interface
 	}
 
 	@Override
-	public int register_user(String username, String password, String[] tags) {
+	public int register_user(String username, String password, String[] tags) throws java.rmi.RemoteException {
 		int res;
 		synchronized (server) {
 			res =  server.register_request(username, password, tags);
@@ -22,12 +22,12 @@ public class Server_RMI_Imp extends RemoteObject implements Server_RMI_Interface
 	}
 
 	@Override
-	public int receive_updates(Client_RMI_Interface callback) {
+	public int receive_updates(Client_RMI_Interface callback, String username) throws java.rmi.RemoteException {
 		int res;
 		synchronized (server) {
-			res = server.receive_updates(callback);
+			res = server.receive_updates(callback, username);
 		}
 		return res;
 	}
 }
-}
+

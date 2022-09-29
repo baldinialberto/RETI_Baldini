@@ -12,28 +12,28 @@ public class Client_RMI_Imp extends RemoteObject implements Client_RMI_Interface
 	}
 
 	@Override
-	public int send_follower_update(String username) {
+	public int send_follower_update(String username) throws java.rmi.RemoteException {
 		int res;
 		synchronized (client) {
-			res = client.send_follower_update(username);
+			res = client.add_follower(username);
 		}
 		return res;
 	}
 
 	@Override
-	public int send_followers(String[] followers) {
+	public int send_followers(String[] followers) throws java.rmi.RemoteException {
 		int res;
 		synchronized (client) {
-			res = client.send_followers(followers);
+			res = client.addAll_followers(followers);
 		}
 		return res;
 	}
 
 	@Override
-	public int send_multicast_details(String ip, int port) {
+	public int send_multicast_details(String ip, int port) throws java.rmi.RemoteException {
 		int res;
 		synchronized (client) {
-			res = client.send_multicast_details(ip, port);
+			res = client.set_multicast(ip, port);
 		}
 		return res;
 	}

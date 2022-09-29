@@ -194,4 +194,97 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 		// 3. if the connection exists, return the username
 		return this.get(address).get_username();
 	}
+
+	/**
+	 * is_user_connected
+	 * this method is used to check if a user is connected
+	 *
+	 * @param username the username of the user
+	 * @return true if the user is connected, false otherwise
+	 */
+	public boolean is_user_connected(String username)
+	{
+		/*
+		 * check if a user is connected
+		 *
+		 * 1. check the parameters
+		 * 2. loop through the connections manager
+		 * 3. check if the username exists
+		 */
+
+		// 1. check the parameters
+		if (username == null)
+			return false;
+
+		// 2. loop through the connections manager
+		for (CConnection c : this.values())
+		{
+			// 3. check if the username exists
+			if (c.get_username().equals(username))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * is_address_connected
+	 * this method is used to check if a client is connected with a specific address
+	 *
+	 * @param address the address of the client
+	 * @return true if the client is connected, false otherwise
+	 */
+	public boolean is_address_connected(String address)
+	{
+		/*
+		 * check if a client is connected with a specific address
+		 *
+		 * 1. check the parameters
+		 * 2. return the result
+		 */
+
+		// 1. check the parameters
+		if (address == null)
+			return false;
+
+		// 2. return the result
+		return this.containsKey(address);
+	}
+
+	/**
+	 * register_callback_of_user
+	 * this method is used to register the callback of a user
+	 *
+	 * @param username the username of the user
+	 * @param callback the callback of the user
+	 * @return true if the callback was registered successfully, false otherwise
+	 */
+	public boolean register_callback_of_user(String username, Client_RMI_Interface callback)
+	{
+		/*
+		 * register the callback of a user
+		 *
+		 * 1. check the parameters
+		 * 2. loop through the connections manager
+		 * 3. if the username exists, register the callback
+		 * 4. return the result
+		 */
+
+		// 1. check the parameters
+		if (username == null || callback == null)
+			return false;
+
+		// 2. loop through the connections manager
+		for (CConnection c : this.values())
+		{
+			// 3. if the username exists, register the callback
+			if (c.get_username().equals(username))
+			{
+				c.set_callback(callback);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

@@ -2,8 +2,8 @@ package winsome_client;
 
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
+import winsome_comunication.Server_RMI_Interface;
 import winsome_comunication.Win_message;
-import winsome_server.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -21,7 +21,7 @@ public class Client {
 	private Socket socket;
 
 	SocketChannel socket_channel;
-	private RMI_registration_int remote_registration_result;
+	private Server_RMI_Interface remote_registration_result;
 	private LocalUser user;
 	private boolean _on = false;
 	private boolean connected = false;
@@ -45,7 +45,7 @@ public class Client {
 		// 3. connect to server's RMI
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
-			remote_registration_result = (RMI_registration_int) r.lookup(properties.get_rmi_name());
+			remote_registration_result = (Server_RMI_Interface) r.lookup(properties.get_rmi_name());
 			_on = true;
 		} catch (Exception e) {
 			System.err.println("Client exception: " + e);
@@ -128,10 +128,9 @@ public class Client {
 	 * @param username
 	 * @param password
 	 * @param tags
-	 * @throws Winsome_exceptions.UsernameAlreadyExists
 	 */
 	public void register(String username, String password, List<String> tags)
-			throws Winsome_exceptions.UsernameAlreadyExists, RemoteException {
+			throws RemoteException {
 		/*
 		 * register a new user
 		 *
@@ -143,7 +142,7 @@ public class Client {
 
 		String[] tags_array = new String[tags.size()];
 		tags_array = tags.toArray(tags_array);
-		int result = remote_registration_result.registerUser(username, password, tags_array);
+		int result = remote_registration_result.register_user(username, password, tags_array);
 
 		// 2. Print the result
 		if (result == 0)
@@ -165,10 +164,8 @@ public class Client {
 	 * @param username
 	 * @param password
 	 * @return
-	 * @throws Winsome_exceptions.WrongPassword
 	 */
-	public int login(String username, String password)
-			throws Winsome_exceptions.WrongPassword {
+	public int login(String username, String password) {
 		/*
 		 * login to server
 		 *
@@ -976,9 +973,7 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public Wallet getWallet() {
-		return null;
-	}
+
 
 	/**
 	 * Operazione per recuperare il valore del proprio portafoglio convertito in
@@ -997,19 +992,8 @@ public class Client {
 		System.out.println("Client:test()");
 	}
 
-	public Post create_post(String title, String content) throws Winsome_exceptions.UserNotLogged {
-		if (user == null) {
-			throw new Winsome_exceptions.UserNotLogged();
-		}
-		return null;//new Post(this.user.getUsername(), title, content);
-	}
 
-	public Comment create_comment(String comment) throws Winsome_exceptions.UserNotLogged {
-		if (user == null) {
-			throw new Winsome_exceptions.UserNotLogged();
-		}
-		return null;//new Comment(this.user.getUsername(), comment);
-	}
+
 
 	public void exit() {
 		logout();
@@ -1017,4 +1001,15 @@ public class Client {
 	}
 
 
+	public int add_follower(String username) {
+		return 0;
+	}
+
+	public int addAll_followers(String[] followers) {
+		return 0;
+	}
+
+	public int set_multicast(String ip, int port) {
+		return 0;
+	}
 }

@@ -664,25 +664,7 @@ public class ClientCLI {
 	}
 
 	private void wallet_command(List<String> args) {
-		/*
-		 * wallet
-		 *
-		 * 1. call the wallet method of the client
-		 * 2. print the result
-		 */
 
-		// 1. call the wallet method of the client
-		try
-		{
-			Wallet wallet = client.getWallet();
-			// 2. print the result
-			System.out.println("wallet command : Wallet :");
-			System.out.println(wallet);
-		}
-		catch (Exception e)
-		{
-			System.out.println(e.getMessage());
-		}
 	}
 
 	private void wallet_btc_command(List<String> args) {

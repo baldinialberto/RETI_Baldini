@@ -42,5 +42,5 @@ public interface Server_RMI_Interface extends Remote {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	int receive_updates(Client_RMI_Interface callback) throws java.rmi.RemoteException;
+	int receive_updates(Client_RMI_Interface callback, String username) throws java.rmi.RemoteException;
 }

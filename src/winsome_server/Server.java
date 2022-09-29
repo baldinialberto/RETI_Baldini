@@ -1,9 +1,6 @@
 package winsome_server;
 
-import winsome_comunication.Client_RMI_Interface;
-import winsome_comunication.Post_detailed;
-import winsome_comunication.Post_simple;
-import winsome_comunication.Win_message;
+import winsome_comunication.*;
 
 import java.io.IOException;
 import java.net.*;
@@ -30,9 +27,6 @@ public class Server {
 	private Selector selector;
 	// Connection Manager
 	private final CConnections_Manager connections_manager = new CConnections_Manager();
-	// Client addresses
-	private final ConcurrentHashMap<String, String> client_addresses = new ConcurrentHashMap<>();
-
 
 	// constructor
 	public Server(String serverProperties_configFile, String clientProperties_configFile) {
@@ -87,8 +81,8 @@ public class Server {
 			// TODO: create a new udp server socket
 
 			// 6. Create a new server RMI object and bind it to the registry
-			Server_RMI server_rmi = new Server_RMI(this);
-			RMI_registration_int stub = (RMI_registration_int) UnicastRemoteObject.exportObject(server_rmi, 0);
+			Server_RMI_Imp server_rmi = new Server_RMI_Imp(this);
+			Server_RMI_Interface stub = (Server_RMI_Interface) UnicastRemoteObject.exportObject(server_rmi, 0);
 			LocateRegistry.createRegistry(this.properties.get_registry_port());
 			Registry registry = LocateRegistry.getRegistry(this.properties.get_registry_port());
 			registry.rebind(this.properties.get_rmi_name(), stub);
@@ -257,19 +251,6 @@ public class Server {
 		server_db.save_DB();
 	}
 
-	public SocketChannel get_client_channel(String address)
-	{
-		/*
-		 * Get the client channel from the client connection manager
-		 *
-		 * 1. Get the client channel from the client connection manager
-		 * 2. Return the client channel
-		 */
-
-		// 1. Get the client channel from the client connection manager
-		// 2. Return the client channel
-		return this.connections_manager.get_connection(address).get_socket_channel();
-	}
 
 	// Client Interactions
 	public int register_request(String username, String password, String[] tags) {
@@ -298,12 +279,12 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is already logged in
-		if (this.client_addresses.contains(username)) {
+		if (this.connections_manager.is_user_connected(username)) {
 			// 2. If the user is already logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User already logged in");
 			return result;
-		} else if (this.client_addresses.containsKey(address)) {
+		} else if (this.connections_manager.is_address_connected(address)) {
 			// 2. If the client is already logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("Client already logged in with another user");
@@ -313,7 +294,16 @@ public class Server {
 		// 3. If the user is not logged in, check if the username and password are correct
 		if (this.server_db.user_check_password(username, password)) {
 			// 4. If the username and password are correct, add the user to the logged in users
-			this.client_addresses.put(address, username);
+			if (this.connections_manager.add_connection(new CConnection(address, username)) != 0)
+			{
+				// DEBUG
+				System.out.println("Error: failed to add the connection to the connections manager");
+				
+				// 5. Return the result
+				result.addString(Win_message.ERROR);
+				result.addString("Error: failed to add the user to the logged in users");
+				return result;
+			}
 
 			// DEBUG
 			System.out.println("User " + username + " logged in from " + address);
@@ -342,7 +332,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -350,10 +340,10 @@ public class Server {
 		}
 
 		// DEBUG
-		System.out.println("User " + this.client_addresses.get(address) + " logged out from " + address);
+		System.out.println("User " + this.connections_manager.get_username(address) + " logged out from " + address);
 
 		// 3. If the user is logged in, remove the user from the logged in users
-		this.client_addresses.remove(address);
+		this.connections_manager.remove_connection(address);
 
 
 		// 4. Return the result
@@ -374,7 +364,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -383,7 +373,7 @@ public class Server {
 
 		// 3. If the user is logged in, return the list of users
 		result.addString(Win_message.SUCCESS);
-		result.addStrings(this.server_db.users_with_common_tags(this.client_addresses.get(address)));
+		result.addStrings(this.server_db.users_with_common_tags(this.connections_manager.get_username(address)));
 		return result;
 	}
 
@@ -401,7 +391,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -409,7 +399,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to follow the user
-		int res = this.server_db.follow_username(this.client_addresses.get(address), username);
+		int res = this.server_db.follow_username(this.connections_manager.get_username(address), username);
 		if (res == Server_DB.DB_ERROR_CODE.SUCCESS.ordinal()) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
@@ -436,7 +426,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -444,7 +434,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to unfollow the user
-		if (this.server_db.unfollow_username(this.client_addresses.get(address), username) == 0) {
+		if (this.server_db.unfollow_username(this.connections_manager.get_username(address), username) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -470,7 +460,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -478,8 +468,8 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to create the post
-		if (this.server_db.add_post(this.client_addresses.get(address),
-				this.client_addresses.get(address), title, content) == 0) {
+		if (this.server_db.add_post(this.connections_manager.get_username(address),
+				this.connections_manager.get_username(address), title, content) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -504,7 +494,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -512,7 +502,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the blog
-		ArrayList<Post_simple> posts = this.server_db.get_blog(this.client_addresses.get(address));
+		ArrayList<Post_simple> posts = this.server_db.get_blog(this.connections_manager.get_username(address));
 		if (posts == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
@@ -542,7 +532,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -578,7 +568,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -586,7 +576,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the feed
-		ArrayList<Post_simple> posts = this.server_db.get_feed(this.client_addresses.get(address));
+		ArrayList<Post_simple> posts = this.server_db.get_feed(this.connections_manager.get_username(address));
 		if (posts == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
@@ -616,7 +606,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -624,7 +614,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to delete the post
-		if (this.server_db.delete_post(client_addresses.get(address), postId) == 0) {
+		if (this.server_db.delete_post(connections_manager.get_username(address), postId) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -649,7 +639,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -657,7 +647,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to rewin the post
-		if (this.server_db.rewin_post(client_addresses.get(address), postId) == 0) {
+		if (this.server_db.rewin_post(connections_manager.get_username(address), postId) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -682,7 +672,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -690,7 +680,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to comment on the post
-		if (this.server_db.comment_post(client_addresses.get(address), postId, comment) == 0) {
+		if (this.server_db.comment_post(connections_manager.get_username(address), postId, comment) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -715,7 +705,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.client_addresses.containsKey(address)) {
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -723,7 +713,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to rate the post
-		if (this.server_db.rate_post(client_addresses.get(address), postId, rate) == 0) {
+		if (this.server_db.rate_post(connections_manager.get_username(address), postId, rate) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -735,6 +725,32 @@ public class Server {
 		return result;
 	}
 
-	public int receive_updates(Client_RMI_Interface callback) {
+	/**
+	 * receive_updates
+	 * this method register the client to receive updates about the followers
+	 *
+	 * @param callback the callback object to call when an update is pending
+	 * @param username the username of the client
+	 * @return 0 if success, an error code otherwise
+	 */
+	public int receive_updates(Client_RMI_Interface callback, String username) {
+		/*
+		 * Receive updates from the server
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, register the client to receive updates
+		 */
+
+		// 1. Check if the user is logged in
+		if (!this.connections_manager.is_user_connected(username)) {
+			// 2. If the user is not logged in, return an error message
+			return -1;
+		}
+
+		// 3. If the user is logged in, register the client to receive updates
+		this.connections_manager.register_callback_of_user(username, callback);
+
+		return 0;
 	}
 }

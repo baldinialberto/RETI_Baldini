@@ -24,8 +24,12 @@ public class Server_DB {
 		SUCCESS(0),
 		USR_NOT_FOUND(-1),
 		USR_ALREADY_EXISTS(-2),
-
-		USR_ALREADY_FOLLOWING(-3);
+		USR_ALREADY_FOLLOWING(-3),
+		POST_NOT_FOUND(-4),
+		POST_NOT_AUTHORIZED(-5),
+		POST_ALREADY_RATED(-6),
+		POST_INVALID_RATING(-7),
+		POST_ALREADY_EXISTS(-8);
 
 		private final int value;
 
@@ -58,6 +62,16 @@ public class Server_DB {
 					return "USERNAME ALREADY EXISTS";
 				case USR_ALREADY_FOLLOWING:
 					return "USERNAME ALREADY FOLLOWING";
+				case POST_NOT_FOUND:
+					return "POST NOT FOUND";
+				case POST_NOT_AUTHORIZED:
+					return "POST OPERATION NOT AUTHORIZED";
+				case POST_ALREADY_RATED:
+					return "POST ALREADY RATED";
+				case POST_INVALID_RATING:
+					return "POST INVALID RATING, MUST BE +1 OR -1";
+				case POST_ALREADY_EXISTS:
+					return "POST ALREADY EXISTS";
 				default:
 					return "UNKNOWN_ERROR";
 			}
@@ -128,11 +142,76 @@ public class Server_DB {
 		 * 2. Add the post to the user.
 		 */
 
-		// 1. Add the post to the posts.
-		posts.add_post(author, title, text);
+		if (users.user_exists(author) && users.user_exists(username)) {
+			// 1. Add the post to the posts.
+			posts.add_post(author, title, text);
 
-		// 2. Add the post to the user.
-		return users.add_post(username, posts.getLast_post_id());
+			// 2. Add the post to the user.
+			return users.add_post(username, posts.getLast_post_id());
+		} else {
+			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
+		}
+	}
+
+	public int delete_post(String user, String postId) {
+		/*
+		 * This method is used to delete a post from the database.
+		 *
+		 * 1. If the post is in the user's blog, remove it.
+		 * 2. If the user is also the author of the post, remove it from the posts.
+		 * and remove it from every user's blog.
+		 */
+		int res;
+
+		if (users.user_exists(user)) {
+			// 1. If the post is in the user's blog, remove it.
+			if ((res = users.delete_post(user, postId)) == 0) {
+				// 2. If the user is also the author of the post, remove it from the posts.
+				// and remove it from every user's blog.
+				if (posts.is_author(user, postId)) {
+					posts.delete_post(user, postId);
+					users.remove_post_from_blogs(postId);
+				}
+				return DB_ERROR_CODE.SUCCESS.getValue();
+			} else {
+				return res;
+			}
+		} else {
+			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
+		}
+	}
+
+	public int rewin_post(String user, String postId) {
+		/*
+		 * This method is used to rewin a post.
+		 *
+		 * 1. Rewin the post (add the post to the user).
+		 */
+
+		// 1. Rewin the post (add the post to the user).
+		return users.add_post(user, postId);
+	}
+
+	public int comment_post(String user, String postId, String comment) {
+		/*
+		 * This method is used to comment a post.
+		 *
+		 * 1. Comment the post.
+		 */
+
+		// 1. Comment the post.
+		return posts.comment_post(postId, user, comment);
+	}
+
+	public int rate_post(String user, String postId, String rate) {
+		/*
+		 * This method is used to rate a post.
+		 *
+		 * 1. Rate the post.
+		 */
+
+		// 1. Rate the post.
+		return posts.rate_post(postId, user, rate);
 	}
 
 	private void load_posts() {

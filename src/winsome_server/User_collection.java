@@ -79,19 +79,22 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		 * This method is used to add a post to the user collection.
 		 *
 		 * 1. If the user collection contains the user, add the post to the user.
-		 * 2. Return 0.
-		 * 3. If the user collection does not contain the user, return -1.
+		 * 2. If the user already has the post int his blog, return POST_ALREADY_EXISTS.
+		 * 3. If the user collection does not contain the user, return USR_NOT_FOUND.
 		 */
 
 		// 1. If the user collection contains the user, add the post to the user.
 		if (this.containsKey(username)) {
+			// 2. If the user already has the post int his blog, return POST_ALREADY_EXISTS.
+			if (this.get(username).getPosts().contains(post_id)) {
+				return Server_DB.DB_ERROR_CODE.POST_ALREADY_EXISTS.getValue();
+			}
 			this.get(username).add_post(post_id);
-			// 2. Return 0.
-			return 0;
+			return Server_DB.DB_ERROR_CODE.SUCCESS.getValue();
 		}
 
 		// 3. If the user collection does not contain the user, return -1.
-		return -1;
+		return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
 	}
 
 	public List<String> users_with_common_tags(String username)
@@ -219,7 +222,45 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		// 6. Return 0.
 		return 0;
 	}
+	public int delete_post(String user, String postId) {
+		/*
+		 * This method is used to remove a post from the user's blog.
+		 *
+		 * 1. Check if the user is in the user collection.
+		 * 2. Check if the post is in the user's blog.
+		 * 3. Remove the post from the user's blog.
+		 */
 
+		// 1. Check if the user is in the user collection.
+		if (!this.containsKey(user)) {
+			return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
+		}
+
+		// 2. Check if the post is in the user's blog.
+		if (!this.get(user).getPosts().contains(postId)) {
+			return Server_DB.DB_ERROR_CODE.POST_NOT_FOUND.getValue();
+		}
+
+		// 3. Remove the post from the user's blog.
+		this.get(user).getPosts().remove(postId);
+
+		return Server_DB.DB_ERROR_CODE.SUCCESS.getValue();
+	}
+
+	public void remove_post_from_blogs(String postId) {
+		/*
+		 * This method is used to remove a post from all the user's blogs.
+		 *
+		 * 1. Iterate through all the users.
+		 * 2. Remove the post from the user's blog.
+		 */
+
+		// 1. Iterate through all the users.
+		for (User user : this.values()) {
+			// 2. Remove the post from the user's blog.
+			user.getPosts().remove(postId);
+		}
+	}
 	public ArrayList<String> get_user_blog(String username)
 	{
 		/*

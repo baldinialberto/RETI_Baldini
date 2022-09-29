@@ -529,9 +529,15 @@ public class ClientInterface {
 		String post_id = args.get(0);
 		try
 		{
-			client.deletePost(post_id);
-			// 3. print the result
-			System.out.println("delete command : Post deleted");
+			if (client.deletePost(post_id))
+			{
+				// 3. print the result
+				System.out.println("delete command : Post deleted");
+			}
+			else
+			{
+				System.out.println("delete command : Post not deleted");
+			}
 		}
 		catch (Exception e)
 		{
@@ -559,9 +565,15 @@ public class ClientInterface {
 		String post_id = args.get(0);
 		try
 		{
-			client.rewinPost(post_id);
-			// 3. print the result
-			System.out.println("rewin command : Post rewin");
+			if (client.rewinPost(post_id))
+			{
+				// 3. print the result
+				System.out.println("rewin command : Post rewin");
+			}
+			else
+			{
+				System.out.println("rewin command : Post not rewin");
+			}
 		}
 		catch (Exception e)
 		{
@@ -589,16 +601,22 @@ public class ClientInterface {
 		String post_id = args.get(0);
 		String rating = args.get(1);
 		// 2.1 Check if the rating is a number either 1 or -1
-		if (!rating.equals("1") && !rating.equals("-1")) {
+		if (!rating.equals("+1") && !rating.equals("-1")) {
 			System.out.println("rate command : Wrong rating : " +
-					"usage : rate <post_id> <rating>");
+					"usage : rate <post_id> <rating>\n" +
+					"rating must be +1 for like or -1 for dislike");
 			return;
 		}
 		try
 		{
-			client.ratePost(post_id, rating.equals("1"));
-			// 3. print the result
-			System.out.println("rate command : Post rated");
+			if (client.ratePost(post_id, rating.equals("+1")))
+			{
+				// 3. print the result
+				System.out.println("rate command : Post rated");
+			}
+			else {
+				System.out.println("rate command : Post not rated");
+			}
 		}
 		catch (Exception e)
 		{
@@ -630,9 +648,14 @@ public class ClientInterface {
 		}
 		try
 		{
-			client.addComment(post_id, client.create_comment(comment.toString()));
-			// 3. print the result
-			System.out.println("comment command : Post commented");
+			if (client.addComment(post_id, client.create_comment(comment.toString())))
+			{
+				// 3. print the result
+				System.out.println("comment command : Comment added");
+			}
+			else {
+				System.out.println("comment command : Comment not added");
+			}
 		}
 		catch (Exception e)
 		{

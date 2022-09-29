@@ -743,6 +743,51 @@ public class Client {
 	 * @return
 	 */
 	public boolean deletePost(String idPost) {
+		/*
+		 * delete <idPost>
+		 *
+		 * 1. Send delete request to server
+		 * 2. Receive delete response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return true if the operation is successful
+		 */
+
+		System.out.println("delete " + idPost);
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send delete request to server
+			Win_message delete_request = new Win_message();
+			delete_request.addString("delete");
+			delete_request.addString(idPost);
+			delete_request.send(socket_channel);
+
+			// 2. Receive delete response from server
+			Win_message delete_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (delete_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Delete failed : " + delete_response.getString(1));
+				return false;
+			} else if (delete_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Post deleted");
+				// 4. Return true if the operation is successful
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 
@@ -755,6 +800,51 @@ public class Client {
 	 * @return
 	 */
 	public boolean rewinPost(String idPost) {
+		/*
+		 * rewin <idPost>
+		 *
+		 * 1. Send rewin request to server
+		 * 2. Receive rewin response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return true if the operation is successful
+		 */
+
+		System.out.println("rewin " + idPost);
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send rewin request to server
+			Win_message rewin_request = new Win_message();
+			rewin_request.addString("rewin");
+			rewin_request.addString(idPost);
+			rewin_request.send(socket_channel);
+
+			// 2. Receive rewin response from server
+			Win_message rewin_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (rewin_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Rewin failed : " + rewin_response.getString(1));
+				return false;
+			} else if (rewin_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Post rewin");
+				// 4. Return true if the operation is successful
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 
@@ -772,6 +862,52 @@ public class Client {
 	 * @return
 	 */
 	public boolean ratePost(String idPost, boolean voto) {
+		/*
+		 * rate <idPost> <vote>
+		 *
+		 * 1. Send rate request to server
+		 * 2. Receive rate response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return true if the operation is successful
+		 */
+
+		System.out.println("rate " + idPost + " " + (voto ? "1" : "-1"));
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send rate request to server
+			Win_message rate_request = new Win_message();
+			rate_request.addString("rate");
+			rate_request.addString(idPost);
+			rate_request.addString(voto ? "+1" : "-1");
+			rate_request.send(socket_channel);
+
+			// 2. Receive rate response from server
+			Win_message rate_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (rate_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Rate failed : " + rate_response.getString(1));
+				return false;
+			} else if (rate_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Post rated");
+				// 4. Return true if the operation is successful
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 
@@ -788,6 +924,52 @@ public class Client {
 	 * @return
 	 */
 	public boolean addComment(String idPost, Comment comment) {
+		/*
+		 * comment <idPost> <comment>
+		 *
+		 * 1. Send comment request to server
+		 * 2. Receive comment response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return true if the operation is successful
+		 */
+
+		System.out.println("comment " + idPost + " " + comment);
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+
+		try {
+			// 1. Send comment request to server
+			Win_message comment_request = new Win_message();
+			comment_request.addString("comment");
+			comment_request.addString(idPost);
+			comment_request.addString(comment.toString());
+			comment_request.send(socket_channel);
+
+			// 2. Receive comment response from server
+			Win_message comment_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (comment_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Comment failed : " + comment_response.getString(1));
+				return false;
+			} else if (comment_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Comment added");
+				// 4. Return true if the operation is successful
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 

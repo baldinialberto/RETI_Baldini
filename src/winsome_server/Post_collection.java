@@ -40,29 +40,88 @@ public class Post_collection implements JSON_Serializable {
 		last_post_id = post_id;
 	}
 
-	// Getters
-	public String getLast_post_id() {
-		return last_post_id;
-	}
+	public int delete_post(String postId, String user) {
+		/*
+		 * This method is used to delete a post from the post collection.
+		 *
+		 * 1. Check if the post exists.
+		 * 2. Check if the user is the author of the post.
+		 * 3. Delete the post.
+		 * 4. Return the status code.
+		 */
 
-	public Post getPost(String post_id) {
-		return posts.get(post_id);
-	}
+		// 1. Check if the post exists.
+		if (!this.posts.containsKey(postId)) {
+			return Server_DB.DB_ERROR_CODE.POST_NOT_FOUND.getValue();
+		}
 
-	public ConcurrentHashMap<String, Post> getPosts() {
-		return posts;
-	}
+		// 2. Check if the user is the author of the post.
+		if (!this.posts.get(postId).getAuthor().equals(user)) {
+			return Server_DB.DB_ERROR_CODE.POST_NOT_AUTHORIZED.getValue();
+		}
 
-	// Setters
-	public void setLast_post_id(String last_post_id) {
-		this.last_post_id = last_post_id;
-	}
+		// 3. Delete the post.
+		this.posts.remove(postId);
 
-	public void setPosts(ConcurrentHashMap<String, Post> posts) {
-		this.posts = posts;
+		// 4. Return the status code.
+		return 200;
 	}
+	public boolean is_author(String user, String postId) {
+		/*
+		 * This method is used to check if the user is the author of the post.
+		 */
 
-	// Other methods
+		return this.posts.get(postId).getAuthor().equals(user);
+	}
+	public int comment_post(String postId, String user, String comment) {
+		/*
+		 * This method is used to comment on a post.
+		 *
+		 * 1. Check if the post exists (if not return POST_NOT_FOUND).
+		 * 2. Add the comment to the post.
+		 */
+
+		// 1. Check if the post exists (if not return POST_NOT_FOUND).
+		if (!this.posts.containsKey(postId)) {
+			return Server_DB.DB_ERROR_CODE.POST_NOT_FOUND.getValue();
+		}
+
+		// 2. Add the comment to the post.
+		this.posts.get(postId).getComments().add(new Comment(user, comment));
+
+		return Server_DB.DB_ERROR_CODE.SUCCESS.getValue();
+	}
+	public int rate_post(String postId, String user, String rate) {
+		/*
+		* This method is used to rate a post.
+		*
+		* 1. Check if the post exists (if not return POST_NOT_FOUND).
+		* 2. Check if the user has already rated the post (if so return POST_ALREADY_RATED).
+		* 3. If the rate is neither "+1" (like) nor "-1" (dislike) return POST_INVALID_RATE.
+		* 4. Add the rating to the post.
+		*/
+
+		// 1. Check if the post exists (if not return POST_NOT_FOUND).
+		if (!this.posts.containsKey(postId)) {
+			return Server_DB.DB_ERROR_CODE.POST_NOT_FOUND.getValue();
+		}
+
+		// 2. Check if the user has already rated the post (if so return POST_ALREADY_RATED).
+		if (this.posts.get(postId).has_vote_from(user)) {
+			return Server_DB.DB_ERROR_CODE.POST_ALREADY_RATED.getValue();
+		}
+
+		// 3. If the rate is neither "+1" (like) nor "-1" (dislike) return POST_INVALID_RATE.
+		if (!rate.equals("+1") && !rate.equals("-1")) {
+			return Server_DB.DB_ERROR_CODE.POST_INVALID_RATING.getValue();
+		}
+
+		// 4. Add the rating to the post.
+		this.posts.get(postId).getVotes().add(
+				new Vote(user, rate.equals("+1") ? Vote.VoteType.UPVOTE : Vote.VoteType.DOWNVOTE));
+
+		return Server_DB.DB_ERROR_CODE.SUCCESS.getValue();
+	}
 	public ArrayList<Post_simple> get_postsimple_from_idlist(List<String> ids)
 	{
 		/*
@@ -101,6 +160,31 @@ public class Post_collection implements JSON_Serializable {
 		return post_simples.isEmpty() ? null : post_simples;
 
 	}
+
+	// Getters
+	public String getLast_post_id() {
+		return last_post_id;
+	}
+
+	public Post getPost(String post_id) {
+		return posts.get(post_id);
+	}
+
+	public ConcurrentHashMap<String, Post> getPosts() {
+		return posts;
+	}
+
+	// Setters
+	public void setLast_post_id(String last_post_id) {
+		this.last_post_id = last_post_id;
+	}
+
+	public void setPosts(ConcurrentHashMap<String, Post> posts) {
+		this.posts = posts;
+	}
+
+	// Other methods
+
 	public boolean post_exists(String post_id) {
 		return posts.containsKey(post_id);
 	}

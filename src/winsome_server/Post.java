@@ -123,6 +123,23 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         }
         return new Post_detailed(this.title, this.text, this.author, this.id, upvotes, downvotes, comments);
     }
+    public boolean has_vote_from(String user) {
+        /*
+         * This method is used to check if a user has voted on this post.
+         *
+         * 1. Loop through the list of votes.
+         * 2. If the user has voted on this post, return true.
+         */
+
+        // 1. Loop through the list of votes.
+        for (Vote vote : this.votes) {
+            // 2. If the user has voted on this post, return true.
+            if (vote.getUsername().equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
     // Getters
 
     public String getId() {
@@ -208,4 +225,6 @@ public class Post implements JSON_Serializable, Comparable<Post> {
 
         return this.time_created.compareTo(o.time_created);
     }
+
+
 }

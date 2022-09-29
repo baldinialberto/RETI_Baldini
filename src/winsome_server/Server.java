@@ -601,4 +601,136 @@ public class Server {
 
 		return result;
 	}
+
+	public Win_message delete_post_request(String address, String postId) {
+		/*
+		 * Delete the post identified by postId
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to delete the post
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to delete the post
+		if (this.server_db.delete_post(client_addresses.get(address), postId) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error deleting post");
+		}
+
+		return result;
+	}
+
+	public Win_message rewin_post_request(String address, String postId) {
+		/*
+		 * Rewin the post identified by postId
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to rewin the post
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to rewin the post
+		if (this.server_db.rewin_post(client_addresses.get(address), postId) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error rewinning post");
+		}
+
+		return result;
+	}
+
+	public Win_message comment_request(String address, String postId, String comment) {
+		/*
+		 * Comment on the post identified by postId
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to comment on the post
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to comment on the post
+		if (this.server_db.comment_post(client_addresses.get(address), postId, comment) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error commenting on post");
+		}
+
+		return result;
+	}
+
+	public Win_message rate_request(String address, String postId, String rate) {
+		/*
+		 * Rate the post identified by postId
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to rate the post
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.client_addresses.containsKey(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to rate the post
+		if (this.server_db.rate_post(client_addresses.get(address), postId, rate) == 0) {
+			// 4. Return the result
+			result.addString(Win_message.SUCCESS);
+		} else {
+			// 4. Return the result
+			result.addString(Win_message.ERROR);
+			result.addString("Error rating post");
+		}
+
+		return result;
+	}
 }

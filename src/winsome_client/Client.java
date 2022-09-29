@@ -6,10 +6,8 @@ import winsome_comunication.Win_message;
 import winsome_server.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -190,7 +188,7 @@ public class Client {
 
 			Win_message login_request = new Win_message();
 
-			login_request.addString("login");
+			login_request.addString(Win_message.LOGIN_REQUEST);
 			login_request.addString(username);
 			login_request.addString(password);
 
@@ -255,7 +253,7 @@ public class Client {
 		try {
 			// 1. Send logout request to server
 			Win_message logout_request = new Win_message();
-			logout_request.addString("logout");
+			logout_request.addString(Win_message.LOGOUT_REQUEST);
 			logout_request.send(socket_channel);
 
 			// 2. Receive logout response from server
@@ -315,7 +313,7 @@ public class Client {
 		try {
 			// 1. Send list users request to server
 			Win_message list_users_request = new Win_message();
-			list_users_request.addString("list_users");
+			list_users_request.addString(Win_message.LIST_USERS_REQUEST);
 			list_users_request.send(socket_channel);
 
 			// 2. Receive list users response from server
@@ -397,7 +395,7 @@ public class Client {
 		try {
 			// 1. Send follow user request to server
 			Win_message follow_user_request = new Win_message();
-			follow_user_request.addString("follow");
+			follow_user_request.addString(Win_message.FOLLOW_REQUEST);
 			follow_user_request.addString(idUser);
 			follow_user_request.send(socket_channel);
 
@@ -453,7 +451,7 @@ public class Client {
 		try {
 			// 1. Send unfollow user request to server
 			Win_message unfollow_user_request = new Win_message();
-			unfollow_user_request.addString("unfollow");
+			unfollow_user_request.addString(Win_message.UNFOLLOW_REQUEST);
 			unfollow_user_request.addString(idUser);
 			unfollow_user_request.send(socket_channel);
 
@@ -511,7 +509,7 @@ public class Client {
 		try {
 			// 1. Send view blog request to server
 			Win_message view_blog_request = new Win_message();
-			view_blog_request.addString("blog");
+			view_blog_request.addString(Win_message.BLOG_REQUEST);
 			view_blog_request.send(socket_channel);
 
 			// 2. Receive view blog response from server
@@ -587,7 +585,7 @@ public class Client {
 		try {
 			// 1. Send create post request to server
 			Win_message create_post_request = new Win_message();
-			create_post_request.addString("post");
+			create_post_request.addString(Win_message.POST_REQUEST);
 			create_post_request.addString(titolo);
 			create_post_request.addString(contenuto);
 			create_post_request.send(socket_channel);
@@ -643,7 +641,7 @@ public class Client {
 		try {
 			// 1. Send show feed request to server
 			Win_message show_feed_request = new Win_message();
-			show_feed_request.addString("show_feed");
+			show_feed_request.addString(Win_message.SHOW_FEED_REQUEST);
 			show_feed_request.send(socket_channel);
 
 			// 2. Receive show feed response from server
@@ -706,7 +704,7 @@ public class Client {
 		try {
 			// 1. Send show post request to server
 			Win_message show_post_request = new Win_message();
-			show_post_request.addString("show_post");
+			show_post_request.addString(Win_message.SHOW_POST_REQUEST);
 			show_post_request.addString(idPost);
 			show_post_request.send(socket_channel);
 
@@ -767,7 +765,7 @@ public class Client {
 		try {
 			// 1. Send delete request to server
 			Win_message delete_request = new Win_message();
-			delete_request.addString("delete");
+			delete_request.addString(Win_message.DELETE_REQUEST);
 			delete_request.addString(idPost);
 			delete_request.send(socket_channel);
 
@@ -824,7 +822,7 @@ public class Client {
 		try {
 			// 1. Send rewin request to server
 			Win_message rewin_request = new Win_message();
-			rewin_request.addString("rewin");
+			rewin_request.addString(Win_message.REWIN_REQUEST);
 			rewin_request.addString(idPost);
 			rewin_request.send(socket_channel);
 
@@ -886,7 +884,7 @@ public class Client {
 		try {
 			// 1. Send rate request to server
 			Win_message rate_request = new Win_message();
-			rate_request.addString("rate");
+			rate_request.addString(Win_message.RATE_REQUEST);
 			rate_request.addString(idPost);
 			rate_request.addString(voto ? "+1" : "-1");
 			rate_request.send(socket_channel);
@@ -948,7 +946,7 @@ public class Client {
 		try {
 			// 1. Send comment request to server
 			Win_message comment_request = new Win_message();
-			comment_request.addString("comment");
+			comment_request.addString(Win_message.COMMENT_REQUEST);
 			comment_request.addString(idPost);
 			comment_request.addString(comment.toString());
 			comment_request.send(socket_channel);

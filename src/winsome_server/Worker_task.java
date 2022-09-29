@@ -110,7 +110,7 @@ public class Worker_task implements Runnable {
 
         // 2.1 login
         switch (type) {
-            case "login":
+            case Win_message.LOGIN_REQUEST:
                 // the request is a login request
                 // the parameters are username and password
                 // the response will be a string "success" or "error, reason"
@@ -127,7 +127,7 @@ public class Worker_task implements Runnable {
                 response = this.server.login_request(parameters[0], parameters[1], address);
                 break;
             // 2.2 logout
-            case "logout":
+            case Win_message.LOGOUT_REQUEST:
                 // the request is a logout request
                 // no parameters are provided by the client
                 // the response will be a string "success" or "error, reason"
@@ -135,14 +135,14 @@ public class Worker_task implements Runnable {
                 break;
 
             // 2.3 list_users
-            case "list_users":
+            case Win_message.LIST_USERS_REQUEST:
                 // the request is a list_users request
                 // no parameters are provided by the client
                 // the response will be a string "success" or "error, reason"
                 response = this.server.list_users_request(address);
                 break;
             // 2.4 follow
-            case "follow":
+            case Win_message.FOLLOW_REQUEST:
                 // the request is a follow request
                 // the parameter is the username of the user to follow
                 // the response will be a string "success" or "error, reason"
@@ -159,7 +159,7 @@ public class Worker_task implements Runnable {
                 response = this.server.follow_request(parameters[0], address);
                 break;
             // 2.5 unfollow
-            case "unfollow":
+            case Win_message.UNFOLLOW_REQUEST:
                 // the request is an unfollow request
                 // the parameters is the username of the user to unfollow
                 // the response will be a string "success" or "error, reason"
@@ -175,8 +175,8 @@ public class Worker_task implements Runnable {
 
                 response = this.server.unfollow_request(parameters[0], address);
                 break;
-            // 2.6 create_post
-            case "post":
+            // 2.6 post
+            case Win_message.POST_REQUEST:
                 // the request is a create_post request
                 // the parameters are the title and the content of the post
                 // the response will be a string "success" or "error, reason"
@@ -194,14 +194,14 @@ public class Worker_task implements Runnable {
                 response = this.server.create_post_request(address, parameters[0], parameters[1]);
                 break;
             // 2.7 blog
-            case "blog":
+            case Win_message.BLOG_REQUEST:
                 // the request is a blog request
                 // the response will be a string "success" or "error, reason"
 
                 response = this.server.blog_request(address);
                 break;
             // 2.8 show_post
-            case "show_post":
+            case Win_message.SHOW_POST_REQUEST:
                 // the request is a show_post request
                 // the parameter is the id of the post
                 // the response will be a string "success" or "error, reason"
@@ -218,14 +218,14 @@ public class Worker_task implements Runnable {
                 response = this.server.show_post_request(address, parameters[0]);
                 break;
             // 2.9 show_feed
-            case "show_feed":
+            case Win_message.SHOW_FEED_REQUEST:
                 // the request is a show_feed request
                 // the response will be a string "success" or "error, reason"
 
                 response = this.server.show_feed_request(address);
                 break;
             // 2.10 delete_post
-            case "delete_post":
+            case Win_message.DELETE_REQUEST:
                 // the request is a delete_post request
                 // the parameter is the id of the post
                 // the response will be a string "success" or "error, reason"
@@ -242,7 +242,7 @@ public class Worker_task implements Runnable {
                 response = this.server.delete_post_request(address, parameters[0]);
                 break;
             // 2.11 rewin_post
-            case "rewin_post":
+            case Win_message.REWIN_REQUEST:
                 // the request is a rewin_post request
                 // the parameter is the id of the post
                 // the response will be a string "success" or "error, reason"
@@ -259,7 +259,7 @@ public class Worker_task implements Runnable {
                 response = this.server.rewin_post_request(address, parameters[0]);
                 break;
             // 2.12 comment
-            case "comment":
+            case Win_message.COMMENT_REQUEST:
                 // the request is a comment request
                 // the parameters are the id of the post and the content of the comment
                 // the response will be a string "success" or "error, reason"
@@ -277,7 +277,7 @@ public class Worker_task implements Runnable {
                 response = this.server.comment_request(address, parameters[0], parameters[1]);
                 break;
             // 2.13 rate
-            case "rate":
+            case Win_message.RATE_REQUEST:
                 // the request is a show_comments request
                 // the parameter is the id of the post
                 // the response will be a string "success" or "error, reason"

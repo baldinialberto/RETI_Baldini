@@ -8,6 +8,26 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Win_message {
+	// class constants
+	public static final String LOGIN_REQUEST = "LOGIN";
+	public static final String LOGOUT_REQUEST = "LOGOUT";
+	public static final String LIST_USERS_REQUEST = "LIST_USERS";
+	public static final String LIST_FOLLOWERS_REQUEST = "LIST_FOLLOWERS";
+	public static final String LIST_FOLLOWING_REQUEST = "LIST_FOLLOWING";
+	public static final String FOLLOW_REQUEST = "FOLLOW";
+	public static final String UNFOLLOW_REQUEST = "UNFOLLOW";
+	public static final String BLOG_REQUEST = "BLOG";
+	public static final String POST_REQUEST = "POST";
+	public static final String SHOW_FEED_REQUEST = "SHOW_FEED";
+	public static final String SHOW_POST_REQUEST = "SHOW_POST";
+	public static final String DELETE_REQUEST = "DELETE";
+	public static final String RATE_REQUEST = "RATE";
+	public static final String REWIN_REQUEST = "REWIN";
+	public static final String COMMENT_REQUEST = "COMMENT";
+	public static final String WALLET_REQUEST = "WALLET";
+	public static final String WALLET_BTC_REQUEST = "WALLET_BTC";
+
+	// Member variables
 	public final static String ERROR = "ERROR";
 	public final static String SUCCESS = "SUCCESS";
 	public final static String EXIT = "EXIT";

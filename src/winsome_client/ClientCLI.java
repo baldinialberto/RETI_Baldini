@@ -678,7 +678,7 @@ public class ClientCLI {
 		// 1. call the wallet_btc method of the client
 		try
 		{
-			float wallet = client.getWalletInBitcoin();
+			double wallet = client.getWalletInBitcoin();
 			// 2. print the result
 			System.out.println("wallet_btc command : Wallet :" + wallet + " BTC");
 			System.out.println(wallet);
@@ -782,11 +782,13 @@ public class ClientCLI {
 		String line = reader.readLine();
 		String[] tokens = line.split(" ");
 
-		// if the first token is "list" or "show" then the command is composed of 2 tokens
+		// if the first token is "list", "show" or "wallet" followed by "btc" then the command is composed of 2 tokens
 		// otherwise the command is composed of 1 token
 
 
-		boolean composed = tokens[0].equals("list") || tokens[0].equals("show");
+		boolean composed = tokens[0].equals("list") ||
+				tokens[0].equals("show") ||
+				(tokens[0].equals("wallet") && tokens[1].equals("btc"));
 		if (composed) {
 			if (tokens.length < 2) {
 				System.out.println("Invalid command");

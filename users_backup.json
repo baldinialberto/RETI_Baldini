@@ -5,7 +5,7 @@
     "tags" : [ "disney", "formaggio" ],
     "wallet" : {
       "username" : "topolino",
-      "balance" : 0.0,
+      "balance" : 100.0,
       "transactions" : [ ]
     },
     "posts" : [ ],

@@ -1053,6 +1053,10 @@ public class Client {
 	 *
 	 * @return
 	 */
+	public double getWallet()
+	{
+		return .0;
+	}
 
 
 	/**
@@ -1064,8 +1068,52 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public float getWalletInBitcoin() {
-		return 0.0f;
+	public double getWalletInBitcoin() {
+		/*
+		 * wallet btc
+		 *
+		 * 1. Send wallet btc request to server
+		 * 2. Receive wallet btc response from server
+		 * 3. If the operation is not successful, also print the error message
+		 * 4. Return the wallet value in bitcoin if the operation is successful
+		 */
+
+		System.out.println("wallet btc");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return -1;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return -1;
+		}
+
+		try {
+			// 1. Send wallet btc request to server
+			Win_message wallet_btc_request = new Win_message();
+			wallet_btc_request.addString(Win_message.WALLET_BTC_REQUEST);
+			wallet_btc_request.send(socket_channel);
+
+			// 2. Receive wallet btc response from server
+			Win_message wallet_btc_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (wallet_btc_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Wallet btc failed : " + wallet_btc_response.getString(1));
+				return -1;
+			} else if (wallet_btc_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Wallet btc value : " + wallet_btc_response.getString(1));
+				// 4. Return the wallet value in bitcoin if the operation is successful
+				return Double.parseDouble(wallet_btc_response.getString(1));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return .0;
 	}
 
 	public void test() {

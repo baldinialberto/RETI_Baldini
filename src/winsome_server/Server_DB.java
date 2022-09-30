@@ -18,6 +18,7 @@ public class Server_DB {
 
 
 
+
 	// public constants
 	public enum DB_ERROR_CODE {
 		SUCCESS(0),
@@ -391,7 +392,23 @@ public class Server_DB {
 			return null;
 		}
 	}
+	public double get_wallet_balance(String username) {
+		/*
+		 * This method is used to get the wallet balance of a user.
+		 *
+		 * 1. Get the wallet balance of the user.
+		 */
 
+		// 1. Get the wallet balance of the user.
+		if (users.user_exists(username))
+		{
+			return users.get_wallet_balance(username);
+		}
+		else
+		{
+			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
+		}
+	}
 	public ArrayList<Post_simple> get_feed(String user) {
 		/*
 		 * This method is used to get a feed of a <user>.

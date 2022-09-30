@@ -2,7 +2,9 @@ package winsome_server;
 
 import winsome_comunication.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.channels.*;
 import java.rmi.RemoteException;
@@ -745,6 +747,78 @@ public class Server {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
 			result.addString("Error rating post");
+		}
+
+		return result;
+	}
+
+	public Win_message wallet_request(String address)
+	{
+		return null;
+	}
+
+	public Win_message wallet_btc_request(String address)
+	{
+		/*
+		 * Get the user's wallet balance in BTC currency
+		 * The BTC currency is randomly generated querying the website random.org
+		 * The HTTP request ask for a random number between 0 and 1000
+		 *  as the example https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to get the user's wallet balance
+		 * 4. Get the BTC currency with the random.org website
+		 * 5. Return the wallet balance in BTC currency
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.connections_manager.is_address_connected(address)) {
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to get the user's wallet balance
+		double balance = this.server_db.get_wallet_balance(connections_manager.get_username(address));
+
+		// 4. Get the BTC currency with the random.org website
+		try {
+			URL random_org_url = new URL("https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new");
+			HttpURLConnection random_org_connection = (HttpURLConnection) random_org_url.openConnection();
+			random_org_connection.setRequestMethod("GET");
+			BufferedReader in = new BufferedReader(new InputStreamReader(random_org_connection.getInputStream()));
+			String inputLine;
+			StringBuilder response = new StringBuilder();
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			// DEBUG
+			// System.out.println("BTC currency: " + response);
+
+			double btc;
+			try {
+				btc = Double.parseDouble(response.toString());
+			} catch (NumberFormatException e) {
+				// 5. Return the wallet balance in BTC currency
+				result.addString(Win_message.ERROR);
+				result.addString("Error getting BTC currency");
+				return result;
+			}
+
+			// 5. Return the wallet balance in BTC currency
+			result.addString(Win_message.SUCCESS);
+			result.addString(String.valueOf(balance * (btc / 1000)));
+
+		} catch (IOException e) {
+			System.out.println("Error getting BTC currency : " + e.getMessage());
+			result.addString(Win_message.ERROR);
+			result.addString("Error getting BTC currency");
 		}
 
 		return result;

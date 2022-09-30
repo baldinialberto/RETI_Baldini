@@ -96,7 +96,8 @@ public class Worker_task implements Runnable {
          * 12. comment
          * 13. rate
          * 14. list_following
-         * 15. ...
+         * 15. wallet
+         * 16. wallet_btc
          *
          * If the type is not one of the above, an error message will be returned
          */
@@ -301,6 +302,20 @@ public class Worker_task implements Runnable {
                 // the response will be a string "success" or "error, reason"
 
                 response = this.server.list_followings_request(address);
+                break;
+            // 2.15 wallet
+            case Win_message.WALLET_REQUEST:
+                // the request is a wallet request
+                // the response will be a string "success" or "error, reason"
+
+                response = this.server.wallet_request(address);
+                break;
+            // 2.16 wallet_btc
+            case Win_message.WALLET_BTC_REQUEST:
+                // the request is a wallet_btc request
+                // the response will be a string "success" or "error, reason"
+
+                response = this.server.wallet_btc_request(address);
                 break;
             default:
                 // the request is not valid

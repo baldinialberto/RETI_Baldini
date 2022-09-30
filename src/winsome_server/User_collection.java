@@ -331,6 +331,12 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		}
 		return blogs;
 	}
+	public double get_wallet_balance(String username) {
+		if (this.containsKey(username)) {
+			return this.get(username).getWallet().getBalance();
+		}
+		return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
+	}
 
 	// Other methods
 	@Override
@@ -344,5 +350,7 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(new File(filePath), User_collection.class);
 	}
+
+
 }
 

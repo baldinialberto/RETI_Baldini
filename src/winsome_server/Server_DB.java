@@ -6,19 +6,17 @@ import winsome_comunication.Wallet_simple;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Server_DB {
 	// Member variables
-	Post_collection posts;
-	User_collection users;
-	final String posts_file_path;
-	final String users_file_path;
-
-
-
+	private Post_collection posts;
+	private User_collection users;
+	final private String posts_file_path;
+	final private String users_file_path;
 
 	// public constants
 	public enum DB_ERROR_CODE {
@@ -135,6 +133,17 @@ public class Server_DB {
 		return 0;
 	}
 
+	public void reward_users() {
+		/*
+		 * This method is used to reward the users.
+		 *
+		 * 1. Get the list of users.
+		 * 2. For each user, reward them.
+		 */
+
+		// TODO: Implement this method.
+	}
+
 	public int add_post(String author, String username, String title, String text) {
 		/*
 		 * This method is used to add a post to the database.
@@ -201,7 +210,7 @@ public class Server_DB {
 		 */
 
 		// 1. Comment the post.
-		return posts.comment_post(postId, user, comment);
+		return posts.comment_post(user, postId, comment);
 	}
 
 	public int rate_post(String user, String postId, String rate) {
@@ -212,7 +221,7 @@ public class Server_DB {
 		 */
 
 		// 1. Rate the post.
-		return posts.rate_post(postId, user, rate);
+		return posts.rate_post(user, postId, rate);
 	}
 
 	private void load_posts() {

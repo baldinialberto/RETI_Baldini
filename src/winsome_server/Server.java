@@ -895,4 +895,12 @@ public class Server {
 
 		return 0;
 	}
+
+	public String getMulticast_address() {
+		return properties.get_multicast_address();
+	}
+
+	public int getMulticast_port() {
+		return properties.get_multicast_port();
+	}
 }

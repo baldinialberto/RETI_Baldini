@@ -3,8 +3,7 @@ package winsome_client;
 import winsome_comunication.*;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
@@ -12,14 +11,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Client {
 	private ClientCLI c_interface;
 	private Client_properties properties;
-	private Socket socket;
-
 	SocketChannel socket_channel;
 	private Server_RMI_Interface server_rmi_interface;
 	private Client_RMI_Imp client_rmi;
@@ -28,6 +24,11 @@ public class Client {
 	private boolean _on = false;
 	private boolean connected = false;
 	private boolean logged = false;
+	private int multicast_port;
+	private String multicast_address;
+	private String multicast_network_name;
+
+	private Client_notification_Thread notification_thread;
 
 	public Client(String properties_filepath) {
 		/*
@@ -37,6 +38,7 @@ public class Client {
 		 * 2. create client interface
 		 * 3. connect to server's RMI
 		 * 4. create client's RMI
+		 * 5. create client's notification thread and start it
 		 */
 
 		// 1. load server properties
@@ -62,6 +64,10 @@ public class Client {
 			System.err.println("Client exception: " + e.getMessage());
 			_on = false;
 		}
+
+		// 5. create client's notification thread and start it
+		notification_thread = new Client_notification_Thread(this);
+		notification_thread.start();
 	}
 
 	public String get_username() {
@@ -1218,7 +1224,20 @@ public class Client {
 		return 0;
 	}
 
-	public int set_multicast(String ip, int port) {
+	public int set_multicast(String ip, int port, String network_name) {
+		/*
+		 * this method is used to set the multicast ip, port and network name
+		 *
+		 * 1. set the multicast ip, port and network name
+		 * 2. return the result
+		 */
+
+		if (ip == null || port < 0 || network_name == null) return -1;
+
+		this.multicast_address = ip;
+		this.multicast_port = port;
+		this.multicast_network_name = network_name;
+
 		return 0;
 	}
 
@@ -1239,4 +1258,21 @@ public class Client {
 			return -1;
 		}
 	}
+
+	public int getMulticast_port() {
+		return multicast_port;
+	}
+
+	public String getNetwork_interface() {
+		return multicast_network_name;
+	}
+
+	public InetAddress getMulticast_address() {
+		try {
+			return InetAddress.getByName(multicast_address);
+		} catch (UnknownHostException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

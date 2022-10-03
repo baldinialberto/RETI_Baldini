@@ -34,10 +34,10 @@ public class Client_RMI_Imp extends RemoteObject implements Client_RMI_Interface
 	}
 
 	@Override
-	public int send_multicast_details(String ip, int port) throws java.rmi.RemoteException {
+	public int send_multicast_details(String ip, int port, String network_name) throws java.rmi.RemoteException {
 		int res;
 		synchronized (client) {
-			res = client.set_multicast(ip, port);
+			res = client.set_multicast(ip, port, network_name);
 		}
 		return res;
 	}

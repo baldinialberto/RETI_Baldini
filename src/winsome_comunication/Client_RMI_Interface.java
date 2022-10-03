@@ -57,5 +57,5 @@ public interface Client_RMI_Interface extends Remote {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	int send_multicast_details(String ip, int port) throws java.rmi.RemoteException;
+	int send_multicast_details(String ip, int port, String network_name) throws java.rmi.RemoteException;
 }

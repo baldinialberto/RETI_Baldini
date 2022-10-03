@@ -2,6 +2,7 @@ package winsome_client;
 
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
+import winsome_comunication.Wallet_simple;
 import winsome_server.*;
 
 import java.io.BufferedReader;
@@ -664,7 +665,24 @@ public class ClientCLI {
 	}
 
 	private void wallet_command(List<String> args) {
+		/*
+		 * wallet
+		 *
+		 * 1. call the wallet method of the client
+		 * 2. print the result
+		 */
 
+		// 1. call the wallet method of the client
+		try
+		{
+			Wallet_simple wallet = client.getWallet();
+			// 2. print the result
+			System.out.println("wallet command : " + wallet);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 
 	private void wallet_btc_command(List<String> args) {
@@ -788,7 +806,7 @@ public class ClientCLI {
 
 		boolean composed = tokens[0].equals("list") ||
 				tokens[0].equals("show") ||
-				(tokens[0].equals("wallet") && tokens[1].equals("btc"));
+				(tokens[0].equals("wallet") && tokens.length > 1 && tokens[1].equals("btc"));
 		if (composed) {
 			if (tokens.length < 2) {
 				System.out.println("Invalid command");

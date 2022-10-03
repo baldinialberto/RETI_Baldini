@@ -2,10 +2,12 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.Wallet_Transition_simple;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class Transaction implements JSON_Serializable {
@@ -57,6 +59,27 @@ public class Transaction implements JSON_Serializable {
 	}
 
 	// Other methods
+	public Wallet_Transition_simple to_transition_simple()
+	{
+		/*
+		 * This method is used to convert a transaction to a simple transaction.
+		 *
+		 * 1. Create a new simple transaction.
+		 * 2. Return the simple transaction.
+		 */
+
+		// 1. Create a new simple transaction.
+		Wallet_Transition_simple transition_simple = new Wallet_Transition_simple();
+
+		// 2. Set the time created of the simple transaction.
+		transition_simple.setTime_created(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(this.time_created));
+
+		// 3. Set the value of the simple transaction.
+		transition_simple.setValue(this.value);
+
+		// 4. Return the simple transaction.
+		return transition_simple;
+	}
 	@Override
 	public void JSON_write(String filePath) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();

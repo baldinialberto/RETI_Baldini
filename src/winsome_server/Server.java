@@ -754,7 +754,42 @@ public class Server {
 
 	public Win_message wallet_request(String address)
 	{
-		return null;
+		/*
+		 * Get the wallet of the user
+		 *
+		 * 1. Check if the user is logged in
+		 * 2. If the user is not logged in, return an error message
+		 * 3. If the user is logged in, ask the database to get the wallet
+		 * 4. Return the result
+		 */
+
+		Win_message result = new Win_message();
+
+		// 1. Check if the user is logged in
+		if (!this.connections_manager.is_address_connected(address))
+		{
+			// 2. If the user is not logged in, return an error message
+			result.addString(Win_message.ERROR);
+			result.addString("User not logged in with this address");
+			return result;
+		}
+
+		// 3. If the user is logged in, ask the database to get the wallet
+		Wallet_simple wallet = this.server_db.get_wallet(connections_manager.get_username(address));
+
+		// 4. Return the result
+		if (wallet != null)
+		{
+			result.addString(Win_message.SUCCESS);
+			result.addString(wallet.serialize());
+		}
+		else
+		{
+			result.addString(Win_message.ERROR);
+			result.addString("Error getting wallet");
+		}
+
+		return result;
 	}
 
 	public Win_message wallet_btc_request(String address)

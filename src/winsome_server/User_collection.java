@@ -2,6 +2,7 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.Wallet_simple;
 
 import java.io.File;
 import java.io.IOException;
@@ -331,6 +332,12 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		}
 		return blogs;
 	}
+	public Wallet_simple get_user_wallet(String username) {
+		if (this.containsKey(username)) {
+			return this.get(username).getWallet().to_wallet_simple();
+		}
+		return null;
+	}
 	public double get_wallet_balance(String username) {
 		if (this.containsKey(username)) {
 			return this.get(username).getWallet().getBalance();
@@ -350,6 +357,7 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(new File(filePath), User_collection.class);
 	}
+
 
 
 }

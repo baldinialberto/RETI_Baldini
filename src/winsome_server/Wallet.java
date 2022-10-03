@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.Wallet_simple;
 
 public class Wallet implements JSON_Serializable {
     // Member variables
@@ -74,6 +75,24 @@ public class Wallet implements JSON_Serializable {
     }
 
     // Other methods
+    public Wallet_simple to_wallet_simple() {
+        /*
+         * This method is used to convert a Wallet object to a Wallet_simple object.
+         *
+         * 1. Create a List of Wallet_Transition_simple objects from the list of transactions.
+         * 2. Return a new Wallet_simple object.
+         */
+
+        // 1. Create a List of Wallet_Transition_simple objects from the list of transactions.
+        List<winsome_comunication.Wallet_Transition_simple> transactions_simple = new ArrayList<>();
+        for (Transaction transaction : this.transactions) {
+            transactions_simple.add(transaction.to_transition_simple());
+        }
+
+        // 2. Return a new Wallet_simple object.
+        return new winsome_comunication.Wallet_simple(this.balance, transactions_simple);
+    }
+
     @Override
     public void JSON_write(String filePath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

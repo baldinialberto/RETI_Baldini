@@ -2,6 +2,7 @@ package winsome_server;
 
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
+import winsome_comunication.Wallet_simple;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -392,6 +393,26 @@ public class Server_DB {
 			return null;
 		}
 	}
+
+	public Wallet_simple get_wallet(String username)
+	{
+		/*
+		 * This method is used to get a wallet of a <user>.
+		 *
+		 * 1. Get the user's wallet.
+		 */
+
+		if (users.user_exists(username))
+		{
+			// 1. Get the user's wallet.
+			return users.get_user_wallet(username);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
 	public double get_wallet_balance(String username) {
 		/*
 		 * This method is used to get the wallet balance of a user.

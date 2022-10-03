@@ -1053,9 +1053,53 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public double getWallet()
+	public Wallet_simple getWallet()
 	{
-		return .0;
+		/*
+		 * wallet
+		 *
+		 * 1. Send wallet request to server
+		 * 2. Receive wallet response from server
+		 * 3. If the operation is not successful, also print the error message
+		 */
+
+		System.out.println("wallet");
+
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
+
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+
+		try {
+			// 1. Send wallet request to server
+			Win_message wallet_request = new Win_message();
+			wallet_request.addString(Win_message.WALLET_REQUEST);
+			wallet_request.send(socket_channel);
+
+			// 2. Receive wallet response from server
+			Win_message wallet_response = Win_message.receive(socket_channel);
+
+			// check if the response is an error
+			if (wallet_response.getString(0).equals(Win_message.ERROR)) {
+				System.out.println("Wallet failed : " + wallet_response.getString(1));
+				return null;
+			} else if (wallet_response.getString(0).equals(Win_message.SUCCESS)) {
+				// 3. If the operation is not successful, also print the error message
+				System.out.println("Wallet received");
+				Wallet_simple wallet = new Wallet_simple();
+				wallet.deserialize(wallet_response.getString(1));
+				return wallet;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 

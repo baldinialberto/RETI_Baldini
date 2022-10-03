@@ -2,6 +2,8 @@ package winsome_server;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,9 +47,22 @@ public class Wallet implements JSON_Serializable {
     }
 
     // Methods
+    public void add_transaction(Transaction transaction) {
+        /*
+         * This method is used to add a transaction to the list of transactions.
+         *
+         * 1. Add the transaction to the list of transactions.
+         * 2. Update the balance of this wallet.
+         */
+
+        // 1. Add the transaction to the list of transactions.
+        this.transactions.add(transaction);
+
+        // 2. Update the balance of this wallet.
+        this.balance += transaction.getValue();
+    }
 
     // Getters
-
     public String getUsername() {
         return this.username;
     }
@@ -61,7 +76,6 @@ public class Wallet implements JSON_Serializable {
     }
 
     // Setters
-
     public void setUsername(String username) {
         this.username = username;
     }

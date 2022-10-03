@@ -2,6 +2,7 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import sun.awt.image.ImageWatched;
 import winsome_comunication.Comment_simple;
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
@@ -9,20 +10,22 @@ import winsome_comunication.Post_simple;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Post implements JSON_Serializable, Comparable<Post> {
 
     // Member variables
     private String id;
     private String author;
-
     private String title;
     private String text;
     private ArrayList<Comment> comments;
     private ArrayList<Vote> votes;
-
     private Timestamp time_created;
+
+    private int n_rewards;
+    private Timestamp time_last_reward;
 
     // Constructors
     // Default Constructor
@@ -37,6 +40,8 @@ public class Post implements JSON_Serializable, Comparable<Post> {
          * 5. Create a new list of comments for this post.
          * 6. Create a new list of votes for this post.
          * 7. Set the time_created Timestamp
+         * 8. Set the number of rewards to 0.
+         * 9. Set the time_last_reward Timestamp.
          */
 
         // 1. Create a new post id for this post.
@@ -59,6 +64,12 @@ public class Post implements JSON_Serializable, Comparable<Post> {
 
         // 7. Set the time_created Timestamp
         this.time_created = new Timestamp(System.currentTimeMillis());
+
+        // 8. Set the number of rewards to 0.
+        this.n_rewards = 0;
+
+        // 9. Set the time_last_reward Timestamp.
+        this.time_last_reward = new Timestamp(this.time_created.getTime());
     }
 
     // Jackson Constructor
@@ -140,8 +151,72 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         }
         return false;
     }
-    // Getters
 
+    public double calculate_reward() {
+        /*
+         * This method is used to calculate the reward of this post.
+         *
+         * 1. Get the list of votes and comments newer than the time_last_reward.
+         * 2. Calculate the reward of this post.
+         * 3. Return the reward of this post.
+         */
+
+        double res = .0;
+
+        // 1. Get the list of votes and comments newer than the time_last_reward.
+        ArrayList<Vote> votes_to_elaborate = new ArrayList<>();
+        ArrayList<Vote> votes_known = new ArrayList<>(votes);
+        ArrayList<Comment> comments_to_elaborate = new ArrayList<>();
+        ArrayList<Comment> comments_known = new ArrayList<>(comments);
+
+        n_rewards++;
+
+        for (Vote vote : this.votes) {
+            if (vote.getTime_created().after(this.time_last_reward)) {
+                votes_to_elaborate.add(vote);
+            }
+        }
+        for (Comment comment : this.comments) {
+            if (comment.getTime_created().after(this.time_last_reward)) {
+                comments_to_elaborate.add(comment);
+            }
+        }
+
+        // 2. Calculate the reward of this post.
+        // votes
+        // logn(max(Sum(p = 0 to new_votes) vote[+1 for upvote, -1 for downvote], 0) +1)
+        double sum = 0;
+        for (Vote vote : votes_to_elaborate) {
+            if (vote.getVote()) {
+                sum += 1;
+            } else {
+                sum -= 1;
+            }
+        }
+        res += Math.log(Math.max(sum, 0) + 1);
+
+        // comments
+        // logn(Sum(p = 0 to new_comments) (2/(1 + e^-(comments_made_by_user -1)) + 1
+        sum = 0;
+        for (Comment comment : comments_to_elaborate) {
+            int comments_made_by_user = 0;
+            for (Comment comment2 : comments_known) {
+                if (comment2.getUsername().equals(comment.getUsername())) {
+                    comments_made_by_user++;
+                }
+            }
+            sum += 2 / (1 + Math.exp(-(comments_made_by_user-1))) + 1;
+        }
+        res += Math.log(sum);
+
+        // res /= n_rewards;
+        res /= Math.max(n_rewards, 1);
+
+        // 3. Return the reward of this post.
+        return res;
+    }
+
+    // Getters
     public String getId() {
         return id;
     }
@@ -170,6 +245,10 @@ public class Post implements JSON_Serializable, Comparable<Post> {
     {
         return time_created;
     }
+
+    public int getN_rewards() { return n_rewards; }
+
+    public Timestamp getTime_last_reward() { return time_last_reward; }
 
     // Setters
 
@@ -201,6 +280,10 @@ public class Post implements JSON_Serializable, Comparable<Post> {
     {
         this.time_created = time_created;
     }
+
+    public void setN_rewards(int n_rewards) { this.n_rewards = n_rewards; }
+
+    public void setTime_last_reward(Timestamp time_last_reward) { this.time_last_reward = time_last_reward; }
 
     // Interface methods
     @Override

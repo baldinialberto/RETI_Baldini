@@ -22,6 +22,9 @@ public class Server {
 	private final Server_properties properties;
 	// Worker thread-pool
 	private final ExecutorService workers_thread_poll;
+	// Rewards thread
+	private final Server_Rewards_Thread rewards_thread;
+
 	// Server Database
 	private final Server_DB server_db;
 	// Server socket and selector
@@ -43,7 +46,7 @@ public class Server {
 		 * 4. Create a new tcp server socket
 		 * 5. Create a new udp server socket
 		 * 6. Create a new server RMI object and bind it to the registry
-		 * 7. Start the welcome thread
+		 * 7. Start the reward thread
 		 *
 		 */
 		// 1. Create a new server properties object
@@ -95,6 +98,10 @@ public class Server {
 			System.err.println("Server exception: " + e);
 			e.printStackTrace();
 		}
+
+		// 7. Start the reward thread
+		this.rewards_thread = new Server_Rewards_Thread(this);
+		this.rewards_thread.start();
 	}
 
 	public void server_welcome_service()
@@ -874,7 +881,7 @@ public class Server {
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
 		 * 3. If the user is logged in, register the client to receive updates
-		 * 4. send to the newly registered client the user's followers
+		 * 4. send to the newly registered client the user's followers and the details for the multicast
 		 */
 
 		// 1. Check if the user is logged in
@@ -886,14 +893,20 @@ public class Server {
 		// 3. If the user is logged in, register the client to receive updates
 		this.connections_manager.register_callback_of_user(username, callback);
 
-		// 4. send to the newly registered client the user's followers
+		// 4. send to the newly registered client the user's followers and the details for the multicast
 		try {
 			callback.send_followers(this.server_db.user_followers(username).toArray(new String[0]));
+			callback.send_multicast_details(this.properties.get_multicast_address(),
+					this.properties.get_multicast_port(), "wlan1");
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
 
 		return 0;
+	}
+
+	public void setMulticastAddress(String multicastAddress) {
+		this.properties.set_multicast_address(multicastAddress);
 	}
 
 	public String getMulticast_address() {
@@ -902,5 +915,9 @@ public class Server {
 
 	public int getMulticast_port() {
 		return properties.get_multicast_port();
+	}
+
+	public void interupt_rewards_thread() {
+		this.rewards_thread.interrupt();
 	}
 }

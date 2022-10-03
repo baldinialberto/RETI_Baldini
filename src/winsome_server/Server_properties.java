@@ -100,7 +100,7 @@ public class Server_properties {
 		/*
 		 * return the multicast address if it exists, otherwise return null
 		 */
-		return this.properties.getOrDefault("MULTICAST_ADDRESS", null);
+		return this.properties.getOrDefault("MULTICAST_ADDRESS", "224.0.1.1");
 	}
 	public int get_multicast_port() {
 		/*

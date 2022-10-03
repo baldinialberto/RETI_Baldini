@@ -65,9 +65,6 @@ public class Client {
 			_on = false;
 		}
 
-		// 5. create client's notification thread and start it
-		notification_thread = new Client_notification_Thread(this);
-		notification_thread.start();
 	}
 
 	public String get_username() {
@@ -128,6 +125,8 @@ public class Client {
 		connected = false;
 		user = null;
 		socket_channel.close();
+
+		this.stop_notification_thread();
 	}
 
 	/**
@@ -191,7 +190,7 @@ public class Client {
 		 * 1. Connect to server
 		 * 2. Send login request to server
 		 * 3. Receive login response from server
-		 * 4. If login is successful, set _logged to true
+		 * 4. If login is successful, set _logged to true and start notification thread
 		 * 5. Return the result
 		 */
 
@@ -265,6 +264,7 @@ public class Client {
 		 * 4. Disconnect from server
 		 * 5. Set user to null
 		 * 6. set _connected to false
+		 * 7. stop notification thread
 		 */
 
 		System.out.println("logout");
@@ -293,12 +293,14 @@ public class Client {
 				return -1;
 			}
 
-			logged = false;
-
-			user = null;
-
 			//4. Disconnect from server
 			disconnect();
+
+			// 5. Set user to null
+			user = null;
+
+			// 6. set _connected to false
+			connected = false;
 
 			return 0;
 
@@ -1238,6 +1240,11 @@ public class Client {
 		this.multicast_port = port;
 		this.multicast_network_name = network_name;
 
+		// DEBUG
+		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
+				" multicast_port: " + multicast_port +
+				" multicast_network_name: " + multicast_network_name);
+
 		return 0;
 	}
 
@@ -1275,4 +1282,26 @@ public class Client {
 		}
 	}
 
+	public void start_notification_thread() {
+		/*
+		 * this method is used to start the reward thread
+		 *
+		 * 1. start the reward thread
+		 */
+
+		// 1. start the reward thread
+		notification_thread = new Client_notification_Thread(this);
+		notification_thread.start();
+	}
+
+	public void stop_notification_thread() {
+		/*
+		 * this method is used to stop the reward thread
+		 *
+		 * 1. stop the reward thread
+		 */
+
+		// 1. stop the reward thread
+		notification_thread.interrupt();
+	}
 }

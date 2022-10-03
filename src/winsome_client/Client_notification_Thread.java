@@ -1,9 +1,6 @@
 package winsome_client;
 
-import java.net.DatagramPacket;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.NetworkInterface;
+import java.net.*;
 
 /**
  * This class is used to receive notifications from the server.
@@ -32,15 +29,21 @@ public class Client_notification_Thread extends Thread {
 			// 2. Join the multicast group.
 			this.multicast_socket.joinGroup(group, network_interface);
 
+			this.multicast_socket.setSoTimeout(1000);
+
 			// 3. Receive the message.
-			while(this.isAlive())
+			while(!this.isInterrupted())
 			{
 				// 3.1. Receive the message.
 				byte[] buffer = new byte[1024];
-				this.multicast_socket.receive(new DatagramPacket(buffer, buffer.length));
+				try {
+					this.multicast_socket.receive(new DatagramPacket(buffer, buffer.length));
+				} catch (SocketTimeoutException ignored) {
+					continue;
+				}
 
 				// 3.2. Print the message.
-				System.out.println(new String(buffer));
+				System.out.println(new String(buffer).trim());
 			}
 		}
 		catch(Exception e)

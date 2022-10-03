@@ -12,12 +12,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Server_Rewards_Thread extends Thread {
 	// member variables
-	private ConcurrentLinkedQueue<Rewarded_Action> activities = new ConcurrentLinkedQueue<>();
 	private Server server;
+	private final byte[] buffer = new byte[1024];
+	private DatagramPacket packet;
+	private DatagramSocket socket;
+
 
 	// constructor
 	public Server_Rewards_Thread(Server server) {
 		this.server = server;
+
+		try {
+			socket = new DatagramSocket(this.server.getMulticast_port()+1);
+		} catch (SocketException e) {
+			System.out.println("Error: Could not create a socket for the rewards thread.");
+			e.printStackTrace();
+		}
+
+		// print out the multicast address
+		System.out.println("Multicast address: " + server.getMulticast_address());
 	}
 
 	@Override
@@ -42,7 +55,7 @@ public class Server_Rewards_Thread extends Thread {
 			this.update_rewards();
 
 			// 4. Wait until 60 seconds have passed.
-			while (System.currentTimeMillis() - start_time < 60000) {
+			while (System.currentTimeMillis() - start_time < 10000) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -52,6 +65,10 @@ public class Server_Rewards_Thread extends Thread {
 
 			// 5. Send the notifications.
 			this.send_notifications();
+
+			// DEBUG
+			System.out.flush();
+			System.out.println("Rewards updated.");
 		}
 	}
 
@@ -67,10 +84,12 @@ public class Server_Rewards_Thread extends Thread {
 		 */
 		try {
 			// 1. Create a DatagramPacket.
-			byte[] buffer = "The rewards have been updated.".getBytes();
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
-					InetAddress.getByName(this.server.getMulticast_address()), this.server.getMulticast_port());
-			DatagramSocket socket = new DatagramSocket(this.server.getMulticast_port()+1);
+			// 1.1 fill the buffer with "REWARDS UPDATED" message
+			String message = "REWARDS UPDATED";
+			System.arraycopy(message.getBytes(), 0, buffer, 0, message.length());
+			packet = new DatagramPacket(buffer, buffer.length,
+					InetAddress.getByName(this.server.getMulticast_address()),
+					this.server.getMulticast_port());
 
 			// 2. Send the DatagramPacket.
 			socket.send(packet);

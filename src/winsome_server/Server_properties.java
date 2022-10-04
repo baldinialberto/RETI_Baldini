@@ -4,35 +4,35 @@ import java.io.*;
 import java.util.HashMap;
 
 public class Server_properties {
-    /*
-     * This class is used to store the properties of the server
-     *
-     * the properties are stored in a properties file with the following format:
-     * # this is a comment
-     * property_name = property_value
-     *
-     * the properties are:
-     * 1. SERVER=<server_address> (no default value)
-     * 2. TCP_PORT=<tcp_port> (default: 8080)
-     * 3. UDP_PORT=<udp_port> (default: 8070)
-     * 4. REGISTRY_PORT=<registry_port> (default: 1099)
-     * 5. USERS_DATABASE=<users_database_name> (default: users.json)
-     * 6. POSTS_DATABASE=<posts_database_name> (default: posts.json)
-     * 7. RMI_NAME=<rmi_name> (default: Server_registration_RMI)
-     * 8. MULTICAST_ADDRESS=<multicast_address> (no default value)
-     * 9. MULTICAST_PORT=<multicast_port> (default: 8000)
-     * 10. TIME_OUT=<time_out> (default: 1000)
-     * 11. WORKERS=<number of worker threads> (default: 10)
-     *
-     * the properties are stored in a HashMap<String, String>
-     *
-     * the properties are read from a file and written to 2 files:
-     * 1. the server properties file
-     * 2. the client properties file
-     *
-     * the client properties file is used from the client to connect to the server,
-     * so it holds information about the server address and the ports (with the same flags).
-     */
+	/*
+	 * This class is used to store the properties of the server
+	 *
+	 * the properties are stored in a properties file with the following format:
+	 * # this is a comment
+	 * property_name = property_value
+	 *
+	 * the properties are:
+	 * 1. SERVER=<server_address> (no default value)
+	 * 2. TCP_PORT=<tcp_port> (default: 8080)
+	 * 3. UDP_PORT=<udp_port> (default: 8070)
+	 * 4. REGISTRY_PORT=<registry_port> (default: 1099)
+	 * 5. USERS_DATABASE=<users_database_name> (default: users.json)
+	 * 6. POSTS_DATABASE=<posts_database_name> (default: posts.json)
+	 * 7. RMI_NAME=<rmi_name> (default: Server_registration_RMI)
+	 * 8. MULTICAST_ADDRESS=<multicast_address> (no default value)
+	 * 9. MULTICAST_PORT=<multicast_port> (default: 8000)
+	 * 10. TIME_OUT=<time_out> (default: 1000)
+	 * 11. WORKERS=<number of worker threads> (default: 10)
+	 *
+	 * the properties are stored in a HashMap<String, String>
+	 *
+	 * the properties are read from a file and written to 2 files:
+	 * 1. the server properties file
+	 * 2. the client properties file
+	 *
+	 * the client properties file is used from the client to connect to the server,
+	 * so it holds information about the server address and the ports (with the same flags).
+	 */
 
 	// members
 	private final HashMap<String, String> properties;
@@ -58,6 +58,7 @@ public class Server_properties {
 			return 8080;
 		}
 	}
+
 	public int get_udp_port() {
 		/*
 		 * return the udp port if it exists, otherwise return the default value
@@ -68,6 +69,7 @@ public class Server_properties {
 			return 8070;
 		}
 	}
+
 	public int get_registry_port() {
 		/*
 		 * return the registry port if it exists, otherwise return the default value
@@ -78,30 +80,39 @@ public class Server_properties {
 			return 1099;
 		}
 	}
+
 	public String get_users_database() {
 		/*
 		 * return the users database name if it exists, otherwise return the default value
 		 */
 		return this.properties.getOrDefault("USERS_DATABASE", "users_backup.json");
 	}
+
 	public String get_posts_database() {
 		/*
 		 * return the posts database name if it exists, otherwise return the default value
 		 */
 		return this.properties.getOrDefault("POSTS_DATABASE", "posts_backup.json");
 	}
+
 	public String get_rmi_name() {
 		/*
 		 * return the rmi name if it exists, otherwise return the default value
 		 */
 		return this.properties.getOrDefault("RMI_NAME", "Server_registration_RMI");
 	}
+
 	public String get_multicast_address() {
 		/*
 		 * return the multicast address if it exists, otherwise return null
 		 */
 		return this.properties.getOrDefault("MULTICAST_ADDRESS", "224.0.1.1");
 	}
+
+	public void set_multicast_address(String multicast_address) {
+		properties.put("MULTICAST_ADDRESS", multicast_address);
+	}
+
 	public int get_multicast_port() {
 		/*
 		 * return the multicast port if it exists, otherwise return the default value
@@ -112,6 +123,7 @@ public class Server_properties {
 			return 8000;
 		}
 	}
+
 	public int get_time_out() {
 		/*
 		 * return the time-out if it exists, otherwise return the default value
@@ -122,6 +134,7 @@ public class Server_properties {
 			return 1000;
 		}
 	}
+
 	public int get_workers() {
 		/*
 		 * return the number of worker threads if it exists, otherwise return the default value
@@ -136,9 +149,6 @@ public class Server_properties {
 	// setters
 	public void set_server_address(String server_address) {
 		properties.put("SERVER", server_address);
-	}
-	public void set_multicast_address(String multicast_address) {
-		properties.put("MULTICAST_ADDRESS", multicast_address);
 	}
 
 	// methods

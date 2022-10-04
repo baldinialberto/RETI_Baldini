@@ -1,18 +1,19 @@
 package winsome_comunication;
 
-public class Comment_simple implements Win_Serializable{
+public class Comment_representation implements Win_Serializable {
 	private String author;
 	private String text;
 	private String time_created;
 
 	// Constructor
-	public Comment_simple(String author, String text, String time_created) {
+	public Comment_representation(String author, String text, String time_created) {
 		this.author = author;
 		this.text = text;
 		this.time_created = time_created;
 	}
+
 	// String constructor
-	public Comment_simple(String string) {
+	public Comment_representation(String string) {
 		deserialize(string);
 	}
 
@@ -20,20 +21,24 @@ public class Comment_simple implements Win_Serializable{
 	public String getAuthor() {
 		return author;
 	}
-	public String getText() {
-		return text;
-	}
-	public String getTime_created() {
-		return time_created;
-	}
 
 	// Setters
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+
+	public String getText() {
+		return text;
+	}
+
 	public void setText(String text) {
 		this.text = text;
 	}
+
+	public String getTime_created() {
+		return time_created;
+	}
+
 	public void setTime_created(String time_created) {
 		this.time_created = time_created;
 	}

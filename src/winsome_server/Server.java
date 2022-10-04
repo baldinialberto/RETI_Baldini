@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_DB.Winsome_Database;
 import winsome_comunication.*;
 
 import java.io.BufferedReader;
@@ -26,12 +27,12 @@ public class Server {
 	private final Server_Rewards_Thread rewards_thread;
 
 	// Server Database
-	private final Server_DB server_db;
+	private final Winsome_Database server_db;
+	// Connection Manager
+	private final Client_connections_Manager connections_manager = new Client_connections_Manager();
 	// Server socket and selector
 	private ServerSocketChannel server_socket;
 	private Selector selector;
-	// Connection Manager
-	private final CConnections_Manager connections_manager = new CConnections_Manager();
 
 	// constructor
 	public Server(String serverProperties_configFile, String clientProperties_configFile) {
@@ -64,7 +65,7 @@ public class Server {
 		this.workers_thread_poll = Executors.newFixedThreadPool(properties.get_workers());
 
 		// 3. Create a new server database object
-		this.server_db = new Server_DB(this.properties.get_posts_database(), this.properties.get_users_database());
+		this.server_db = new Winsome_Database(this.properties.get_posts_database(), this.properties.get_users_database());
 
 		// 3.1 Try to load the server database
 		if (this.server_db.load_DB() != 0) {
@@ -104,8 +105,7 @@ public class Server {
 		this.rewards_thread.start();
 	}
 
-	public void server_welcome_service()
-	{
+	public void server_welcome_service() {
 		/*
 		 * Welcome_service for the server :
 		 *
@@ -225,8 +225,8 @@ public class Server {
 			System.exit(1);
 		}
 	}
-	private void test_func()
-	{
+
+	private void test_func() {
 		/*
 		 * This method is used to test the server.
 		 *
@@ -237,7 +237,7 @@ public class Server {
 		 */
 
 		// 1. Create a new server_db and load it.
-		Server_DB server_db = new Server_DB("posts.json", "users.json");
+		Winsome_Database server_db = new Winsome_Database("posts.json", "users.json");
 		server_db.load_DB();
 
 		// 2. Add 10 different users with their password and 1-5 tags.
@@ -273,8 +273,7 @@ public class Server {
 		return this.server_db.add_user(username, password, tags);
 	}
 
-	public Win_message login_request(String username, String password, String address)
-	{
+	public Win_message login_request(String username, String password, String address) {
 		/*
 		 * Login a user
 		 *
@@ -303,11 +302,10 @@ public class Server {
 		// 3. If the user is not logged in, check if the username and password are correct
 		if (this.server_db.user_check_password(username, password)) {
 			// 4. If the username and password are correct, add the user to the logged in users
-			if (this.connections_manager.add_connection(new CConnection(address, username)) != 0)
-			{
+			if (this.connections_manager.add_connection(new Client_connection(address, username)) != 0) {
 				// DEBUG
 				System.out.println("Error: failed to add the connection to the connections manager");
-				
+
 				// 5. Return the result
 				result.addString(Win_message.ERROR);
 				result.addString("Error: failed to add the user to the logged in users");
@@ -327,8 +325,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message logout_request(String address)
-	{
+	public Win_message logout_request(String address) {
 		/*
 		 * Logout a user
 		 *
@@ -359,8 +356,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message list_users_request(String address)
-	{
+	public Win_message list_users_request(String address) {
 		/*
 		 * List all the users
 		 *
@@ -385,8 +381,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message list_followings_request(String address)
-	{
+	public Win_message list_followings_request(String address) {
 		/*
 		 * list all the users that the user is following
 		 *
@@ -411,8 +406,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message follow_request(String username, String address)
-	{
+	public Win_message follow_request(String username, String address) {
 		/*
 		 * Follow a user
 		 *
@@ -434,20 +428,19 @@ public class Server {
 
 		// 3. If the user is logged in, ask the database to follow the user
 		int res = this.server_db.follow_username(this.connections_manager.get_username(address), username);
-		if (res == Server_DB.DB_ERROR_CODE.SUCCESS.ordinal()) {
+		if (res == Winsome_Database.DB_ERROR_CODE.SUCCESS.ordinal()) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
-			result.addString(Server_DB.DB_ERROR_CODE.getStringOf(res));
+			result.addString(Winsome_Database.DB_ERROR_CODE.getStringOf(res));
 		}
 
 		return result;
 	}
 
-	public Win_message unfollow_request(String username, String address)
-	{
+	public Win_message unfollow_request(String username, String address) {
 		/*
 		 * Unfollow a user
 		 *
@@ -480,8 +473,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message create_post_request(String address, String title, String content)
-	{
+	public Win_message create_post_request(String address, String title, String content) {
 		/*
 		 * Create a post
 		 *
@@ -536,7 +528,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the blog
-		ArrayList<Post_simple> posts = this.server_db.get_blog(this.connections_manager.get_username(address));
+		ArrayList<Post_representation_simple> posts = this.server_db.get_blog(this.connections_manager.get_username(address));
 		if (posts == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
@@ -546,7 +538,7 @@ public class Server {
 
 		// 4. Return the result
 		result.addString(Win_message.SUCCESS);
-		for (Post_simple post : posts) {
+		for (Post_representation_simple post : posts) {
 			result.addString(post.serialize());
 		}
 
@@ -574,7 +566,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the blog
-		Post_detailed post = this.server_db.get_post_detailed(post_id);
+		Post_representation_detailed post = this.server_db.get_post_detailed(post_id);
 		if (post == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
@@ -610,7 +602,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the feed
-		ArrayList<Post_simple> posts = this.server_db.get_feed(this.connections_manager.get_username(address));
+		ArrayList<Post_representation_simple> posts = this.server_db.get_feed(this.connections_manager.get_username(address));
 		if (posts == null) {
 			// 4. Return the result
 			result.addString(Win_message.ERROR);
@@ -620,7 +612,7 @@ public class Server {
 
 		// 4. Return the result
 		result.addString(Win_message.SUCCESS);
-		for (Post_simple post : posts) {
+		for (Post_representation_simple post : posts) {
 			result.addString(post.serialize());
 		}
 
@@ -759,8 +751,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message wallet_request(String address)
-	{
+	public Win_message wallet_request(String address) {
 		/*
 		 * Get the wallet of the user
 		 *
@@ -773,8 +764,7 @@ public class Server {
 		Win_message result = new Win_message();
 
 		// 1. Check if the user is logged in
-		if (!this.connections_manager.is_address_connected(address))
-		{
+		if (!this.connections_manager.is_address_connected(address)) {
 			// 2. If the user is not logged in, return an error message
 			result.addString(Win_message.ERROR);
 			result.addString("User not logged in with this address");
@@ -782,16 +772,13 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the wallet
-		Wallet_simple wallet = this.server_db.get_wallet(connections_manager.get_username(address));
+		Wallet_representation wallet = this.server_db.get_wallet(connections_manager.get_username(address));
 
 		// 4. Return the result
-		if (wallet != null)
-		{
+		if (wallet != null) {
 			result.addString(Win_message.SUCCESS);
 			result.addString(wallet.serialize());
-		}
-		else
-		{
+		} else {
 			result.addString(Win_message.ERROR);
 			result.addString("Error getting wallet");
 		}
@@ -799,8 +786,7 @@ public class Server {
 		return result;
 	}
 
-	public Win_message wallet_btc_request(String address)
-	{
+	public Win_message wallet_btc_request(String address) {
 		/*
 		 * Get the user's wallet balance in BTC currency
 		 * The BTC currency is randomly generated querying the website random.org

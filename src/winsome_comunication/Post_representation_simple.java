@@ -6,7 +6,7 @@ package winsome_comunication;
  * The post is serializable and can be sent over the network.
  * The post is also deserializable and can be created from a string.
  */
-public class Post_simple implements Win_Serializable {
+public class Post_representation_simple implements Win_Serializable {
 	// Member variables
 	private String title;
 	private String content;
@@ -14,17 +14,19 @@ public class Post_simple implements Win_Serializable {
 	private String id;
 
 	// Constructor
-	public Post_simple(String title, String content, String author, String id) {
+	public Post_representation_simple(String title, String content, String author, String id) {
 		this.title = title;
 		this.content = content;
 		this.author = author;
 		this.id = id;
 	}
+
 	// Empty constructor
-	public Post_simple() {
+	public Post_representation_simple() {
 	}
+
 	// Deserialization constructor
-	public Post_simple(String string) {
+	public Post_representation_simple(String string) {
 		deserialize(string);
 	}
 
@@ -33,30 +35,31 @@ public class Post_simple implements Win_Serializable {
 		return title;
 	}
 
+	// Setters
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public String getContent() {
 		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
 	}
 
 	public String getAuthor() {
 		return author;
 	}
 
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
 	public String getId() {
 		return id;
 	}
 
-
-
-	// Setters
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public void setContent(String content) {
-		this.content = content;
-	}
-	public void setAuthor(String author) {
-		this.author = author;
-	}
 	public void setId(String id) {
 		this.id = id;
 	}

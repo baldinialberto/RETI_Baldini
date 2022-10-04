@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * CConections_Manager class
  * This class is used to manage the client connections.
  */
-public class CConnections_Manager extends ConcurrentHashMap<String, CConnection> {
+public class Client_connections_Manager extends ConcurrentHashMap<String, Client_connection> {
 	// constants
 	public static final int CONNECTIONS_MANAGER_OK = 0;
 	public static final int CONNECTIONS_MANAGER_ERROR = -1;
@@ -27,8 +27,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param connection the connection to be added
 	 * @return 0 if the connection was added successfully, an error code otherwise
 	 */
-	public int add_connection(CConnection connection)
-	{
+	public int add_connection(Client_connection connection) {
 		/*
 		 * add the connection to the connections manager
 		 *
@@ -45,8 +44,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 
 		// 2. check if the connection already exists:
 		// loop through the connections manager and check if the username or the address already exists
-		for (CConnection c : this.values())
-		{
+		for (Client_connection c : this.values()) {
 			if (c.get_username().equals(connection.get_username()))
 				return CONNECTIONS_MANAGER_ALREADY_EXISTS;
 			if (c.get_address().equals(connection.get_address()))
@@ -69,8 +67,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param address the connection to be removed
 	 * @return 0 if the connection was removed successfully, an error code otherwise
 	 */
-	public int remove_connection(String address)
-	{
+	public int remove_connection(String address) {
 		/*
 		 * remove the connection from the connections manager
 		 *
@@ -103,8 +100,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param address the address of the connection
 	 * @return the callback object of the connection
 	 */
-	public Client_RMI_Interface get_callback(String address)
-	{
+	public Client_RMI_Interface get_callback(String address) {
 		/*
 		 * get the callback object of a connection
 		 *
@@ -151,8 +147,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 		List<Client_RMI_Interface> callbacks = new ArrayList<>();
 
 		// 2. loop through the addresses
-		for (String address : addresses)
-		{
+		for (String address : addresses) {
 			// 3. get the callback object of the connection
 			Client_RMI_Interface callback = this.get_callback(address);
 
@@ -172,8 +167,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param address the address of the connection
 	 * @return the username of the connection
 	 */
-	public String get_username(String address)
-	{
+	public String get_username(String address) {
 		/*
 		 * get the username of a connection
 		 *
@@ -202,8 +196,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param username the username of the user
 	 * @return true if the user is connected, false otherwise
 	 */
-	public boolean is_user_connected(String username)
-	{
+	public boolean is_user_connected(String username) {
 		/*
 		 * check if a user is connected
 		 *
@@ -217,8 +210,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 			return false;
 
 		// 2. loop through the connections manager
-		for (CConnection c : this.values())
-		{
+		for (Client_connection c : this.values()) {
 			// 3. check if the username exists
 			if (c.get_username().equals(username))
 				return true;
@@ -234,8 +226,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param address the address of the client
 	 * @return true if the client is connected, false otherwise
 	 */
-	public boolean is_address_connected(String address)
-	{
+	public boolean is_address_connected(String address) {
 		/*
 		 * check if a client is connected with a specific address
 		 *
@@ -259,8 +250,7 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 	 * @param callback the callback of the user
 	 * @return true if the callback was registered successfully, false otherwise
 	 */
-	public boolean register_callback_of_user(String username, Client_RMI_Interface callback)
-	{
+	public boolean register_callback_of_user(String username, Client_RMI_Interface callback) {
 		/*
 		 * register the callback of a user
 		 *
@@ -275,11 +265,9 @@ public class CConnections_Manager extends ConcurrentHashMap<String, CConnection>
 			return false;
 
 		// 2. loop through the connections manager
-		for (CConnection c : this.values())
-		{
+		for (Client_connection c : this.values()) {
 			// 3. if the username exists, register the callback
-			if (c.get_username().equals(username))
-			{
+			if (c.get_username().equals(username)) {
 				c.set_callback(callback);
 				return true;
 			}

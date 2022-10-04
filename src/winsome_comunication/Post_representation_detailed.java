@@ -2,22 +2,23 @@ package winsome_comunication;
 
 import java.util.ArrayList;
 
-public class Post_detailed extends Post_simple {
+public class Post_representation_detailed extends Post_representation_simple {
 	// Member variables
 	private int upvotes;
 	private int downvotes;
-	private ArrayList<Comment_simple> comments;
+	private ArrayList<Comment_representation> comments;
 
 	// Constructors
 	// Default Constructor
-	public Post_detailed(String id, String author, String title, String text, int upvotes, int downvotes, ArrayList<Comment_simple> comments) {
+	public Post_representation_detailed(String id, String author, String title, String text, int upvotes, int downvotes, ArrayList<Comment_representation> comments) {
 		super(id, author, title, text);
 		this.upvotes = upvotes;
 		this.downvotes = downvotes;
 		this.comments = comments;
 	}
+
 	// String Constructor
-	public Post_detailed(String string) {
+	public Post_representation_detailed(String string) {
 		deserialize(string);
 	}
 
@@ -45,7 +46,7 @@ public class Post_detailed extends Post_simple {
 		serialized.append(this.comments.size());
 		serialized.append("|-|");
 
-		for (Comment_simple comment : this.comments) {
+		for (Comment_representation comment : this.comments) {
 			serialized.append(comment.serialize());
 			serialized.append("|-|");
 		}
@@ -75,7 +76,7 @@ public class Post_detailed extends Post_simple {
 		int ncomments = Integer.parseInt(parts[6]);
 		comments = new ArrayList<>();
 		for (int i = 7; i < parts.length; i++) {
-			comments.add(new Comment_simple(parts[i]));
+			comments.add(new Comment_representation(parts[i]));
 		}
 	}
 
@@ -97,7 +98,7 @@ public class Post_detailed extends Post_simple {
 		sb.append(super.toString()).append("\n");
 		sb.append("Upvotes: ").append(upvotes).append(", Downvotes: ").append(downvotes).append("\n");
 		sb.append("Comments: \n");
-		for (Comment_simple comment : comments) {
+		for (Comment_representation comment : comments) {
 			sb.append(comment.toString()).append("\n");
 		}
 

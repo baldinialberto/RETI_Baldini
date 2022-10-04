@@ -3,7 +3,9 @@ package winsome_client;
 import winsome_comunication.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
@@ -14,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-	private ClientCLI c_interface;
-	private Client_properties properties;
 	SocketChannel socket_channel;
+	private final ClientCLI c_interface;
+	private final Client_properties properties;
 	private Server_RMI_Interface server_rmi_interface;
 	private Client_RMI_Imp client_rmi;
 	private Client_RMI_Interface client_rmi_stub;
@@ -222,7 +224,7 @@ public class Client {
 				logged = true;
 				this.user = new LocalUser(username);
 				try {
-					if (server_rmi_interface.receive_updates(client_rmi_stub, username)==0) {
+					if (server_rmi_interface.receive_updates(client_rmi_stub, username) == 0) {
 						System.out.println("RMI registered");
 					} else {
 						System.out.println("RMI not registered");
@@ -567,7 +569,7 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public List<Post_simple> viewBlog() {
+	public List<Post_representation_simple> viewBlog() {
 		/*
 		 * view blog
 		 *
@@ -604,9 +606,9 @@ public class Client {
 				return null;
 			} else if (view_blog_response.getString(0).equals(Win_message.SUCCESS)) {
 				// 3. If view blog is successful, return list of posts
-				List<Post_simple> posts = new ArrayList<>();
+				List<Post_representation_simple> posts = new ArrayList<>();
 				for (int i = 1; i < view_blog_response.size(); i++) {
-					posts.add(new Post_simple(view_blog_response.getString(i)));
+					posts.add(new Post_representation_simple(view_blog_response.getString(i)));
 				}
 				return posts;
 			}
@@ -700,7 +702,7 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public List<Post_simple> showFeed() {
+	public List<Post_representation_simple> showFeed() {
 		/*
 		 * show feed
 		 *
@@ -737,9 +739,9 @@ public class Client {
 			} else if (show_feed_response.getString(0).equals(Win_message.SUCCESS)) {
 				// 3. If the operation is not successful, also print the error message
 				// 4. Return list of posts
-				List<Post_simple> posts = new ArrayList<>();
+				List<Post_representation_simple> posts = new ArrayList<>();
 				for (int i = 1; i < show_feed_response.size(); i++) {
-					posts.add(new Post_simple(show_feed_response.getString(i)));
+					posts.add(new Post_representation_simple(show_feed_response.getString(i)));
 				}
 				return posts;
 			}
@@ -762,7 +764,7 @@ public class Client {
 	 * @param idPost
 	 * @return
 	 */
-	public Post_detailed showPost(String idPost) {
+	public Post_representation_detailed showPost(String idPost) {
 		/*
 		 * show post <idPost>
 		 *
@@ -802,7 +804,7 @@ public class Client {
 				// 3. If the operation is not successful, also print the error message
 				System.out.println("Post shown");
 				// 4. Return post
-				return new Post_detailed(show_post_response.getString(1));
+				return new Post_representation_detailed(show_post_response.getString(1));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1061,8 +1063,7 @@ public class Client {
 	 *
 	 * @return
 	 */
-	public Wallet_simple getWallet()
-	{
+	public Wallet_representation getWallet() {
 		/*
 		 * wallet
 		 *
@@ -1099,7 +1100,7 @@ public class Client {
 			} else if (wallet_response.getString(0).equals(Win_message.SUCCESS)) {
 				// 3. If the operation is not successful, also print the error message
 				System.out.println("Wallet received");
-				Wallet_simple wallet = new Wallet_simple();
+				Wallet_representation wallet = new Wallet_representation();
 				wallet.deserialize(wallet_response.getString(1));
 				return wallet;
 			}
@@ -1171,8 +1172,6 @@ public class Client {
 	public void test() {
 		System.out.println("Client:test()");
 	}
-
-
 
 
 	public void exit() {

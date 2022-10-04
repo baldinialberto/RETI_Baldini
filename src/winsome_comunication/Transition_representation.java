@@ -1,17 +1,18 @@
 package winsome_comunication;
 
-public class Wallet_Transition_simple implements Win_Serializable {
+public class Transition_representation implements Win_Serializable {
 	// member variables
 	private double value;
 	private String time_created;
 
 	// constructor
-	public Wallet_Transition_simple(double value, String time_created) {
+	public Transition_representation(double value, String time_created) {
 		this.value = value;
 		this.time_created = time_created;
 	}
+
 	// empty constructor
-	public Wallet_Transition_simple() {
+	public Transition_representation() {
 
 	}
 
@@ -20,13 +21,13 @@ public class Wallet_Transition_simple implements Win_Serializable {
 		return this.value;
 	}
 
-	public String getTime_created() {
-		return this.time_created;
-	}
-
 	// setters
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public String getTime_created() {
+		return this.time_created;
 	}
 
 	public void setTime_created(String time_created) {

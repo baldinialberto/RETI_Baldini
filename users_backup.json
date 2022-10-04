@@ -1,1 +1,54 @@
-{ }
+{
+  "topolino" : {
+    "username" : "topolino",
+    "password" : "topolino00",
+    "tags" : [ "disney", "formaggio" ],
+    "wallet" : {
+      "username" : "topolino",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ "paperino" ],
+    "followers" : [ "paperino" ]
+  },
+  "pluto" : {
+    "username" : "pluto",
+    "password" : "pluto00",
+    "tags" : [ "disney", "dogslife" ],
+    "wallet" : {
+      "username" : "pluto",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ "paperino" ],
+    "followers" : [ ]
+  },
+  "pippo" : {
+    "username" : "pippo",
+    "password" : "pippo00",
+    "tags" : [ "disney", "sport" ],
+    "wallet" : {
+      "username" : "pippo",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ "paperino" ],
+    "followers" : [ ]
+  },
+  "paperino" : {
+    "username" : "paperino",
+    "password" : "paperino00",
+    "tags" : [ "disney", "paperissima" ],
+    "wallet" : {
+      "username" : "paperino",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ "0", "1", "2" ],
+    "following" : [ "topolino" ],
+    "followers" : [ "topolino", "pluto", "pippo" ]
+  }
+}

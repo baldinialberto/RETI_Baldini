@@ -1,4 +1,38 @@
 {
-  "posts" : { },
-  "last_post_id" : null
+  "posts" : {
+    "0" : {
+      "id" : "0",
+      "author" : "paperino",
+      "title" : "oggi ho fatto.",
+      "text" : "La cacca viola",
+      "comments" : [ ],
+      "votes" : [ ],
+      "time_created" : 1664887912062,
+      "n_rewards" : 0,
+      "time_last_reward" : 1664887912062
+    },
+    "1" : {
+      "id" : "1",
+      "author" : "paperino",
+      "title" : "oggi ho fatto.",
+      "text" : "la cacca verde",
+      "comments" : [ ],
+      "votes" : [ ],
+      "time_created" : 1664888849412,
+      "n_rewards" : 0,
+      "time_last_reward" : 1664888849412
+    },
+    "2" : {
+      "id" : "2",
+      "author" : "paperino",
+      "title" : "oggi ho fatto.",
+      "text" : "la cacca rossa",
+      "comments" : [ ],
+      "votes" : [ ],
+      "time_created" : 1664888927762,
+      "n_rewards" : 0,
+      "time_last_reward" : 1664888927762
+    }
+  },
+  "last_post_id" : "2"
 }

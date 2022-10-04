@@ -1,8 +1,10 @@
 package winsome_server;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 
 /**
  * This class is used to send reward notifications to the clients.
@@ -11,9 +13,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * The activities are stored in a concurrent queue that is updated by the server.
  */
 public class Server_Rewards_Thread extends Thread {
-	// member variables
-	private Server server;
 	private final byte[] buffer = new byte[1024];
+	// member variables
+	private final Server server;
 	private DatagramPacket packet;
 	private DatagramSocket socket;
 
@@ -23,7 +25,7 @@ public class Server_Rewards_Thread extends Thread {
 		this.server = server;
 
 		try {
-			socket = new DatagramSocket(this.server.getMulticast_port()+1);
+			socket = new DatagramSocket(this.server.getMulticast_port() + 1);
 		} catch (SocketException e) {
 			System.out.println("Error: Could not create a socket for the rewards thread.");
 			e.printStackTrace();
@@ -55,7 +57,7 @@ public class Server_Rewards_Thread extends Thread {
 			this.update_rewards();
 
 			// 4. Wait until 60 seconds have passed.
-			while (System.currentTimeMillis() - start_time < 10000) {
+			while (System.currentTimeMillis() - start_time < 120000) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

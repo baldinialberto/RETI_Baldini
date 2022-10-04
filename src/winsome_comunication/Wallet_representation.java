@@ -3,18 +3,19 @@ package winsome_comunication;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Wallet_simple implements Win_Serializable {
+public class Wallet_representation implements Win_Serializable {
 	// member variables
 	double balance;
-	List<Wallet_Transition_simple> transitions = new ArrayList<>();
+	List<Transition_representation> transitions = new ArrayList<>();
 
 	// constructor
-	public Wallet_simple(double balance, List<Wallet_Transition_simple> transitions) {
+	public Wallet_representation(double balance, List<Transition_representation> transitions) {
 		this.balance = balance;
 		this.transitions = transitions;
 	}
+
 	// empty constructor
-	public Wallet_simple() {
+	public Wallet_representation() {
 
 	}
 
@@ -23,21 +24,21 @@ public class Wallet_simple implements Win_Serializable {
 		return this.balance;
 	}
 
-	public List<Wallet_Transition_simple> getTransitions() {
-		return this.transitions;
-	}
-
 	// setters
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
 
-	public void setTransitions(List<Wallet_Transition_simple> transitions) {
+	public List<Transition_representation> getTransitions() {
+		return this.transitions;
+	}
+
+	public void setTransitions(List<Transition_representation> transitions) {
 		this.transitions = transitions;
 	}
 
 	// add transition
-	public void add_transition(Wallet_Transition_simple transition) {
+	public void add_transition(Transition_representation transition) {
 		this.transitions.add(transition);
 	}
 
@@ -66,7 +67,7 @@ public class Wallet_simple implements Win_Serializable {
 		sb.append(this.balance);
 
 		// 3. Append the transitions.
-		for (Wallet_Transition_simple transition : this.transitions) {
+		for (Transition_representation transition : this.transitions) {
 			sb.append("||");
 			sb.append(transition.serialize());
 		}
@@ -91,7 +92,7 @@ public class Wallet_simple implements Win_Serializable {
 		String[] split = string.split("\\|\\|");
 
 		// 2. Set the balance.
-		try{
+		try {
 			this.balance = Double.parseDouble(split[0]);
 		} catch (Exception e) {
 			this.balance = 0;
@@ -100,7 +101,7 @@ public class Wallet_simple implements Win_Serializable {
 
 		// 3. For each transition, deserialize it and add it to the list.
 		for (int i = 1; i < split.length; i++) {
-			Wallet_Transition_simple transition = new Wallet_Transition_simple();
+			Transition_representation transition = new Transition_representation();
 			transition.deserialize(split[i]);
 			this.transitions.add(transition);
 		}

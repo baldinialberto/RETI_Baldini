@@ -1,9 +1,8 @@
 package winsome_client;
 
-import winsome_comunication.Post_detailed;
-import winsome_comunication.Post_simple;
-import winsome_comunication.Wallet_simple;
-import winsome_server.*;
+import winsome_comunication.Post_representation_detailed;
+import winsome_comunication.Post_representation_simple;
+import winsome_comunication.Wallet_representation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -70,14 +69,11 @@ public class ClientCLI {
 		String password = args.get(1);
 		List<String> tags = args.subList(2, args.size());
 
-		try
-		{
+		try {
 			client.register(username, password, tags);
 			// 3. print the result
 			System.out.println("register command : User " + username + " registered");
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 
@@ -103,20 +99,14 @@ public class ClientCLI {
 		String username = args.get(0);
 		String password = args.get(1);
 
-		try
-		{
-			if (client.login(username, password) == 0)
-			{
+		try {
+			if (client.login(username, password) == 0) {
 				// 3. print the result
 				System.out.println("login command : User " + username + " logged in");
-			}
-			else
-			{
+			} else {
 				System.out.println("login command : User " + username + " not logged in");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -138,21 +128,15 @@ public class ClientCLI {
 		}
 
 		// 2. call the logout method of the client
-		try
-		{
+		try {
 			String username = client.get_username();
-			if (client.logout() == 0)
-			{
+			if (client.logout() == 0) {
 				// 3. print the result
 				System.out.println("logout command : User " + username + " logged out");
-			}
-			else
-			{
+			} else {
 				System.out.println("logout command : User " + username + " not logged out");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -174,8 +158,7 @@ public class ClientCLI {
 		}
 
 		// 2. call the list_users method of the client
-		try
-		{
+		try {
 			List<String> users = client.listUsers();
 			// 3. print the result (if there are users)
 			if (users.size() > 0) {
@@ -183,13 +166,10 @@ public class ClientCLI {
 				for (String user : users) {
 					System.out.println(user);
 				}
-			}
-			else {
+			} else {
 				System.out.println("list_users command : No users");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -211,8 +191,7 @@ public class ClientCLI {
 		}
 
 		// 2. call the list_followers method of the client
-		try
-		{
+		try {
 			List<String> followers = client.listFollowers();
 			// 3. print the result (if there are followers)
 			if (followers.size() > 0) {
@@ -220,13 +199,10 @@ public class ClientCLI {
 				for (String follower : followers) {
 					System.out.println(follower);
 				}
-			}
-			else {
+			} else {
 				System.out.println("list_followers command : No followers");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -248,8 +224,7 @@ public class ClientCLI {
 		}
 
 		// 2. call the list_following method of the client
-		try
-		{
+		try {
 			List<String> following = client.listFollowing();
 			// 3. print the result (if there are users followed)
 			if (following.size() > 0) {
@@ -257,13 +232,10 @@ public class ClientCLI {
 				for (String user : following) {
 					System.out.println(user);
 				}
-			}
-			else {
+			} else {
 				System.out.println("list_following command : Not following anyone");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -285,20 +257,14 @@ public class ClientCLI {
 		}
 
 		// 2. call the follow method of the client
-		try
-		{
-			if (client.followUser(args.get(0)))
-			{
+		try {
+			if (client.followUser(args.get(0))) {
 				// 3. print the result
 				System.out.println("follow command : User " + args.get(0) + " followed");
-			}
-			else
-			{
+			} else {
 				System.out.println("follow command : User " + args.get(0) + " not followed");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -320,20 +286,14 @@ public class ClientCLI {
 		}
 
 		// 2. call the unfollow method of the client
-		try
-		{
-			if (client.unfollowUser(args.get(0)))
-			{
+		try {
+			if (client.unfollowUser(args.get(0))) {
 				// 3. print the result
 				System.out.println("unfollow command : User " + args.get(0) + " unfollowed");
-			}
-			else
-			{
+			} else {
 				System.out.println("unfollow command : User " + args.get(0) + " not unfollowed");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -354,23 +314,19 @@ public class ClientCLI {
 			return;
 		}
 
-		try
-		{
+		try {
 			// 2. call the blog method of the client
-			List<Post_simple> post = client.viewBlog();
+			List<Post_representation_simple> post = client.viewBlog();
 			// 3. print the result
 			if (post != null && post.size() > 0) {
 				System.out.println("blog command : Posts :");
-				for (Post_simple p : post) {
+				for (Post_representation_simple p : post) {
 					System.out.println(p);
 				}
-			}
-			else {
+			} else {
 				System.out.println("blog command : No posts");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -405,8 +361,7 @@ public class ClientCLI {
 					// remove the last space of the title
 					title.deleteCharAt(title.length() - 1);
 				}
-			}
-			else {
+			} else {
 				content.append(s).append(" ");
 			}
 		}
@@ -419,20 +374,14 @@ public class ClientCLI {
 			return;
 		}
 
-		try
-		{
-			if (client.createPost(title.toString(), content.toString()))
-			{
+		try {
+			if (client.createPost(title.toString(), content.toString())) {
 				// 3. print the result
 				System.out.println("post command : Post created");
-			}
-			else
-			{
+			} else {
 				System.out.println("post command : Post not created");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -453,23 +402,19 @@ public class ClientCLI {
 			return;
 		}
 
-		try
-		{
+		try {
 			// 2. call the show_feed method of the client
-			List<Post_simple> post = client.showFeed();
+			List<Post_representation_simple> post = client.showFeed();
 			// 3. print the result
 			if (post.size() > 0) {
 				System.out.println("show_feed command : Posts :");
-				for (Post_simple p : post) {
+				for (Post_representation_simple p : post) {
 					System.out.println(p);
 				}
-			}
-			else {
+			} else {
 				System.out.println("show_feed command : No posts");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -492,20 +437,16 @@ public class ClientCLI {
 
 		// 2. call the show_post method of the client
 		String post_id = args.get(0);
-		try
-		{
-			Post_detailed post = client.showPost(post_id);
+		try {
+			Post_representation_detailed post = client.showPost(post_id);
 			// 3. print the result
 			if (post != null) {
 				System.out.println("show_post command : Post :");
 				System.out.println(post);
-			}
-			else {
+			} else {
 				System.out.println("show_post command : Post not found");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -528,20 +469,14 @@ public class ClientCLI {
 
 		// 2. call the delete method of the client
 		String post_id = args.get(0);
-		try
-		{
-			if (client.deletePost(post_id))
-			{
+		try {
+			if (client.deletePost(post_id)) {
 				// 3. print the result
 				System.out.println("delete command : Post deleted");
-			}
-			else
-			{
+			} else {
 				System.out.println("delete command : Post not deleted");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -564,20 +499,14 @@ public class ClientCLI {
 
 		// 2. call the rewin method of the client
 		String post_id = args.get(0);
-		try
-		{
-			if (client.rewinPost(post_id))
-			{
+		try {
+			if (client.rewinPost(post_id)) {
 				// 3. print the result
 				System.out.println("rewin command : Post rewin");
-			}
-			else
-			{
+			} else {
 				System.out.println("rewin command : Post not rewin");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -608,19 +537,14 @@ public class ClientCLI {
 					"rating must be +1 for like or -1 for dislike");
 			return;
 		}
-		try
-		{
-			if (client.ratePost(post_id, rating.equals("+1")))
-			{
+		try {
+			if (client.ratePost(post_id, rating.equals("+1"))) {
 				// 3. print the result
 				System.out.println("rate command : Post rated");
-			}
-			else {
+			} else {
 				System.out.println("rate command : Post not rated");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -647,19 +571,14 @@ public class ClientCLI {
 		for (int i = 2; i < args.size(); i++) {
 			comment.append(" ").append(args.get(i));
 		}
-		try
-		{
-			if (client.addComment(post_id, comment.toString()))
-			{
+		try {
+			if (client.addComment(post_id, comment.toString())) {
 				// 3. print the result
 				System.out.println("comment command : Comment added");
-			}
-			else {
+			} else {
 				System.out.println("comment command : Comment not added");
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -673,14 +592,11 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet method of the client
-		try
-		{
-			Wallet_simple wallet = client.getWallet();
+		try {
+			Wallet_representation wallet = client.getWallet();
 			// 2. print the result
 			System.out.println("wallet command : " + wallet);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
@@ -694,15 +610,12 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet_btc method of the client
-		try
-		{
+		try {
 			double wallet = client.getWalletInBitcoin();
 			// 2. print the result
 			System.out.println("wallet_btc command : Wallet :" + wallet + " BTC");
 			System.out.println(wallet);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}

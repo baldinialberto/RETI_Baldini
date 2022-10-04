@@ -1,23 +1,21 @@
 package winsome_client;
 
-import winsome_server.Server_shudown_hook;
-
 public class ClientMain {
-    public static void main(String[] args) {
-        /*
-         * client main
-         *
-         * 1. create client
-         * 2. start command line interface
-         */
+	public static void main(String[] args) {
+		/*
+		 * client main
+		 *
+		 * 1. create client
+		 * 2. start command line interface
+		 */
 
-        // 1. create client
-        Client client = new Client("config.txt");
+		// 1. create client
+		Client client = new Client("config.txt");
 
-        Runtime.getRuntime().addShutdownHook(new Client_shutdown_hook(client));
+		Runtime.getRuntime().addShutdownHook(new Client_shutdown_hook(client));
 
-        // 2. start command line interface
-        client.start_CLI();
-    }
+		// 2. start command line interface
+		client.start_CLI();
+	}
 
 }

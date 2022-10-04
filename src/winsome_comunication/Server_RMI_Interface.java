@@ -5,11 +5,10 @@ import java.rmi.Remote;
 /**
  * This interface is used to define the methods that the client can call on the server.
  *
- * @public register_user this method is used to register a new user through an RMI call
- * @public receive_updates this method is used to receive updates from the server through an RMI call
- *
  * @author Winsome
  * @version 1.0
+ * @public register_user this method is used to register a new user through an RMI call
+ * @public receive_updates this method is used to receive updates from the server through an RMI call
  * @since 1.0
  */
 public interface Server_RMI_Interface extends Remote {
@@ -19,10 +18,9 @@ public interface Server_RMI_Interface extends Remote {
 	 *
 	 * @param username the username of the user to be registered
 	 * @param password the password of the user to be registered
-	 * @param tags an array of tags that the user is interested in
+	 * @param tags     an array of tags that the user is interested in
 	 * @return a boolean value to indicate if the registration was successful or not
 	 * @throws java.rmi.RemoteException
-	 *
 	 * @author Winsome
 	 * @version 1.0
 	 * @since 1.0
@@ -37,7 +35,6 @@ public interface Server_RMI_Interface extends Remote {
 	 *                 the callback object must implement the ClientInterface interface
 	 * @return a boolean value to indicate if the registration was successful or not
 	 * @throws java.rmi.RemoteException
-	 *
 	 * @author Winsome
 	 * @version 1.0
 	 * @since 1.0

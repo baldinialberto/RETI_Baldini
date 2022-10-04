@@ -7,7 +7,7 @@ import java.net.*;
  * Listens to the multicast group and prints the notifications.
  */
 public class Client_notification_Thread extends Thread {
-	private Client client;
+	private final Client client;
 	private MulticastSocket multicast_socket;
 
 	public Client_notification_Thread(Client client) {
@@ -15,11 +15,10 @@ public class Client_notification_Thread extends Thread {
 	}
 
 	@Override
-	public void run()
-	{
+	public void run() {
 		NetworkInterface network_interface = null;
 		InetSocketAddress group = null;
-		try{
+		try {
 			// 1. Create a multicast socket.
 			this.multicast_socket = new MulticastSocket(this.client.getMulticast_port());
 
@@ -32,8 +31,7 @@ public class Client_notification_Thread extends Thread {
 			this.multicast_socket.setSoTimeout(1000);
 
 			// 3. Receive the message.
-			while(!this.isInterrupted())
-			{
+			while (!this.isInterrupted()) {
 				// 3.1. Receive the message.
 				byte[] buffer = new byte[1024];
 				try {
@@ -45,9 +43,7 @@ public class Client_notification_Thread extends Thread {
 				// 3.2. Print the message.
 				System.out.println(new String(buffer).trim());
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 

@@ -1,7 +1,7 @@
 package winsome_server;
 
 public class Server_shudown_hook extends Thread {
-	private Server server;
+	private final Server server;
 
 	public Server_shudown_hook(Server server) {
 		this.server = server;

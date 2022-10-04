@@ -1,86 +1,24 @@
-package winsome_server;
+package winsome_DB;
 
-import winsome_comunication.Post_detailed;
-import winsome_comunication.Post_simple;
-import winsome_comunication.Wallet_simple;
+import winsome_comunication.Post_representation_detailed;
+import winsome_comunication.Post_representation_simple;
+import winsome_comunication.Wallet_representation;
+import winsome_server.Winsome_Reward;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Server_DB {
-	// Member variables
-	private Post_collection posts;
-	private User_collection users;
+public class Winsome_Database {
 	final private String posts_file_path;
 	final private String users_file_path;
-
-	// public constants
-	public enum DB_ERROR_CODE {
-		SUCCESS(0),
-		USR_NOT_FOUND(-1),
-		USR_ALREADY_EXISTS(-2),
-		USR_ALREADY_FOLLOWING(-3),
-		POST_NOT_FOUND(-4),
-		POST_NOT_AUTHORIZED(-5),
-		POST_ALREADY_RATED(-6),
-		POST_INVALID_RATING(-7),
-		POST_ALREADY_EXISTS(-8);
-
-		private final int value;
-
-		DB_ERROR_CODE(int value) {
-			this.value = value;
-		}
-
-		public static Optional<DB_ERROR_CODE> valueOf(int value) {
-			// DEBUG
-			System.out.println("DB_ERROR_CODE: valueOf: " + value);
-
-			for (DB_ERROR_CODE code : DB_ERROR_CODE.values()) {
-				if (code.value == value) {
-					return Optional.of(code);
-				}
-			}
-			return Optional.empty();
-		}
-
-		public int getValue() {
-			return value;
-		}
-		public static String getStringOf(DB_ERROR_CODE code) {
-			switch (code) {
-				case SUCCESS:
-					return "NO_ERROR";
-				case USR_NOT_FOUND:
-					return "USERNAME NOT FOUND";
-				case USR_ALREADY_EXISTS:
-					return "USERNAME ALREADY EXISTS";
-				case USR_ALREADY_FOLLOWING:
-					return "USERNAME ALREADY FOLLOWING";
-				case POST_NOT_FOUND:
-					return "POST NOT FOUND";
-				case POST_NOT_AUTHORIZED:
-					return "POST OPERATION NOT AUTHORIZED";
-				case POST_ALREADY_RATED:
-					return "POST ALREADY RATED";
-				case POST_INVALID_RATING:
-					return "POST INVALID RATING, MUST BE +1 OR -1";
-				case POST_ALREADY_EXISTS:
-					return "POST ALREADY EXISTS";
-				default:
-					return "UNKNOWN_ERROR";
-			}
-		}
-		public static String getStringOf(int value) {
-			Optional<DB_ERROR_CODE> code = DB_ERROR_CODE.valueOf(value);
-			return code.map(DB_ERROR_CODE::getStringOf).orElse("UNKNOWN_ERROR");
-		}
-	}
+	// Member variables
+	private Winsome_DB_Posts posts;
+	private Winsome_DB_Users users;
 
 	// Constructor
-	public Server_DB(String posts_file_path, String users_file_path) {
+	public Winsome_Database(String posts_file_path, String users_file_path) {
 		/*
 		 * This constructor is used when we want to create a new server database.
 		 *
@@ -150,9 +88,8 @@ public class Server_DB {
 
 			// 3. For each post, calculate the reward.
 			for (String post_id : post_ids) {
-				Post post = this.posts.get_post(post_id);
-				if (post != null)
-				{
+				Post_DB post = this.posts.get_post(post_id);
+				if (post != null) {
 					List<Winsome_Reward> rewards = post.calculate_rewards();
 
 					for (Winsome_Reward reward : rewards) {
@@ -200,7 +137,7 @@ public class Server_DB {
 				// 2. If the user is also the author of the post, remove it from the posts.
 				// and remove it from every user's blog.
 				if (posts.is_author(user, postId)) {
-					posts.delete_post(user, postId);
+					posts.remove_post(user, postId);
 					users.remove_post_from_blogs(postId);
 				}
 				return DB_ERROR_CODE.SUCCESS.getValue();
@@ -255,7 +192,7 @@ public class Server_DB {
 
 		// 1. Try to load the posts from the posts file.
 		try {
-			posts = Post_collection.JSON_read(posts_file_path);
+			posts = Winsome_DB_Posts.JSON_read(posts_file_path);
 		} catch (IOException e) {
 			// if it's not a FileNotFoundException, print the stack trace
 			if (!(e instanceof java.io.FileNotFoundException)) {
@@ -263,7 +200,7 @@ public class Server_DB {
 			}
 
 			// 2. If the posts file does not exist, create a new posts file.
-			posts = new Post_collection();
+			posts = new Winsome_DB_Posts();
 			save_posts();
 		}
 	}
@@ -278,7 +215,7 @@ public class Server_DB {
 
 		// 1. Try to load the users from the users file.
 		try {
-			users = User_collection.JSON_read(users_file_path);
+			users = Winsome_DB_Users.JSON_read(users_file_path);
 		} catch (IOException e) {
 			// if it's not a FileNotFoundException, print the stack trace
 			if (!(e instanceof java.io.FileNotFoundException)) {
@@ -286,7 +223,7 @@ public class Server_DB {
 			}
 
 			// 2. If the users file does not exist, create a new users file.
-			users = User_collection.getInstance();
+			users = new Winsome_DB_Users();
 			save_users();
 		}
 	}
@@ -321,9 +258,7 @@ public class Server_DB {
 		}
 	}
 
-
-	public boolean user_check_password(String username, String password)
-	{
+	public boolean user_check_password(String username, String password) {
 		/*
 		 * This method is used to check if a user exists.
 		 *
@@ -331,12 +266,9 @@ public class Server_DB {
 		 */
 
 		// 1. Check if the user exists.
-		if (users.user_exists(username))
-		{
+		if (users.user_exists(username)) {
 			return users.check_password(username, password);
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -373,6 +305,7 @@ public class Server_DB {
 		// 1. Get the list of users that the user is following.
 		return users.get_users_following(username);
 	}
+
 	public List<String> user_followers(String username) {
 		/*
 		 * This method is used to get a list of users that are following the user.
@@ -406,39 +339,32 @@ public class Server_DB {
 		return users.unfollow_username(user, username_to_unfollow);
 	}
 
-	public ArrayList<Post_simple> get_blog(String user) {
+	public ArrayList<Post_representation_simple> get_blog(String user) {
 		/*
 		 * This method is used to get a blog of a <user>.
 		 *
 		 * 1. Get the user's blog.
 		 */
 
-		if (users.user_exists(user))
-		{
+		if (users.user_exists(user)) {
 			// 1. Get the user's blog.
 			return posts.get_postsimple_from_idlist(users.get_user_blog(user));
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
 
-	public Wallet_simple get_wallet(String username)
-	{
+	public Wallet_representation get_wallet(String username) {
 		/*
 		 * This method is used to get a wallet of a <user>.
 		 *
 		 * 1. Get the user's wallet.
 		 */
 
-		if (users.user_exists(username))
-		{
+		if (users.user_exists(username)) {
 			// 1. Get the user's wallet.
 			return users.get_user_wallet(username);
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
@@ -451,16 +377,14 @@ public class Server_DB {
 		 */
 
 		// 1. Get the wallet balance of the user.
-		if (users.user_exists(username))
-		{
+		if (users.user_exists(username)) {
 			return users.get_wallet_balance(username);
-		}
-		else
-		{
+		} else {
 			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
 		}
 	}
-	public ArrayList<Post_simple> get_feed(String user) {
+
+	public ArrayList<Post_representation_simple> get_feed(String user) {
 		/*
 		 * This method is used to get a feed of a <user>.
 		 *
@@ -477,21 +401,83 @@ public class Server_DB {
 		return posts.get_postsimple_from_idlist(users.get_users_blogs(users_following));
 	}
 
-	public Post_detailed get_post_detailed(String post_id) {
+	public Post_representation_detailed get_post_detailed(String post_id) {
 		/*
 		 * This method is used to get detailed information about a post.
 		 *
 		 * 1. Get the post.
 		 */
 
-		if (posts.post_exists(post_id))
-		{
+		if (posts.post_exists(post_id)) {
 			// 1. Get the post.
 			return posts.get_post_detailed(post_id);
-		}
-		else
-		{
+		} else {
 			return null;
+		}
+	}
+
+	// public constants
+	public enum DB_ERROR_CODE {
+		SUCCESS(0),
+		USR_NOT_FOUND(-1),
+		USR_ALREADY_EXISTS(-2),
+		USR_ALREADY_FOLLOWING(-3),
+		POST_NOT_FOUND(-4),
+		POST_NOT_AUTHORIZED(-5),
+		POST_ALREADY_RATED(-6),
+		POST_INVALID_RATING(-7),
+		POST_ALREADY_EXISTS(-8);
+
+		private final int value;
+
+		DB_ERROR_CODE(int value) {
+			this.value = value;
+		}
+
+		public static Optional<DB_ERROR_CODE> valueOf(int value) {
+			// DEBUG
+			System.out.println("DB_ERROR_CODE: valueOf: " + value);
+
+			for (DB_ERROR_CODE code : DB_ERROR_CODE.values()) {
+				if (code.value == value) {
+					return Optional.of(code);
+				}
+			}
+			return Optional.empty();
+		}
+
+		public static String getStringOf(DB_ERROR_CODE code) {
+			switch (code) {
+				case SUCCESS:
+					return "NO_ERROR";
+				case USR_NOT_FOUND:
+					return "USERNAME NOT FOUND";
+				case USR_ALREADY_EXISTS:
+					return "USERNAME ALREADY EXISTS";
+				case USR_ALREADY_FOLLOWING:
+					return "USERNAME ALREADY FOLLOWING";
+				case POST_NOT_FOUND:
+					return "POST NOT FOUND";
+				case POST_NOT_AUTHORIZED:
+					return "POST OPERATION NOT AUTHORIZED";
+				case POST_ALREADY_RATED:
+					return "POST ALREADY RATED";
+				case POST_INVALID_RATING:
+					return "POST INVALID RATING, MUST BE +1 OR -1";
+				case POST_ALREADY_EXISTS:
+					return "POST ALREADY EXISTS";
+				default:
+					return "UNKNOWN_ERROR";
+			}
+		}
+
+		public static String getStringOf(int value) {
+			Optional<DB_ERROR_CODE> code = DB_ERROR_CODE.valueOf(value);
+			return code.map(DB_ERROR_CODE::getStringOf).orElse("UNKNOWN_ERROR");
+		}
+
+		public int getValue() {
+			return value;
 		}
 	}
 

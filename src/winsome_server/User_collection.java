@@ -344,7 +344,53 @@ public class User_collection extends ConcurrentHashMap<String, User> implements 
 		}
 		return Server_DB.DB_ERROR_CODE.USR_NOT_FOUND.getValue();
 	}
+	public List<String> get_usernames() {
+		/*
+		 * This method is used to get the usernames of all the users.
+		 *
+		 * 1. Create a list of usernames.
+		 * 2. Iterate through all the users.
+		 * 3. Add the username to the list.
+		 * 4. Return the list.
+		 */
 
+		// 1. Create a list of usernames.
+		List<String> usernames = new ArrayList<>();
+
+		// 2. Iterate through all the users.
+		for (User user : this.values()) {
+			// 3. Add the username to the list.
+			usernames.add(user.getUsername());
+		}
+
+		// 4. Return the list.
+		return usernames;
+	}
+	public List<String> get_user_posts(String username) {
+		/*
+		 * This method is used to get the post ids of a user.
+		 *
+		 * 1. Get the user.
+		 * 2. Get the post ids of the user.
+		 * 3. Return the post ids.
+		 */
+
+		if (!this.containsKey(username)) {
+			return null;
+		}
+
+		// 1. Get the user.
+		User user = this.get(username);
+
+		// 2. Get the post ids of the user.
+		// 3. Return the post ids.
+		return new ArrayList<>(user.getPosts());
+	}
+	public void add_to_wallet(String username, double reward) {
+		if (this.containsKey(username)) {
+			this.get(username).getWallet().add_transaction(new Transaction(reward));
+		}
+	}
 	// Other methods
 	@Override
 	public void JSON_write(String filePath) throws IOException {

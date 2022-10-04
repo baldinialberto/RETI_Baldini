@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Server_DB {
 	// Member variables
@@ -138,10 +136,33 @@ public class Server_DB {
 		 * This method is used to reward the users.
 		 *
 		 * 1. Get the list of users.
-		 * 2. For each user, reward them.
+		 * 2. For each user, retrieve the list of posts.
+		 * 3. For each post, calculate the reward.
+		 * 4. Add the reward to the user's wallet.
 		 */
 
-		// TODO: Implement this method.
+		// 1. Get the list of users.
+		List<String> usernames = this.users.get_usernames();
+
+		// 2. For each user, retrieve the list of posts.
+		for (String username : usernames) {
+			List<String> post_ids = this.users.get_user_posts(username);
+
+			// 3. For each post, calculate the reward.
+			for (String post_id : post_ids) {
+				Post post = this.posts.get_post(post_id);
+				if (post != null)
+				{
+					List<Winsome_Reward> rewards = post.calculate_rewards();
+
+					for (Winsome_Reward reward : rewards) {
+						// 4. Add the reward to the user's wallet.
+						this.users.add_to_wallet(reward.username, reward.value);
+					}
+				}
+
+			}
+		}
 	}
 
 	public int add_post(String author, String username, String title, String text) {

@@ -99,6 +99,7 @@ public class Server_Rewards_Thread extends Thread {
 	}
 
 	private void update_rewards() {
+		server.reward_users();
 	}
 
 }

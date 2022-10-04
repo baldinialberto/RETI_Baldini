@@ -16,7 +16,7 @@ public class Transaction implements JSON_Serializable {
 	double value;
 
 	// Constructor
-	public Transaction(List<Comment> comments, List<Vote> votes)
+	public Transaction(double value)
 	{
 		/*
 		 * This constructor is used when we want to create a new transaction.
@@ -29,8 +29,12 @@ public class Transaction implements JSON_Serializable {
 		this.time_created = new Timestamp(System.currentTimeMillis());
 
 		// 2. Set the value of this transaction.
-		this.value = 0;
+		this.value = value;
 
+	}
+	// Empty constructor for JSON
+	public Transaction()
+	{
 	}
 
 	// Methods

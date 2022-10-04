@@ -1,35 +1,4 @@
 {
-  "posts" : {
-    "0" : {
-      "id" : "0",
-      "author" : "nina",
-      "title" : "il mio amico alce.",
-      "text" : "sto giocando, mi diverto un sacco.",
-      "comments" : [ {
-        "username" : "pluto",
-        "time_created" : 1664455477584,
-        "comment" : "sono felice per te."
-      } ],
-      "votes" : [ {
-        "username" : "pluto",
-        "time_created" : 1664455448784,
-        "vote" : true
-      } ],
-      "time_created" : 1664455399980,
-      "n_rewards" : 0,
-      "time_last_reward" : 1664455399980
-    },
-    "1" : {
-      "id" : "1",
-      "author" : "nina",
-      "title" : "Bob.",
-      "text" : "io sto giocando con il mio amico bob.",
-      "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664455666466,
-      "n_rewards" : 0,
-      "time_last_reward" : 1664455666466
-    }
-  },
-  "last_post_id" : "1"
+  "posts" : { },
+  "last_post_id" : null
 }

@@ -2,7 +2,6 @@ package winsome_server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import sun.awt.image.ImageWatched;
 import winsome_comunication.Comment_simple;
 import winsome_comunication.Post_detailed;
 import winsome_comunication.Post_simple;
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Post implements JSON_Serializable, Comparable<Post> {
 
@@ -152,7 +150,7 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         return false;
     }
 
-    public double calculate_reward() {
+    public List<Winsome_Reward> calculate_rewards() {
         /*
          * This method is used to calculate the reward of this post.
          *
@@ -161,7 +159,19 @@ public class Post implements JSON_Serializable, Comparable<Post> {
          * 3. Return the reward of this post.
          */
 
+        class Pair<A, B>{
+            public A first;
+            public B second;
+            public Pair(A first, B second) {
+                this.first = first;
+                this.second = second;
+            }
+        }
+
         double res = .0;
+
+        double author_share = .7;
+        double curator_share = .3;
 
         // 1. Get the list of votes and comments newer than the time_last_reward.
         ArrayList<Vote> votes_to_elaborate = new ArrayList<>();
@@ -169,7 +179,12 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         ArrayList<Comment> comments_to_elaborate = new ArrayList<>();
         ArrayList<Comment> comments_known = new ArrayList<>(comments);
 
-        n_rewards++;
+
+
+        ArrayList<Pair<String, Integer>> users_commented = new ArrayList<>();
+        ArrayList<Pair<String, Integer>> users_voted = new ArrayList<>();
+
+
 
         for (Vote vote : this.votes) {
             if (vote.getTime_created().after(this.time_last_reward)) {
@@ -182,6 +197,10 @@ public class Post implements JSON_Serializable, Comparable<Post> {
             }
         }
 
+        if (comments_to_elaborate.size() == 0 && votes_to_elaborate.size() == 0) {
+            return new ArrayList<>();
+        }
+        n_rewards++;
         // 2. Calculate the reward of this post.
         // votes
         // logn(max(Sum(p = 0 to new_votes) vote[+1 for upvote, -1 for downvote], 0) +1)
@@ -189,6 +208,7 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         for (Vote vote : votes_to_elaborate) {
             if (vote.getVote()) {
                 sum += 1;
+                users_voted.add(new Pair<>(vote.getUsername(), 1));
             } else {
                 sum -= 1;
             }
@@ -199,10 +219,12 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         // logn(Sum(p = 0 to new_comments) (2/(1 + e^-(comments_made_by_user -1)) + 1
         sum = 0;
         for (Comment comment : comments_to_elaborate) {
+            users_commented.add(new Pair<>(comment.getUsername(), 1));
             int comments_made_by_user = 0;
             for (Comment comment2 : comments_known) {
                 if (comment2.getUsername().equals(comment.getUsername())) {
                     comments_made_by_user++;
+                    users_commented.get(users_commented.size() - 1).second++;
                 }
             }
             sum += 2 / (1 + Math.exp(-(comments_made_by_user-1))) + 1;
@@ -213,7 +235,39 @@ public class Post implements JSON_Serializable, Comparable<Post> {
         res /= Math.max(n_rewards, 1);
 
         // 3. Return the reward of this post.
-        return res;
+        double author_reward = res * author_share;
+        double curator_reward = res * curator_share;
+        ArrayList<Winsome_Reward> rewards = new ArrayList<>();
+        rewards.add(new Winsome_Reward(author_reward, this.author));
+
+        return rewards;
+
+//        Integer max_comments = 0;
+//        for (Pair<String, Integer> pair : users_commented) {
+//            if (pair.second > max_comments) {
+//                max_comments = pair.second;
+//            }
+//        }
+//
+//        ArrayList<Pair<String, Double>> curator_rewards = new ArrayList<>();
+//
+//        for (Pair<String, Integer> pair : users_commented) {
+//            curator_rewards.add(new Pair<>(pair.first, max_comments / (double) pair.second));
+//        }
+//        for (Pair<String, Integer> pair : users_voted) {
+//            curator_rewards.add(new Pair<>(pair.first, (double) max_comments));
+//        }
+//
+//        double sum_curator_rewards = 0;
+//        for (Pair<String, Double> pair : curator_rewards) {
+//            sum_curator_rewards += pair.second;
+//        }
+//
+//        for (Pair<String, Double> pair : curator_rewards) {
+//            rewards.add(new Winsome_Reward(curator_reward * pair.second / sum_curator_rewards, pair.first));
+//        }
+//
+//        return rewards;
     }
 
     // Getters

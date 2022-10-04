@@ -920,4 +920,8 @@ public class Server {
 	public void interupt_rewards_thread() {
 		this.rewards_thread.interrupt();
 	}
+
+	public void reward_users() {
+		server_db.reward_users();
+	}
 }

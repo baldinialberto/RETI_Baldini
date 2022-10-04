@@ -205,6 +205,18 @@ public class Post_collection implements JSON_Serializable {
 		// 2. Return the Post_detail object derived from the post.
 		return post.to_post_detailed();
 	}
+	public Post get_post(String post_id) {
+		/*
+		 * This method is used to get a post from the post collection.
+		 *
+		 * 1. Get the post from the post collection.
+		 * 2. Return the post.
+		 */
+
+		// 1. Get the post from the post collection.
+		// 2. Return the post.
+		return this.posts.get(post_id);
+	}
 	@Override
 	public void JSON_write(String filePath) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();

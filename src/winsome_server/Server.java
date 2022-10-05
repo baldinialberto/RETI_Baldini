@@ -86,7 +86,6 @@ public class Server {
 			this.server_socket.register(this.selector, SelectionKey.OP_ACCEPT);
 
 			// 5. Create a new udp server socket
-			// TODO: create a new udp server socket
 
 			// 6. Create a new server RMI object and bind it to the registry
 			Server_RMI_Imp server_rmi = new Server_RMI_Imp(this);

@@ -430,6 +430,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Wallet_representation get_user_wallet(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		// TODO: Implement this method.
 		return null;
 	}
 

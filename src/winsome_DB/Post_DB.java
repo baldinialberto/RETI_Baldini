@@ -35,9 +35,12 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 	private String title;
 	private String text;
 	private ArrayList<Comment_DB> comments;
-	private ArrayList<VoteDB> votes;
+	private ArrayList<RateDB> votes;
 	private int n_rewards;
 	private Timestamp time_last_reward;
+
+	public static final int TITLE_MAX_LENGTH = 20;
+	public static final int CONTENT_MAX_LENGTH = 500;
 
 	// Constructors
 	// Default Constructor
@@ -114,7 +117,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 	public ArrayList<Comment_DB> getComments() {
 		return comments;
 	}
-	public ArrayList<VoteDB> getVotes() {
+	public ArrayList<RateDB> getRates() {
 		return votes;
 	}
 	public Timestamp getTime_last_reward() {
@@ -137,7 +140,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 	public void setComments(ArrayList<Comment_DB> comments) {
 		this.comments = comments;
 	}
-	public void setVotes(ArrayList<VoteDB> votes) {
+	public void setVotes(ArrayList<RateDB> votes) {
 		this.votes = votes;
 	}
 	public void setTime_created(Timestamp time_created) {
@@ -161,7 +164,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		// 1. Add the comment to the list of comments of this post.
 		this.comments.add(comment);
 	}
-	public void addVote(VoteDB vote) {
+	public void addVote(RateDB vote) {
 		/*
 		 * This method is used to add a vote to the list of votes of this post.
 		 *
@@ -193,8 +196,8 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		// 1. Return the Post_detailed object.
 		int upvotes = 0;
 		int downvotes = 0;
-		for (VoteDB vote : this.votes) {
-			if (vote.getVote()) {
+		for (RateDB vote : this.votes) {
+			if (vote.getRate()) {
 				upvotes++;
 			} else {
 				downvotes++;
@@ -217,7 +220,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		 */
 
 		// 1. Loop through the list of votes.
-		for (VoteDB vote : this.votes) {
+		for (RateDB vote : this.votes) {
 			// 2. If the user has voted on this post, return true.
 			if (vote.getAuthor().equals(user)) {
 				return true;
@@ -252,8 +255,8 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		double curator_share = .3;
 
 		// 1. Get the list of votes and comments newer than the time_last_reward.
-		ArrayList<VoteDB> votes_to_elaborate = new ArrayList<>();
-		ArrayList<VoteDB> votes_known = new ArrayList<>(votes);
+		ArrayList<RateDB> votes_to_elaborate = new ArrayList<>();
+		ArrayList<RateDB> votes_known = new ArrayList<>(votes);
 		ArrayList<Comment_DB> comments_to_elaborate = new ArrayList<>();
 		ArrayList<Comment_DB> comments_known = new ArrayList<>(comments);
 
@@ -262,7 +265,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		ArrayList<Pair<String, Integer>> users_voted = new ArrayList<>();
 
 
-		for (VoteDB vote : this.votes) {
+		for (RateDB vote : this.votes) {
 			if (vote.getTime_created().after(this.time_last_reward)) {
 				votes_to_elaborate.add(vote);
 			}
@@ -281,8 +284,8 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		// votes
 		// logn(max(Sum(p = 0 to new_votes) vote[+1 for upvote, -1 for downvote], 0) +1)
 		double sum = 0;
-		for (VoteDB vote : votes_to_elaborate) {
-			if (vote.getVote()) {
+		for (RateDB vote : votes_to_elaborate) {
+			if (vote.getRate()) {
 				sum += 1;
 				users_voted.add(new Pair<>(vote.getAuthor(), 1));
 			} else {

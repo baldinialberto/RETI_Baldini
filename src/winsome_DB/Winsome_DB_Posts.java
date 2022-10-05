@@ -164,7 +164,7 @@ public class Winsome_DB_Posts implements JSON_Serializable {
 		}
 
 		// 4. Add the rating to the post.
-		this.posts.get(postId).getVotes().add(new VoteDB(user, rate.equals("+1")));
+		this.posts.get(postId).getRates().add(new RateDB(user, rate.equals("+1")));
 
 		return Winsome_Database.DB_ERROR_CODE.SUCCESS.getValue();
 	}

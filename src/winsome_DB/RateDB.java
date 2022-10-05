@@ -16,14 +16,14 @@ import java.sql.Timestamp;
  * <p></p>
  * This class is available only to the Winsome_Database
  */
-public class VoteDB extends User_interaction {
+public class RateDB extends User_interaction {
 	// Member variables
 	private boolean vote; // true = upvote, false = downvote
 
 	// Constructors
 	
 	// Default constructor
-	public VoteDB(String username, boolean vote) {
+	public RateDB(String username, boolean vote) {
 		/*
 		 * This constructor is used when we want to create a new vote.
 		 * 1. Set the username of this vote.
@@ -42,7 +42,7 @@ public class VoteDB extends User_interaction {
 	}
 
 	// Jackson constructor
-	public VoteDB() {
+	public RateDB() {
 	}
 	@Override
 	public void JSON_write(String filePath) throws IOException {
@@ -53,13 +53,13 @@ public class VoteDB extends User_interaction {
 	
 	
 	// JSON Methods
-	public static VoteDB JSON_read(String filePath) throws IOException {
+	public static RateDB JSON_read(String filePath) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(new File(filePath), VoteDB.class);
+		return mapper.readValue(new File(filePath), RateDB.class);
 	}
 
 	// Getters
-	public boolean getVote() {
+	public boolean getRate() {
 		return this.vote;
 	}
 	

@@ -35,12 +35,17 @@ public class Winsome_DB_Exception {
 	}
 
 	public static class UsernameNotFound extends Winsome_Exception {
+		private final String username;
+
+		public UsernameNotFound(String username) {
+			this.username = username;
+		}
 		@Override
 		public String getMessage() {
-			return "WinSome 03 : Username not found";
+			return "WinSome 03 : Username " + username + " not found";
 		}
 		public String niceMessage() {
-			return "Username not found";
+			return "Username " + username + " not found";
 		}
 	}
 
@@ -92,7 +97,7 @@ public class Winsome_DB_Exception {
 			return "WinSome 06 : " + title + " is not a valid title";
 		}
 		public String niceMessage() {
-			return "Invalid title, must be between 1 and 20 characters";
+			return "Invalid title, must be between 1 and " + Post_DB.TITLE_MAX_LENGTH + " characters";
 		}
 	}
 
@@ -108,7 +113,7 @@ public class Winsome_DB_Exception {
 			return "WinSome 07 : " + content + " is not a valid content";
 		}
 		public String niceMessage() {
-			return "Invalid content, must be between 1 and 500 characters";
+			return "Invalid content, must be between 1 and " + Post_DB.CONTENT_MAX_LENGTH + " characters";
 		}
 	}
 

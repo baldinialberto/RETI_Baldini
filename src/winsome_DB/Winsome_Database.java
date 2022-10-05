@@ -2,12 +2,13 @@ package winsome_DB;
 
 import winsome_comunication.*;
 import winsome_server.Winsome_DB_Interface;
-import winsome_server.Winsome_Reward;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class represents the Database of the Winsome server.
@@ -31,8 +32,11 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	private boolean create_if_not_exist;
 	private boolean initialized = false;
 	private static Winsome_Database instance = null;
-
 	private final Winsome_DB_Thread thread = new Winsome_DB_Thread(this);
+	private final Lock users_R_lock;
+	private final Lock users_W_lock;
+	private final Lock posts_R_lock;
+	private final Lock posts_W_lock;
 
 	// Constructors
 
@@ -44,6 +48,9 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 *
 		 * 1. Set the file path of the posts file.
 		 * 2. Set the file path of the users file.
+		 * 3. Set the create_if_not_exist flag.
+		 * 4. Create the locks.
+		 * 5. Start the thread.
 		 */
 
 		// 1. Set the file path of the posts file.
@@ -55,7 +62,15 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		// 3. Set the create_if_not_exist flag
 		this.create_if_not_exist = create_if_not_exist;
 
-		// 4. Start the thread
+		// 4. Create the locks.
+		ReadWriteLock users_RW_lock = new ReentrantReadWriteLock(true);
+		ReadWriteLock posts_RW_lock = new ReentrantReadWriteLock(true);
+		users_R_lock = users_RW_lock.readLock();
+		users_W_lock = users_RW_lock.writeLock();
+		posts_R_lock = posts_RW_lock.readLock();
+		posts_W_lock = posts_RW_lock.writeLock();
+
+		// 5. Start the thread
 		thread.start();
 	}
 
@@ -81,7 +96,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	}
 
 	// Private Methods
-	private int load_DB() throws Winsome_DB_Exception.UsersDatabaseNotFound, Winsome_DB_Exception.PostsDatabaseNotFound {
+	public void load_DB() throws Winsome_DB_Exception.UsersDatabaseNotFound, Winsome_DB_Exception.PostsDatabaseNotFound {
 		/*
 		 * This method is used to load the database from the files.
 		 *
@@ -95,7 +110,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		// 2. Load the users from the users file.
 		load_users();
 
-		return 0;
+		// 3. Set the initialized flag to true.
+		initialized = true;
 	}
 	private void load_posts() throws Winsome_DB_Exception.PostsDatabaseNotFound {
 		/*
@@ -176,13 +192,16 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (posts_backup_valid) return 0;
 
 		// 1. Try to save the posts to the posts file.
+		posts_R_lock.lock();
 		try {
 			posts.JSON_write(posts_file_path);
 		} catch (IOException e) {
 			e.printStackTrace();
+			posts_R_lock.unlock();
 			return -1;
 		}
 
+		posts_R_lock.unlock();
 		return 0;
 	}
 	private int save_users() {
@@ -195,13 +214,16 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (users_backup_valid) return 0;
 
 		// 1. Try to save the users to the users file.
+		users_R_lock.lock();
 		try {
 			users.JSON_write(users_file_path);
 		} catch (IOException e) {
 			e.printStackTrace();
+			users_R_lock.unlock();
 			return -1;
 		}
 
+		users_R_lock.unlock();
 		return 0;
 	}
 
@@ -230,15 +252,20 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_W_lock.lock();
 		// 2. If the username already exists in the database, throw an exception.
-		if (users.containsKey(username))
+		if (users.containsKey(username)) {
+			users_W_lock.unlock();
 			throw new Winsome_DB_Exception.UsernameAlreadyExists();
+		}
 
 		// 3. Create the new user.
 		users.put(username, new User_DB(username, password, tags));
 
 		// 4. Dirty the users backup.
 		users_backup_valid = false;
+
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -264,12 +291,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_R_lock.lock();
 		// 2. If the username is not found in the database, throw an exception.
-		if (!users.containsKey(username))
-			throw new Winsome_DB_Exception.UsernameNotFound();
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
 
 		// 3. Check if the password is correct.
-		return users.get(username).getPassword().equals(password);
+		boolean res = users.get(username).getPassword().equals(password);
+		users_R_lock.unlock();
+
+		return res;
 	}
 
 	/**
@@ -298,13 +331,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_W_lock.lock();
 		// 2. If the username is not found in the database, throw an exception.
-		if (!users.containsKey(username))
-			throw new Winsome_DB_Exception.UsernameNotFound();
+		if (!users.containsKey(username)) {
+			users_W_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
 
 		// 3. If the user already follows the user to follow, throw an exception.
-		if (users.get(username).getFollowing().contains(username_to_follow))
+		if (users.get(username).getFollowing().contains(username_to_follow)) {
+			users_W_lock.unlock();
 			throw new Winsome_DB_Exception.UsernameAlreadyFollows(username, username_to_follow);
+		}
 
 		// 4. Make the user follow the user to follow.
 		users.get(username).getFollowing().add(username_to_follow);
@@ -314,6 +352,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 
 		// 6. Dirty the users backup.
 		users_backup_valid = false;
+
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -342,13 +382,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_W_lock.lock();
 		// 2. If the username is not found in the database, throw an exception.
-		if (!users.containsKey(username))
-			throw new Winsome_DB_Exception.UsernameNotFound();
+		if (!users.containsKey(username)) {
+			users_W_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
 
 		// 3. If the user is not following the user to unfollow, throw an exception.
-		if (!users.get(username).getFollowing().contains(username_to_unfollow))
+		if (!users.get(username).getFollowing().contains(username_to_unfollow)) {
+			users_W_lock.unlock();
 			throw new Winsome_DB_Exception.UsernameNotFollowing(username, username_to_unfollow);
+		}
 
 		// 4. Make the user unfollow the user to unfollow.
 		users.get(username).getFollowing().remove(username_to_unfollow);
@@ -358,6 +403,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 
 		// 6. Dirty the users backup.
 		users_backup_valid = false;
+
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -382,12 +429,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_R_lock.lock();
 		// 2. If the username is not found in the database, throw an exception.
-		if (!users.containsKey(username))
-			throw new Winsome_DB_Exception.UsernameNotFound();
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
 
 		// 3. Return the followers list.
-		return users.get(username).getFollowers().toArray(new String[0]);
+		String[] res = users.get(username).getFollowers().toArray(new String[0]);
+		users_R_lock.unlock();
+
+		return res;
 	}
 
 	/**
@@ -412,12 +465,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
+		users_R_lock.lock();
 		// 2. If the username is not found in the database, throw an exception.
-		if (!users.containsKey(username))
-			throw new Winsome_DB_Exception.UsernameNotFound();
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
 
 		// 3. Return the following list.
-		return users.get(username).getFollowing().toArray(new String[0]);
+		String[] res = users.get(username).getFollowing().toArray(new String[0]);
+		users_R_lock.unlock();
+
+		return res;
 	}
 
 	/**
@@ -430,8 +489,29 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Wallet_representation get_user_wallet(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		// TODO: Implement this method.
-		return null;
+		/*
+		 * This method gets a user's wallet.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Return the wallet.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+		// 3. Return the wallet.
+		Wallet_representation res = users.get(username).getWallet().representation();
+		users_R_lock.unlock();
+
+		return res;
 	}
 
 	/**
@@ -442,9 +522,9 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
 	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	@Override
+	@Override @Deprecated
 	public Post_representation_simple[] get_user_posts(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new Post_representation_simple[0];
+		return get_user_feed(username);
 	}
 
 	/**
@@ -460,7 +540,54 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void create_post(String author, String title, String content) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized, Winsome_DB_Exception.PostInvalidTitle, Winsome_DB_Exception.PostInvalidContent {
+		/*
+		 * This method creates a new post in the database.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the title is invalid, throw an exception.
+		 * 4. If the content is invalid, throw an exception.
+		 * 5. Create a new post and add it to the database.
+		 * 6. Add the post to the author's posts.
+		 * 7. Dirty the posts backup.
+		 * 8. Dirty the users backup.
+		 */
 
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		users_R_lock.lock();
+		if (!users.containsKey(author)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(author);
+		}
+		users_R_lock.unlock();
+
+		// 3. If the title is invalid, throw an exception.
+		if (title == null || title.length() == 0 || title.length() > Post_DB.TITLE_MAX_LENGTH)
+			throw new Winsome_DB_Exception.PostInvalidTitle(title);
+
+		// 4. If the content is invalid, throw an exception.
+		if (content == null || content.length() == 0 || content.length() > Post_DB.CONTENT_MAX_LENGTH)
+			throw new Winsome_DB_Exception.PostInvalidContent(content);
+
+		users_W_lock.lock();
+		posts_W_lock.lock();
+		// 5. Create a new post and add it to the database.
+		posts.add_post(author, title, content);
+
+		// 6. Add the post to the author's posts.
+		users.get(author).getPosts().add(posts.getLast_post_id());
+
+		// 8. Dirty the posts backup.
+		posts_backup_valid = false;
+
+		// 9. Dirty the users backup.
+		users_backup_valid = false;
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -475,7 +602,65 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void remove_post(String username, String post_id) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostNotOwned, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method removes a post from the database.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the post is not found in the database, throw an exception.
+		 * 4. If the post is not owned by the user, throw an exception.
+		 * 5. Remove the post from the database.
+		 * 6. Remove the post from the user's posts.
+		 * 7. Dirty the posts backup.
+		 * 8. Dirty the users backup.
+		 */
 
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		users_W_lock.lock();
+		posts_W_lock.lock();
+
+		// 4. If the post is not owned by the user, throw an exception.
+		if (!users.get(username).getPosts().contains(post_id)) {
+			posts_W_lock.unlock();
+			users_W_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotOwned(username, post_id);
+		}
+
+		// 5. Remove the post from the database.
+		posts.getPosts().remove(post_id);
+
+		// 6. Remove the post from the user's posts.
+		users.get(username).getPosts().remove(post_id);
+
+		// 7. Dirty the posts backup.
+		posts_backup_valid = false;
+
+		// 8. Dirty the users backup.
+		users_backup_valid = false;
+
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -488,7 +673,36 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public boolean[] get_post_rates(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new boolean[0];
+		/*
+		 * This method gets a post's rates.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the post is not found in the database, throw an exception.
+		 * 3. Get the post's rates.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		posts_R_lock.lock();
+
+		// 2. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 3. Get the post's rates.
+		ArrayList<RateDB> rates = posts.getPosts().get(post_id).getRates();
+
+		posts_R_lock.unlock();
+
+		boolean[] res = new boolean[rates.size()];
+		for (int i = 0; i < rates.size(); i++)
+			res[i] = rates.get(i).getRate();
+
+		return res;
 	}
 
 	/**
@@ -501,7 +715,36 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Comment_representation[] get_post_comments(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new Comment_representation[0];
+		/*
+		 * This method gets a post's comments.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the post is not found in the database, throw an exception.
+		 * 3. Get the post's comments.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		posts_R_lock.lock();
+
+		// 2. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 3. Get the post's comments.
+		ArrayList<Comment_DB> comments = posts.getPosts().get(post_id).getComments();
+
+		posts_R_lock.unlock();
+
+		Comment_representation[] res = new Comment_representation[comments.size()];
+		for (int i = 0; i < comments.size(); i++)
+			res[i] = comments.get(i).representation();
+
+		return res;
 	}
 
 	/**
@@ -517,7 +760,62 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void rate_post(String username, String post_id, boolean rate) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostAlreadyRated, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method is used to like/dislike a post.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the post is not found in the database, throw an exception.
+		 * 4. If the user has already rated the post, throw an exception.
+		 * 5. Add the rate to the post.
+		 * 6. Dirty the posts backup.
+		 */
 
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 4. If the user has already rated the post, throw an exception.
+		ArrayList<RateDB> rates = posts.getPosts().get(post_id).getRates();
+		for (RateDB r : rates) {
+			if (r.getAuthor().equals(username)) {
+				posts_R_lock.unlock();
+				users_R_lock.unlock();
+				throw new Winsome_DB_Exception.PostAlreadyRated(username, post_id);
+			}
+		}
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		users_W_lock.lock();
+		posts_W_lock.lock();
+
+		// 5. Add the rate to the post.
+		posts.getPosts().get(post_id).addVote(new RateDB(username, rate));
+
+		// 6. Dirty the posts backup.
+		posts_backup_valid = false;
+
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -533,7 +831,59 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void comment_on_post(String username, String post_id, String comment) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostCommentedByAuthor, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method is used to comment a post.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the post is not found in the database, throw an exception.
+		 * 4. If the user is the author of the post, throw an exception.
+		 * 5. Add the comment to the post.
+		 * 6. Dirty the posts backup.
+		 */
 
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 4. If the user is the author of the post, throw an exception.
+		if (posts.getPosts().get(post_id).getAuthor().equals(username)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostCommentedByAuthor(username, post_id);
+		}
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		users_W_lock.lock();
+		posts_W_lock.lock();
+
+		// 5. Add the comment to the post.
+		posts.getPosts().get(post_id).addComment(new Comment_DB(username, comment));
+
+		// 6. Dirty the posts backup.
+		posts_backup_valid = false;
+
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -546,7 +896,32 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Post_representation_simple get_post_simple(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return null;
+		/*
+		 * This method is used to get a post's simple representation.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the post is not found in the database, throw an exception.
+		 * 3. Return the post's simple representation.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		posts_R_lock.lock();
+
+		// 2. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 3. Return the post's simple representation.
+		Post_representation_simple ret = posts.getPosts().get(post_id).representation_simple();
+
+		posts_R_lock.unlock();
+
+		return ret;
 	}
 
 	/**
@@ -559,7 +934,32 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Post_representation_detailed get_post(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return null;
+		/*
+		 * This method is used to get a post's full representation.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the post is not found in the database, throw an exception.
+		 * 3. Return the post's full representation.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		posts_R_lock.lock();
+
+		// 2. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(post_id)) {
+			posts_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(post_id);
+		}
+
+		// 3. Return the post's full representation.
+		Post_representation_detailed ret = posts.getPosts().get(post_id).representation_detailed();
+
+		posts_R_lock.unlock();
+
+		return ret;
 	}
 
 	/**
@@ -572,7 +972,40 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Post_representation_simple[] get_user_blog(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new Post_representation_simple[0];
+		/*
+		 * This method is used to get the posts of a user.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Get the posts of the user.
+		 * 4. return a representation of the posts of the user.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. Get the posts of the user.
+		String[] posts_ids = users.get(username).getPosts().toArray(new String[0]);
+
+		// 4. return a representation of the posts of the user.
+		Post_representation_simple[] ret = new Post_representation_simple[posts_ids.length];
+		for (int i = 0; i < posts_ids.length; i++)
+			ret[i] = posts.getPosts().get(posts_ids[i]).representation_simple();
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		return ret;
 	}
 
 	/**
@@ -585,7 +1018,53 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public Post_representation_simple[] get_user_feed(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new Post_representation_simple[0];
+		/*
+		 * This method is used to get the posts of a user's feed.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Get the users' following list.
+		 * 4. Get the posts of the users' following list.
+		 * 5. Return a representation of the posts of the users' following list.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. Get the users' following list.
+		String[] following = users.get(username).getFollowing().toArray(new String[0]);
+
+		TreeSet<Post_DB> posts_list = new TreeSet<>();
+
+		// 4. Get the posts of the users' following list.
+		for (String user : following) {
+			String[] posts_ids = users.get(user).getPosts().toArray(new String[0]);
+			for (String post_id : posts_ids)
+				posts_list.add(posts.getPosts().get(post_id));
+		}
+
+		// 5. Return a representation of the posts of the users' following list.
+		Post_representation_simple[] ret = new Post_representation_simple[posts_list.size()];
+
+		int i = 0;
+		for (Post_DB post : posts_list)
+			ret[i++] = post.representation_simple();
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		return ret;
 	}
 
 	/**
@@ -598,7 +1077,46 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public String[] get_similar_users(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
-		return new String[0];
+		/*
+		 * This method is used to get the usernames of users with similar interests with the given user.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Get the users' interests.
+		 * 4. Get every username that has at least one interest in common with the user. (The user is not included in the list.)
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. Get the users' interests.
+		String[] interests = users.get(username).getTags();
+
+		// 4. Get every username that has at least one interest in common with the user. (The user is not included in the list.)
+		TreeSet<String> similar_users = new TreeSet<>();
+
+		for (String user : users.keySet()) {
+			if (user.equals(username))
+				continue;
+
+			String[] user_interests = users.get(user).getTags();
+
+			if (Arrays.stream(user_interests).anyMatch(t -> Arrays.asList(interests).contains(t)))
+				similar_users.add(user);
+		}
+
+		users_R_lock.unlock();
+
+		return similar_users.toArray(new String[0]);
 	}
 
 	/**
@@ -606,7 +1124,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void reward_everyone() {
-
+		// TODO: Implement this method.
 	}
 
 	/**
@@ -614,6 +1132,32 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void close() {
+		/*
+		 * This method is used to close the database.
+		 *
+		 * 1. If the database is not initialized, return.
+		 * 2. Interrupt the thread that saves the database.
+		 * 3. Save the database.
+		 * 4. Set the database as not initialized.
+		 */
 
+
+		// 1. If the database is not initialized, return.
+		if (!initialized) {
+			return;
+		}
+
+		// 2. Interrupt the thread that saves the database.
+		thread.interrupt();
+
+		// 3. Save the database.
+		try {
+			save_DB();
+		} catch (Winsome_DB_Exception.DatabaseNotInitialized | Winsome_DB_Exception.DatabaseNotSaved e) {
+			System.err.println(e.getMessage());
+		}
+
+		// 4. Set the database as not initialized.
+		initialized = false;
 	}
 }

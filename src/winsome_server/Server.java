@@ -70,11 +70,11 @@ public class Server {
 				this.properties.get_posts_database(), this.properties.get_users_database(), true);
 
 		// 3.1 Try to load the server database
-		if (this.server_db.load_DB() != 0) {
-			// 3.2 If an error occurred, exit the program
-			System.out.println("Error: failed to load the server database");
-			System.exit(1);
-		}
+//		if (this.server_db.load_DB() != 0) {
+//			// 3.2 If an error occurred, exit the program
+//			System.out.println("Error: failed to load the server database");
+//			System.exit(1);
+//		}
 
 
 		try {

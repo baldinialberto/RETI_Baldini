@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_DB.Winsome_DB_Exception;
 import winsome_DB.Winsome_Database;
 import winsome_comunication.*;
 
@@ -65,7 +66,8 @@ public class Server {
 		this.workers_thread_poll = Executors.newFixedThreadPool(properties.get_workers());
 
 		// 3. Create a new server database object
-		this.server_db = new Winsome_Database(this.properties.get_posts_database(), this.properties.get_users_database());
+		this.server_db = Winsome_Database.getInstance(
+				this.properties.get_posts_database(), this.properties.get_users_database(), true);
 
 		// 3.1 Try to load the server database
 		if (this.server_db.load_DB() != 0) {
@@ -226,39 +228,6 @@ public class Server {
 		}
 	}
 
-	private void test_func() {
-		/*
-		 * This method is used to test the server.
-		 *
-		 * 1. Create a new server_db and load it.
-		 * 2. Add 10 different users with their password and 1-5 tags.
-		 * 3. For each user, add 1-5 Post with random title and text.
-		 * 4. Save the server_db.
-		 */
-
-		// 1. Create a new server_db and load it.
-		Winsome_Database server_db = new Winsome_Database("posts.json", "users.json");
-		server_db.load_DB();
-
-		// 2. Add 10 different users with their password and 1-5 tags.
-		for (int i = 0; i < 10; i++) {
-			String[] tags = new String[(int) (Math.random() * 5)];
-			for (int j = 0; j < tags.length; j++) {
-				tags[j] = "tag" + j;
-			}
-			server_db.add_user("user_" + i, "password_" + i, tags);
-		}
-
-		// 3. For each user, add 1-5 Post with random title and text.
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < (int) (Math.random() * 5); j++) {
-				server_db.add_post("user_" + i, "user_" + i, "title_" + j + "_" + i, "text" + j);
-			}
-		}
-
-		// 4. Save the server_db.
-		server_db.save_DB();
-	}
 
 
 	// Client Interactions
@@ -494,7 +463,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to create the post
-		if (this.server_db.add_post(this.connections_manager.get_username(address),
+		if (this.server_db.add_post_deprecated(this.connections_manager.get_username(address),
 				this.connections_manager.get_username(address), title, content) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
@@ -640,7 +609,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to delete the post
-		if (this.server_db.delete_post(connections_manager.get_username(address), postId) == 0) {
+		if (this.server_db.delete_post_deprecated(connections_manager.get_username(address), postId) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -673,7 +642,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to rewin the post
-		if (this.server_db.rewin_post(connections_manager.get_username(address), postId) == 0) {
+		if (this.server_db.rewin_post_deprecated(connections_manager.get_username(address), postId) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -706,7 +675,7 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to comment on the post
-		if (this.server_db.comment_post(connections_manager.get_username(address), postId, comment) == 0) {
+		if (this.server_db.comment_post_deprecated(connections_manager.get_username(address), postId, comment) == 0) {
 			// 4. Return the result
 			result.addString(Win_message.SUCCESS);
 		} else {
@@ -739,13 +708,18 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to rate the post
-		if (this.server_db.rate_post(connections_manager.get_username(address), postId, rate) == 0) {
-			// 4. Return the result
-			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
-			result.addString(Win_message.ERROR);
-			result.addString("Error rating post");
+		try {
+			this.server_db.rate_post(connections_manager.get_username(address), postId, rate.equals("+1"))
+				// 4. Return the result
+				result.addString(Win_message.SUCCESS);
+		} catch (Winsome_DB_Exception.UsernameNotFound e) {
+			throw new RuntimeException(e);
+		} catch (Winsome_DB_Exception.PostNotFound e) {
+			throw new RuntimeException(e);
+		} catch (Winsome_DB_Exception.PostAlreadyRated e) {
+			throw new RuntimeException(e);
+		} catch (Winsome_DB_Exception.DatabaseNotInitialized e) {
+			throw new RuntimeException(e);
 		}
 
 		return result;
@@ -908,6 +882,6 @@ public class Server {
 	}
 
 	public void reward_users() {
-		server_db.reward_users();
+		server_db.reward_users_deprecated();
 	}
 }

@@ -1,8 +1,7 @@
 package winsome_DB;
 
-import winsome_comunication.Post_representation_detailed;
-import winsome_comunication.Post_representation_simple;
-import winsome_comunication.Wallet_representation;
+import winsome_comunication.*;
+import winsome_server.Winsome_DB_Interface;
 import winsome_server.Winsome_Reward;
 
 import java.io.IOException;
@@ -10,15 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Winsome_Database {
-	final private String posts_file_path;
-	final private String users_file_path;
+/**
+ * This class represents the Database of the Winsome server.
+ * It contains:
+ * 1. A map of all the users in the database.
+ * 2. A map of all the posts in the database.
+ * 3. The id of the last post created.
+ * 4. The file path of the users' database.
+ * 5. The file path of the posts' database.
+ * <p></p>
+ * This class is a singleton.
+ */
+public class Winsome_Database implements Winsome_DB_Interface {
 	// Member variables
 	private Winsome_DB_Posts posts;
 	private Winsome_DB_Users users;
+	final private String posts_file_path;
+	final private String users_file_path;
+	private boolean posts_backup_valid = true;
+	private boolean users_backup_valid = true;
+	private boolean create_if_not_exist;
+	private boolean initialized = false;
+	private static Winsome_Database instance = null;
 
-	// Constructor
-	public Winsome_Database(String posts_file_path, String users_file_path) {
+	private final Winsome_DB_Thread thread = new Winsome_DB_Thread(this);
+
+	// Constructors
+
+	// Private constructor
+	private Winsome_Database(String posts_file_path, String users_file_path, boolean create_if_not_exist) {
 		/*
 		 * This constructor is used when we want to create a new server database.
 		 *
@@ -32,10 +51,37 @@ public class Winsome_Database {
 
 		// 2. Set the file path of the users file.
 		this.users_file_path = users_file_path;
+
+		// 3. Set the create_if_not_exist flag
+		this.create_if_not_exist = create_if_not_exist;
+
+		// 4. Start the thread
+		thread.start();
 	}
 
-	// Methods
-	public int load_DB() {
+	// Instance getter
+	public static Winsome_Database getInstance(
+			String posts_file_path, String users_file_path, boolean create_if_not_exist)
+	{
+		/*
+		 * This method is used to get the instance of the database.
+		 * If the database is not initialized, it will be initialized.
+		 * If the database is already initialized, it will return the instance.
+		 *
+		 * 1. If the database is not initialized, initialize it.
+		 * 2. Return the instance.
+		 */
+
+		// 1. If the database is not initialized, initialize it.
+		if (instance == null)
+			instance = new Winsome_Database(posts_file_path, users_file_path, create_if_not_exist);
+
+		// 2. Return the instance.
+		return instance;
+	}
+
+	// Private Methods
+	private int load_DB() throws Winsome_DB_Exception.UsersDatabaseNotFound, Winsome_DB_Exception.PostsDatabaseNotFound {
 		/*
 		 * This method is used to load the database from the files.
 		 *
@@ -51,138 +97,7 @@ public class Winsome_Database {
 
 		return 0;
 	}
-
-	public int save_DB() {
-		/*
-		 * This method is used to save the database to the files.
-		 *
-		 * 1. Save the posts to the posts file.
-		 * 2. Save the users to the users file.
-		 */
-
-		// 1. Save the posts to the posts file.
-		save_posts();
-
-		// 2. Save the users to the users file.
-		save_users();
-
-		return 0;
-	}
-
-	public void reward_users() {
-		/*
-		 * This method is used to reward the users.
-		 *
-		 * 1. Get the list of users.
-		 * 2. For each user, retrieve the list of posts.
-		 * 3. For each post, calculate the reward.
-		 * 4. Add the reward to the user's wallet.
-		 */
-
-		// 1. Get the list of users.
-		List<String> usernames = this.users.get_usernames();
-
-		// 2. For each user, retrieve the list of posts.
-		for (String username : usernames) {
-			List<String> post_ids = this.users.get_user_posts(username);
-
-			// 3. For each post, calculate the reward.
-			for (String post_id : post_ids) {
-				Post_DB post = this.posts.get_post(post_id);
-				if (post != null) {
-					List<Winsome_Reward> rewards = post.calculate_rewards();
-
-					for (Winsome_Reward reward : rewards) {
-						// 4. Add the reward to the user's wallet.
-						this.users.add_to_wallet(reward.username, reward.value);
-					}
-				}
-
-			}
-		}
-	}
-
-	public int add_post(String author, String username, String title, String text) {
-		/*
-		 * This method is used to add a post to the database.
-		 *
-		 * 1. Add the post to the posts.
-		 * 2. Add the post to the user.
-		 */
-
-		if (users.user_exists(author) && users.user_exists(username)) {
-			// 1. Add the post to the posts.
-			posts.add_post(author, title, text);
-
-			// 2. Add the post to the user.
-			return users.add_post(username, posts.getLast_post_id());
-		} else {
-			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
-		}
-	}
-
-	public int delete_post(String user, String postId) {
-		/*
-		 * This method is used to delete a post from the database.
-		 *
-		 * 1. If the post is in the user's blog, remove it.
-		 * 2. If the user is also the author of the post, remove it from the posts.
-		 * and remove it from every user's blog.
-		 */
-		int res;
-
-		if (users.user_exists(user)) {
-			// 1. If the post is in the user's blog, remove it.
-			if ((res = users.delete_post(user, postId)) == 0) {
-				// 2. If the user is also the author of the post, remove it from the posts.
-				// and remove it from every user's blog.
-				if (posts.is_author(user, postId)) {
-					posts.remove_post(user, postId);
-					users.remove_post_from_blogs(postId);
-				}
-				return DB_ERROR_CODE.SUCCESS.getValue();
-			} else {
-				return res;
-			}
-		} else {
-			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
-		}
-	}
-
-	public int rewin_post(String user, String postId) {
-		/*
-		 * This method is used to rewin a post.
-		 *
-		 * 1. Rewin the post (add the post to the user).
-		 */
-
-		// 1. Rewin the post (add the post to the user).
-		return users.add_post(user, postId);
-	}
-
-	public int comment_post(String user, String postId, String comment) {
-		/*
-		 * This method is used to comment a post.
-		 *
-		 * 1. Comment the post.
-		 */
-
-		// 1. Comment the post.
-		return posts.comment_post(user, postId, comment);
-	}
-
-	public int rate_post(String user, String postId, String rate) {
-		/*
-		 * This method is used to rate a post.
-		 *
-		 * 1. Rate the post.
-		 */
-
-		// 1. Rate the post.
-		return posts.rate_post(user, postId, rate);
-	}
-
-	private void load_posts() {
+	private void load_posts() throws Winsome_DB_Exception.PostsDatabaseNotFound {
 		/*
 		 * This method is used to load the posts from the posts file.
 		 *
@@ -199,13 +114,16 @@ public class Winsome_Database {
 				e.printStackTrace();
 			}
 
-			// 2. If the posts file does not exist, create a new posts file.
-			posts = new Winsome_DB_Posts();
-			save_posts();
+			if (create_if_not_exist) {
+				// 2. If the posts file does not exist, create a new posts file.
+				posts = new Winsome_DB_Posts();
+				save_posts();
+			} else {
+				throw new Winsome_DB_Exception.PostsDatabaseNotFound();
+			}
 		}
 	}
-
-	private void load_users() {
+	private void load_users() throws Winsome_DB_Exception.UsersDatabaseNotFound {
 		/*
 		 * This method is used to load the users from the users file.
 		 *
@@ -222,269 +140,479 @@ public class Winsome_Database {
 				e.printStackTrace();
 			}
 
-			// 2. If the users file does not exist, create a new users file.
-			users = new Winsome_DB_Users();
-			save_users();
+			if (create_if_not_exist) {
+				// 2. If the users file does not exist, create a new users file.
+				users = new Winsome_DB_Users();
+				save_users();
+			} else {
+				throw new Winsome_DB_Exception.UsersDatabaseNotFound();
+			}
 		}
 	}
+	void save_DB() throws Winsome_DB_Exception.DatabaseNotInitialized, Winsome_DB_Exception.DatabaseNotSaved {
+		/*
+		 * This method is used to save the database to the files.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. Save the posts to the posts file.
+		 * 3. Save the users to the users file.
+		 */
 
-	private void save_posts() {
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. Save the posts to the posts file.// 3. Save the users to the users file.
+		if (save_posts() != 0 || save_users() != 0)
+			throw new Winsome_DB_Exception.DatabaseNotSaved();
+	}
+	private int save_posts() {
 		/*
 		 * This method is used to save the posts to the posts file.
 		 *
 		 * 1. Try to save the posts to the posts file.
 		 */
 
+		if (posts_backup_valid) return 0;
+
 		// 1. Try to save the posts to the posts file.
 		try {
 			posts.JSON_write(posts_file_path);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return -1;
 		}
-	}
 
-	private void save_users() {
+		return 0;
+	}
+	private int save_users() {
 		/*
 		 * This method is used to save the users to the users file.
 		 *
 		 * 1. Try to save the users to the users file.
 		 */
 
+		if (users_backup_valid) return 0;
+
 		// 1. Try to save the users to the users file.
 		try {
 			users.JSON_write(users_file_path);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	public boolean user_check_password(String username, String password) {
-		/*
-		 * This method is used to check if a user exists.
-		 *
-		 * 1. Check if the user exists.
-		 */
-
-		// 1. Check if the user exists.
-		if (users.user_exists(username)) {
-			return users.check_password(username, password);
-		} else {
-			return false;
-		}
-	}
-
-	public int add_user(String username, String password, String[] tags) {
-		/*
-		 * This method is used to add a user to the database.
-		 *
-		 * 1. Add the user to the users.
-		 */
-
-		// 1. Add the user to the users.
-		return users.add_user(username, password, tags);
-	}
-
-	public List<String> users_with_common_tags(String username) {
-		/*
-		 * This method is used to get a list of users with common tags.
-		 *
-		 * 1. Get the list of users with common tags.
-		 */
-
-		// 1. Get the list of users with common tags.
-		return users.users_with_common_tags(username);
-	}
-
-	public List<String> user_followings(String username) {
-		/*
-		 * This method is used to get a list of users that the user is following.
-		 *
-		 * 1. Get the list of users that the user is following.
-		 */
-
-		// 1. Get the list of users that the user is following.
-		return users.get_users_following(username);
-	}
-
-	public List<String> user_followers(String username) {
-		/*
-		 * This method is used to get a list of users that are following the user.
-		 *
-		 * 1. Get the list of users that are following the user.
-		 */
-
-		// 1. Get the list of users that are following the user.
-		return users.get_users_followers(username);
-	}
-
-	public int follow_username(String user, String username_to_follow) {
-		/*
-		 * This method is used to follow a user.
-		 *
-		 * 1. Follow the user.
-		 */
-
-		// 1. Follow the user.
-		return users.follow_username(user, username_to_follow);
-	}
-
-	public int unfollow_username(String user, String username_to_unfollow) {
-		/*
-		 * This method is used to unfollow a user.
-		 *
-		 * 1. Unfollow the user.
-		 */
-
-		// 1. Unfollow the user.
-		return users.unfollow_username(user, username_to_unfollow);
-	}
-
-	public ArrayList<Post_representation_simple> get_blog(String user) {
-		/*
-		 * This method is used to get a blog of a <user>.
-		 *
-		 * 1. Get the user's blog.
-		 */
-
-		if (users.user_exists(user)) {
-			// 1. Get the user's blog.
-			return posts.get_postsimple_from_idlist(users.get_user_blog(user));
-		} else {
-			return null;
-		}
-	}
-
-	public Wallet_representation get_wallet(String username) {
-		/*
-		 * This method is used to get a wallet of a <user>.
-		 *
-		 * 1. Get the user's wallet.
-		 */
-
-		if (users.user_exists(username)) {
-			// 1. Get the user's wallet.
-			return users.get_user_wallet(username);
-		} else {
-			return null;
-		}
-	}
-
-	public double get_wallet_balance(String username) {
-		/*
-		 * This method is used to get the wallet balance of a user.
-		 *
-		 * 1. Get the wallet balance of the user.
-		 */
-
-		// 1. Get the wallet balance of the user.
-		if (users.user_exists(username)) {
-			return users.get_wallet_balance(username);
-		} else {
-			return DB_ERROR_CODE.USR_NOT_FOUND.getValue();
-		}
-	}
-
-	public ArrayList<Post_representation_simple> get_feed(String user) {
-		/*
-		 * This method is used to get a feed of a <user>.
-		 *
-		 * 1. Get the list of users that the user is following.
-		 * 2. Get the list of posts from the users that the user is following.
-		 * 3. Return the list of posts.
-		 */
-
-		// 1. Get the list of users that the user is following.
-		ArrayList<String> users_following = users.get_users_following(user);
-
-		// 2. Get the list of posts from the users that the user is following.
-		// 3. Return the list of posts.
-		return posts.get_postsimple_from_idlist(users.get_users_blogs(users_following));
-	}
-
-	public Post_representation_detailed get_post_detailed(String post_id) {
-		/*
-		 * This method is used to get detailed information about a post.
-		 *
-		 * 1. Get the post.
-		 */
-
-		if (posts.post_exists(post_id)) {
-			// 1. Get the post.
-			return posts.get_post_detailed(post_id);
-		} else {
-			return null;
-		}
-	}
-
-	// public constants
-	public enum DB_ERROR_CODE {
-		SUCCESS(0),
-		USR_NOT_FOUND(-1),
-		USR_ALREADY_EXISTS(-2),
-		USR_ALREADY_FOLLOWING(-3),
-		POST_NOT_FOUND(-4),
-		POST_NOT_AUTHORIZED(-5),
-		POST_ALREADY_RATED(-6),
-		POST_INVALID_RATING(-7),
-		POST_ALREADY_EXISTS(-8);
-
-		private final int value;
-
-		DB_ERROR_CODE(int value) {
-			this.value = value;
+			return -1;
 		}
 
-		public static Optional<DB_ERROR_CODE> valueOf(int value) {
-			// DEBUG
-			System.out.println("DB_ERROR_CODE: valueOf: " + value);
-
-			for (DB_ERROR_CODE code : DB_ERROR_CODE.values()) {
-				if (code.value == value) {
-					return Optional.of(code);
-				}
-			}
-			return Optional.empty();
-		}
-
-		public static String getStringOf(DB_ERROR_CODE code) {
-			switch (code) {
-				case SUCCESS:
-					return "NO_ERROR";
-				case USR_NOT_FOUND:
-					return "USERNAME NOT FOUND";
-				case USR_ALREADY_EXISTS:
-					return "USERNAME ALREADY EXISTS";
-				case USR_ALREADY_FOLLOWING:
-					return "USERNAME ALREADY FOLLOWING";
-				case POST_NOT_FOUND:
-					return "POST NOT FOUND";
-				case POST_NOT_AUTHORIZED:
-					return "POST OPERATION NOT AUTHORIZED";
-				case POST_ALREADY_RATED:
-					return "POST ALREADY RATED";
-				case POST_INVALID_RATING:
-					return "POST INVALID RATING, MUST BE +1 OR -1";
-				case POST_ALREADY_EXISTS:
-					return "POST ALREADY EXISTS";
-				default:
-					return "UNKNOWN_ERROR";
-			}
-		}
-
-		public static String getStringOf(int value) {
-			Optional<DB_ERROR_CODE> code = DB_ERROR_CODE.valueOf(value);
-			return code.map(DB_ERROR_CODE::getStringOf).orElse("UNKNOWN_ERROR");
-		}
-
-		public int getValue() {
-			return value;
-		}
+		return 0;
 	}
 
 
-	// Getters
-	// None
+	/**
+	 * This method creates a new user in the database.
+	 *
+	 * @param username The username of the new user.
+	 * @param password The password of the new user.
+	 * @param tags     The tags (interests) of the new user.
+	 * @throws Winsome_DB_Exception.UsernameAlreadyExists  if the username already exists in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void create_user(String username, String password, String[] tags) throws Winsome_DB_Exception.UsernameAlreadyExists, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method creates a new user in the database.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username already exists in the database, throw an exception.
+		 * 3. Create the new user.
+		 * 4. Dirty the users backup.
+		 */
 
-	// Setters
-	// None
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username already exists in the database, throw an exception.
+		if (users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameAlreadyExists();
+
+		// 3. Create the new user.
+		users.put(username, new User_DB(username, password, tags));
+
+		// 4. Dirty the users backup.
+		users_backup_valid = false;
+	}
+
+	/**
+	 * This method checks if a user's credentials are correct.
+	 *
+	 * @param username The username of the user to check.
+	 * @param password The password of the user to check.
+	 * @return True if the credentials are correct, false otherwise.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public boolean check_credentials(String username, String password) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method checks if a user's credentials are correct.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Check if the password is correct.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameNotFound();
+
+		// 3. Check if the password is correct.
+		return users.get(username).getPassword().equals(password);
+	}
+
+	/**
+	 * This method makes a user follow another user.
+	 *
+	 * @param username           The username of the user that wants to follow.
+	 * @param username_to_follow The username of the user to follow.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.UsernameAlreadyFollows if the user already follows the user to follow.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void user_follows(String username, String username_to_follow) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.UsernameAlreadyFollows, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method makes a user follow another user.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the user already follows the user to follow, throw an exception.
+		 * 4. Make the user follow the user to follow.
+		 * 5. Add the user to the <username_to_follow> followers.
+		 * 6. Dirty the users backup.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameNotFound();
+
+		// 3. If the user already follows the user to follow, throw an exception.
+		if (users.get(username).getFollowing().contains(username_to_follow))
+			throw new Winsome_DB_Exception.UsernameAlreadyFollows(username, username_to_follow);
+
+		// 4. Make the user follow the user to follow.
+		users.get(username).getFollowing().add(username_to_follow);
+
+		// 5. Add the user to the <username_to_follow> followers.
+		users.get(username_to_follow).getFollowers().add(username);
+
+		// 6. Dirty the users backup.
+		users_backup_valid = false;
+	}
+
+	/**
+	 * This method makes a user unfollow another user.
+	 *
+	 * @param username             The username of the user that wants to unfollow.
+	 * @param username_to_unfollow The username of the user to unfollow.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.UsernameNotFollowing   if the user is not following the user to unfollow.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void user_unfollows(String username, String username_to_unfollow) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.UsernameNotFollowing, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method makes a user unfollow another user.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the user is not following the user to unfollow, throw an exception.
+		 * 4. Make the user unfollow the user to unfollow.
+		 * 5. Remove the user from the <username_to_unfollow> followers.
+		 * 6. Dirty the users backup.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameNotFound();
+
+		// 3. If the user is not following the user to unfollow, throw an exception.
+		if (!users.get(username).getFollowing().contains(username_to_unfollow))
+			throw new Winsome_DB_Exception.UsernameNotFollowing(username, username_to_unfollow);
+
+		// 4. Make the user unfollow the user to unfollow.
+		users.get(username).getFollowing().remove(username_to_unfollow);
+
+		// 5. Remove the user from the <username_to_unfollow> followers.
+		users.get(username_to_unfollow).getFollowers().remove(username);
+
+		// 6. Dirty the users backup.
+		users_backup_valid = false;
+	}
+
+	/**
+	 * This method gets a user's followers list.
+	 *
+	 * @param username The username of the user to get the followers.
+	 * @return An array of usernames of the followers.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public String[] get_user_followers(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method gets a user's followers list.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Return the followers list.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameNotFound();
+
+		// 3. Return the followers list.
+		return users.get(username).getFollowers().toArray(new String[0]);
+	}
+
+	/**
+	 * This method gets a user's following list.
+	 *
+	 * @param username The username of the user to get the following.
+	 * @return An array of usernames of the following.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public String[] get_user_following(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method gets a user's following list.
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. Return the following list.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username))
+			throw new Winsome_DB_Exception.UsernameNotFound();
+
+		// 3. Return the following list.
+		return users.get(username).getFollowing().toArray(new String[0]);
+	}
+
+	/**
+	 * This method gets a user's wallet.
+	 *
+	 * @param username The username of the user to get the wallet.
+	 * @return A Wallet_representation object with the wallet information.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Wallet_representation get_user_wallet(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return null;
+	}
+
+	/**
+	 * This method gets a user's posts.
+	 *
+	 * @param username The username of the user to get the posts.
+	 * @return An array of Post_representation objects with the posts' information.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Post_representation_simple[] get_user_posts(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new Post_representation_simple[0];
+	}
+
+	/**
+	 * This method creates a new post in the database.
+	 *
+	 * @param author  The username of the author of the post.
+	 * @param title   The title of the post.
+	 * @param content The content of the post.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws Winsome_DB_Exception.PostInvalidTitle       if the title is invalid.
+	 * @throws Winsome_DB_Exception.PostInvalidContent     if the content is invalid.
+	 */
+	@Override
+	public void create_post(String author, String title, String content) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized, Winsome_DB_Exception.PostInvalidTitle, Winsome_DB_Exception.PostInvalidContent {
+
+	}
+
+	/**
+	 * This method removes a post from the database.
+	 *
+	 * @param username The username that wants to remove the post.
+	 * @param post_id  The id of the post to remove.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.PostNotOwned           if the post is not owned by the user.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void remove_post(String username, String post_id) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostNotOwned, Winsome_DB_Exception.DatabaseNotInitialized {
+
+	}
+
+	/**
+	 * This method gets a post's rates.
+	 *
+	 * @param post_id The id of the post to get the rates.
+	 * @return An array of booleans (true if the rate is like, false if it is dislike).
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public boolean[] get_post_rates(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new boolean[0];
+	}
+
+	/**
+	 * This method gets a post's comments.
+	 *
+	 * @param post_id The id of the post to get the comments.
+	 * @return An array of Comment_representation objects with the comments' information.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Comment_representation[] get_post_comments(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new Comment_representation[0];
+	}
+
+	/**
+	 * This method is used to like/dislike a post.
+	 *
+	 * @param username The username of the user who wants to rate the post.
+	 * @param post_id  The id of the post to rate.
+	 * @param rate     The rate of the user to the post.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.PostAlreadyRated       if the user has already rated the post.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void rate_post(String username, String post_id, boolean rate) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostAlreadyRated, Winsome_DB_Exception.DatabaseNotInitialized {
+
+	}
+
+	/**
+	 * This method is used to comment a post.
+	 *
+	 * @param username The username of the user who wants to comment the post.
+	 * @param post_id  The id of the post to comment.
+	 * @param comment  The comment of the user to the post.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.PostCommentedByAuthor  if the user is the author of the post.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public void comment_on_post(String username, String post_id, String comment) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostCommentedByAuthor, Winsome_DB_Exception.DatabaseNotInitialized {
+
+	}
+
+	/**
+	 * This method is used to get a post's simple representation.
+	 *
+	 * @param post_id The id of the post to get the representation.
+	 * @return A Post_representation_simple object with the post's information.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Post_representation_simple get_post_simple(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return null;
+	}
+
+	/**
+	 * This method is used to get a post's full representation.
+	 *
+	 * @param post_id the id of the post to get the representation.
+	 * @return A Post_representation_detailed object with the post's information.
+	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Post_representation_detailed get_post(String post_id) throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return null;
+	}
+
+	/**
+	 * This method is used to get the posts of a user.
+	 *
+	 * @param username The username of the user to get the posts.
+	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Post_representation_simple[] get_user_blog(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new Post_representation_simple[0];
+	}
+
+	/**
+	 * This method is used to get the posts of a user's feed.
+	 *
+	 * @param username The username of the user to get the feed.
+	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public Post_representation_simple[] get_user_feed(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new Post_representation_simple[0];
+	}
+
+	/**
+	 * This method is used to get the usernames of users with similar interests with the given user.
+	 *
+	 * @param username The username of the user to get the similar users.
+	 * @return An array of strings with the usernames of the similar users.
+	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
+	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 */
+	@Override
+	public String[] get_similar_users(String username) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized {
+		return new String[0];
+	}
+
+	/**
+	 * This method is used to reward every user with a certain amount of coins.
+	 */
+	@Override
+	public void reward_everyone() {
+
+	}
+
+	/**
+	 * This method is used to close the database.
+	 */
+	@Override
+	public void close() {
+
+	}
 }

@@ -1,5 +1,7 @@
 package winsome_DB;
 
+import winsome_comunication.Winsome_Exception;
+
 /**
  * This class contains all the exceptions that can be thrown by the Winsome_DB class.
  * The exceptions are:
@@ -7,33 +9,42 @@ package winsome_DB;
  * 2. User already exists = the user already exists in the database.
  * 3. User not found = the user was not found in the database.
  * 4. ...
- * Each exception has a code and a default message.
+ * Each Winsome_Exception has a code and a default message.
  * <p></p>
  * These exceptions are used to communicate with the server.
  */
 public class Winsome_DB_Exception {
-	public static class WrongPassword extends Exception {
+	public static class WrongPassword extends Winsome_Exception {
 		@Override
 		public String getMessage() {
 			return "WinSome 01 : Wrong Password";
 		}
+		public String niceMessage() {
+			return "Wrong Password";
+		}
 	}
 
-	public static class UsernameAlreadyExists extends Exception {
+	public static class UsernameAlreadyExists extends Winsome_Exception {
 		@Override
 		public String getMessage() {
 			return "WinSome 02 : Username already exists";
 		}
+		public String niceMessage() {
+			return "Username already exists";
+		}
 	}
 
-	public static class UsernameNotFound extends Exception {
+	public static class UsernameNotFound extends Winsome_Exception {
 		@Override
 		public String getMessage() {
 			return "WinSome 03 : Username not found";
 		}
+		public String niceMessage() {
+			return "Username not found";
+		}
 	}
 
-	public static class UsernameAlreadyFollows extends Exception {
+	public static class UsernameAlreadyFollows extends Winsome_Exception {
 		private final String username;
 		private final String username_to_follow;
 
@@ -46,9 +57,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 04 : " + username + " already follows " + username_to_follow;
 		}
+		public String niceMessage() {
+			return "You already follow " + username_to_follow;
+		}
 	}
 
-	public static class UsernameNotFollowing extends Exception {
+	public static class UsernameNotFollowing extends Winsome_Exception {
 		private final String username;
 		private final String username_to_unfollow;
 
@@ -61,9 +75,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 05 : " + username + " is not following " + username_to_unfollow;
 		}
+		public String niceMessage() {
+			return "You are not following " + username_to_unfollow;
+		}
 	}
 
-	public static class PostInvalidTitle extends Exception {
+	public static class PostInvalidTitle extends Winsome_Exception {
 		private final String title;
 
 		public PostInvalidTitle(String title) {
@@ -74,9 +91,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 06 : " + title + " is not a valid title";
 		}
+		public String niceMessage() {
+			return "Invalid title, must be between 1 and 20 characters";
+		}
 	}
 
-	public static class PostInvalidContent extends Exception {
+	public static class PostInvalidContent extends Winsome_Exception {
 		private final String content;
 
 		public PostInvalidContent(String content) {
@@ -87,9 +107,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 07 : " + content + " is not a valid content";
 		}
+		public String niceMessage() {
+			return "Invalid content, must be between 1 and 500 characters";
+		}
 	}
 
-	public static class PostNotFound extends Exception {
+	public static class PostNotFound extends Winsome_Exception {
 		private final String postId;
 
 		public PostNotFound(String postId) {
@@ -100,9 +123,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 08 : " + postId + " was not found";
 		}
+		public String niceMessage() {
+			return "Post not found";
+		}
 	}
 
-	public static class PostNotOwned extends Exception {
+	public static class PostNotOwned extends Winsome_Exception {
 		private final String postId;
 		private final String username;
 
@@ -115,13 +141,16 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 09 : " + postId + " is not owned by " + username;
 		}
+		public String niceMessage() {
+			return "You do not own this post";
+		}
 	}
 
-	public static class PostAlreadyVoted extends Exception {
+	public static class PostAlreadyRated extends Winsome_Exception {
 		private final String postId;
 		private final String username;
 
-		public PostAlreadyVoted(String postId, String username) {
+		public PostAlreadyRated(String postId, String username) {
 			this.postId = postId;
 			this.username = username;
 		}
@@ -130,9 +159,12 @@ public class Winsome_DB_Exception {
 		public String getMessage() {
 			return "WinSome 10 : " + username + " already voted on " + postId;
 		}
+		public String niceMessage() {
+			return "You already voted on this post";
+		}
 	}
 
-	public static class PostCommentedByAuthor extends Exception {
+	public static class PostCommentedByAuthor extends Winsome_Exception {
 		private final String postId;
 		private final String username;
 
@@ -144,6 +176,49 @@ public class Winsome_DB_Exception {
 		@Override
 		public String getMessage() {
 			return "WinSome 11 : " + username + " cannot comment his own post (" + postId + ")";
+		}
+		public String niceMessage() {
+			return "You cannot comment your own post";
+		}
+	}
+
+	public static class UsersDatabaseNotFound extends Winsome_Exception {
+		@Override
+		public String getMessage() {
+			return "WinSome 12 : Users database not found";
+		}
+		public String niceMessage() {
+			return "Problem with the database, please try again later";
+		}
+	}
+
+	public static class PostsDatabaseNotFound extends Winsome_Exception {
+		@Override
+		public String getMessage() {
+			return "WinSome 13 : Posts database not found";
+		}
+		public String niceMessage() {
+			return "Problem with the database, please try again later";
+		}
+	}
+	
+	public static class DatabaseNotInitialized extends Winsome_Exception {
+		@Override
+		public String getMessage() {
+			return "WinSome 14 : Database not initialized";
+		}
+		public String niceMessage() {
+			return "Problem with the database, please try again later";
+		}
+	}
+
+	public static class DatabaseNotSaved extends Winsome_Exception {
+		@Override
+		public String getMessage() {
+			return "WinSome 15 : Database not saved";
+		}
+		public String niceMessage() {
+			return "Problem with the database, please try again later";
 		}
 	}
 }

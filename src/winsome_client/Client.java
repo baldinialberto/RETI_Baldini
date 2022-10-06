@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.rmi.NoSuchObjectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -47,7 +48,7 @@ public class Client {
 		 */
 
 		// 1. load server properties
-		properties = new Client_properties("client_config.txt");
+		properties = new Client_properties(properties_filepath);
 
 		// 2. create client interface
 		c_interface = new ClientCLI(this);
@@ -56,32 +57,18 @@ public class Client {
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
 			server_rmi_interface = (Server_RMI_Interface) r.lookup(properties.get_rmi_name());
-			_on = true;
-		} catch (Exception e) {
-			System.err.println("Client exception: " + e);
-		}
 
-		// 4. create client's RMI
-		try {
+			// 4. create client's RMI
 			client_rmi = new Client_RMI_Imp(this);
 			client_rmi_stub = (Client_RMI_Interface) UnicastRemoteObject.exportObject(client_rmi, 0);
-		} catch (RemoteException e) {
+			_on = true;
+		} catch (Exception e) {
 			System.err.println("Client exception: " + e.getMessage());
-			_on = false;
 		}
-
 	}
 
 	public String get_username() {
 		return user.get_username();
-	}
-
-	public boolean isLogged() {
-		return logged;
-	}
-
-	public boolean isConnected() {
-		return connected;
 	}
 
 	public boolean is_on() {
@@ -105,6 +92,7 @@ public class Client {
 		try {
 			socket_channel = SocketChannel.open(
 					new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port()));
+			sender = new Winsome_Server_Sender(socket_channel);
 			connected = true;
 		} catch (IOException e) {
 			throw new IOException(e);
@@ -123,9 +111,11 @@ public class Client {
 		if (!connected)
 			return;
 
-		Win_message message = new Win_message();
-		message.addString(Win_message.EXIT);
-		message.send(socket_channel);
+		try {
+			sender.disconnect();
+		} catch (Winsome_Exception e) {
+			System.err.println(e.niceMessage());
+		}
 
 		connected = false;
 		user = null;
@@ -148,9 +138,9 @@ public class Client {
 	 * deve poter scegliere liberamente la lista (il server non gestisce quindi una
 	 * lista predefinita di tag).
 	 *
-	 * @param username
-	 * @param password
-	 * @param tags
+	 * @param username the username of the user to register
+	 * @param password the password of the user to register
+	 * @param tags the interests of the user to register
 	 */
 	public void register(String username, String password, List<String> tags)
 			throws RemoteException {
@@ -215,8 +205,12 @@ public class Client {
 		// 3. login with username and password
 		try{
 			sender.login(username, password);
+			server_rmi_interface.receive_updates(client_rmi_stub, username);
 		} catch (Winsome_Exception w) {
 			System.err.println(w.niceMessage());
+			return -1;
+		} catch (RemoteException e) {
+			System.err.println("Error connecting to server");
 			return -1;
 		}
 
@@ -280,7 +274,8 @@ public class Client {
 	 * almeno un tag in comune con l’utente che ha fatto la richiesta. Il comando
 	 * associato è list users.
 	 *
-	 * @return the list of users
+	 * @return the list of users with at least one tag in common with the user
+	 *  if the operation is successful, null otherwise
 	 */
 	public List<String> listUsers() {
 		/*
@@ -323,7 +318,7 @@ public class Client {
 	 * i dettagli di implementazione nella sezione successiva. Corrisponde al
 	 * comando list followers.
 	 *
-	 * @return the list of followers
+	 * @return the list of followers if the user is logged, null otherwise
 	 */
 	public List<String> listFollowers() {
 		/*
@@ -333,8 +328,6 @@ public class Client {
 		 * 2. if not connected, print error and return
 		 * 3. return list of followers
 		 */
-
-		System.out.println("list followers");
 
 		// 1. if not logged, print error and return
 		if (!logged) {
@@ -355,7 +348,7 @@ public class Client {
 	 * Utilizzata da un utente per visualizzare la lista degli utenti di cui è
 	 * follower. Questo metodo è corrispondente al comando list following.
 	 *
-	 * @return the list of following
+	 * @return the list of following if the operation is successful, null otherwise
 	 */
 	public List<String> listFollowing() {
 		/*
@@ -365,8 +358,6 @@ public class Client {
 		 * 2. if not connected, print error and return
 		 * 3. return list of following
 		 */
-
-		System.out.println("list following");
 
 		// 1. if not logged, print error and return
 		if (!logged) {
@@ -408,8 +399,6 @@ public class Client {
 		 * 3. follow user
 		 */
 
-		System.out.println("follow user");
-
 		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
@@ -448,8 +437,6 @@ public class Client {
 		 * 3. unfollow user
 		 */
 
-		System.out.println("unfollow user");
-
 		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
@@ -478,57 +465,38 @@ public class Client {
 	 * viene fornito id del post, autore e titolo. Viene attivata con il comando
 	 * blog.
 	 *
-	 * @return
+	 * @return the list of posts of the user's blog if successful, null otherwise
 	 */
 	public List<Post_representation_simple> viewBlog() {
 		/*
 		 * view blog
 		 *
-		 * 1. Send view blog request to server
-		 * 2. Receive view blog response from server
-		 * 3. If view blog is successful, return list of posts
-		 * 4. Return null
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. return list of posts
 		 */
 
-		System.out.println("view blog");
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return null;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. Return the list of posts
+		List<Post_representation_simple> posts;
+		try {
+			posts = Arrays.asList(sender.blog());
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return null;
 		}
 
-		try {
-			// 1. Send view blog request to server
-			Win_message view_blog_request = new Win_message();
-			view_blog_request.addString(Win_message.BLOG_REQUEST);
-			view_blog_request.send(socket_channel);
-
-			// 2. Receive view blog response from server
-			Win_message view_blog_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (view_blog_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("View blog failed : " + view_blog_response.getString(1));
-				return null;
-			} else if (view_blog_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If view blog is successful, return list of posts
-				List<Post_representation_simple> posts = new ArrayList<>();
-				for (int i = 1; i < view_blog_response.size(); i++) {
-					posts.add(new Post_representation_simple(view_blog_response.getString(i)));
-				}
-				return posts;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return posts;
 	}
 
 	/**
@@ -540,70 +508,39 @@ public class Client {
 	 * Il comando che l’utente digita per creare un post ha la seguente sintassi:
 	 * post <title> <content>.
 	 *
-	 * @param titolo
-	 * @param contenuto
-	 * @return
+	 * @param titolo the title of the post
+	 * @param contenuto the content of the post
+	 * @return true if the post is created, false otherwise
 	 */
 	public boolean createPost(String titolo, String contenuto) {
 		/*
-		 * create post <titolo> <contenuto>
+		 * create post
 		 *
-		 * 1. Send create post request to server
-		 * 2. Receive create post response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return true
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. create post
 		 */
 
-		System.out.println("create post " + titolo + " " + contenuto);
-
-		if (!connected) {
-			System.out.println("Not connected");
-			return false;
-
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
 			return false;
 		}
-
-		if (titolo.length() > 20) {
-			System.out.println("Title too long (max 20 characters)");
-			// trim the title to 20 characters
-			titolo = titolo.substring(0, 20);
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
 		}
 
-		if (contenuto.length() > 500) {
-			System.out.println("Content too long (max 500 characters)");
-			// trim the content to 500 characters
-			contenuto = contenuto.substring(0, 500);
-		}
-
+		// 3. create post
 		try {
-			// 1. Send create post request to server
-			Win_message create_post_request = new Win_message();
-			create_post_request.addString(Win_message.POST_REQUEST);
-			create_post_request.addString(titolo);
-			create_post_request.addString(contenuto);
-			create_post_request.send(socket_channel);
-
-			// 2. Receive create post response from server
-			Win_message create_post_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (create_post_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Create post failed : " + create_post_response.getString(1));
-				return false;
-			} else if (create_post_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Post created");
-				// 4. Return true
-				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			sender.create_post(titolo, contenuto);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -611,56 +548,38 @@ public class Client {
 	 * restituita una lista dei post. Per ogni post viene fornito id, autore e
 	 * titolo del post. La funzione viene attivata mediante il comando show feed.
 	 *
-	 * @return
+	 * @return the list of posts in the user's feed if successful, null otherwise
 	 */
 	public List<Post_representation_simple> showFeed() {
 		/*
 		 * show feed
 		 *
-		 * 1. Send show feed request to server
-		 * 2. Receive show feed response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return list of posts
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. return list of posts
 		 */
 
-		System.out.println("show feed");
-
-		if (!connected) {
-			System.out.println("Not connected");
-			return null;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
 			return null;
 		}
-
-		try {
-			// 1. Send show feed request to server
-			Win_message show_feed_request = new Win_message();
-			show_feed_request.addString(Win_message.SHOW_FEED_REQUEST);
-			show_feed_request.send(socket_channel);
-
-			// 2. Receive show feed response from server
-			Win_message show_feed_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (show_feed_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Show feed failed : " + show_feed_response.getString(1));
-				return null;
-			} else if (show_feed_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				// 4. Return list of posts
-				List<Post_representation_simple> posts = new ArrayList<>();
-				for (int i = 1; i < show_feed_response.size(); i++) {
-					posts.add(new Post_representation_simple(show_feed_response.getString(i)));
-				}
-				return posts;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
 		}
 
-		return null;
+		// 3. Return the list of posts
+		List<Post_representation_simple> posts;
+		try {
+			posts = Arrays.asList(sender.feed());
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return null;
+		}
+
+		return posts;
 	}
 
 	/**
@@ -672,56 +591,39 @@ public class Client {
 	 * dal server, che restituirà un messaggio di errore) e/o inserire un commento.
 	 * Il comando digitato dall’utente è show post <id>.
 	 *
-	 * @param idPost
-	 * @return
+	 * @param idPost the id of the post
+	 * @return the post representation if successful, null otherwise
 	 */
 	public Post_representation_detailed showPost(String idPost) {
 		/*
-		 * show post <idPost>
+		 * show post
 		 *
-		 * 1. Send show post request to server
-		 * 2. Receive show post response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return post
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. return post
 		 */
 
-		System.out.println("show post " + idPost);
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return null;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. Return the post
+		Post_representation_detailed post;
+		try {
+			post = sender.show_post(Integer.parseInt(idPost));
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return null;
 		}
 
-		try {
-			// 1. Send show post request to server
-			Win_message show_post_request = new Win_message();
-			show_post_request.addString(Win_message.SHOW_POST_REQUEST);
-			show_post_request.addString(idPost);
-			show_post_request.send(socket_channel);
-
-			// 2. Receive show post response from server
-			Win_message show_post_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (show_post_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Show post failed : " + show_post_response.getString(1));
-				return null;
-			} else if (show_post_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Post shown");
-				// 4. Return post
-				return new Post_representation_detailed(show_post_response.getString(1));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return post;
 	}
 
 	/**
@@ -733,56 +635,38 @@ public class Client {
 	 * periodo non era scaduto, non viene considerato nel calcolo delle ricompense.
 	 * Il comando corrispondente alla cancellazione è delete <idPost>.
 	 *
-	 * @param idPost
-	 * @return
+	 * @param idPost the id of the post to delete
+	 * @return true if the post is deleted, false otherwise
 	 */
 	public boolean deletePost(String idPost) {
 		/*
-		 * delete <idPost>
+		 * delete post
 		 *
-		 * 1. Send delete request to server
-		 * 2. Receive delete response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return true if the operation is successful
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. delete post
 		 */
 
-		System.out.println("delete " + idPost);
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return false;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. delete post
+		try {
+			sender.delete_post(Integer.parseInt(idPost));
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return false;
 		}
 
-		try {
-			// 1. Send delete request to server
-			Win_message delete_request = new Win_message();
-			delete_request.addString(Win_message.DELETE_REQUEST);
-			delete_request.addString(idPost);
-			delete_request.send(socket_channel);
-
-			// 2. Receive delete response from server
-			Win_message delete_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (delete_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Delete failed : " + delete_response.getString(1));
-				return false;
-			} else if (delete_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Post deleted");
-				// 4. Return true if the operation is successful
-				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -790,56 +674,38 @@ public class Client {
 	 * proprio blog un post presente nel proprio feed. La funzione viene attivata
 	 * mediante il comando rewin <idPost>.
 	 *
-	 * @param idPost
-	 * @return
+	 * @param idPost the id of the post to rewin
+	 * @return true if the post is rewin, false otherwise
 	 */
 	public boolean rewinPost(String idPost) {
 		/*
-		 * rewin <idPost>
+		 * rewin post
 		 *
-		 * 1. Send rewin request to server
-		 * 2. Receive rewin response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return true if the operation is successful
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. rewin post
 		 */
 
-		System.out.println("rewin " + idPost);
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return false;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. rewin post
+		try {
+			sender.rewin_post(Integer.parseInt(idPost));
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return false;
 		}
 
-		try {
-			// 1. Send rewin request to server
-			Win_message rewin_request = new Win_message();
-			rewin_request.addString(Win_message.REWIN_REQUEST);
-			rewin_request.addString(idPost);
-			rewin_request.send(socket_channel);
-
-			// 2. Receive rewin response from server
-			Win_message rewin_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (rewin_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Rewin failed : " + rewin_response.getString(1));
-				return false;
-			} else if (rewin_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Post rewin");
-				// 4. Return true if the operation is successful
-				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -851,58 +717,39 @@ public class Client {
 	 * al post è rate <idPost> <vote>. Nel comando i voti sono così codificati:
 	 * voto positivo +1, voto negativo -1.
 	 *
-	 * @param idPost
-	 * @param voto
-	 * @return
+	 * @param idPost the id of the post to rate
+	 * @param voto the rate to assign
+	 * @return true if the post is rated, false otherwise
 	 */
 	public boolean ratePost(String idPost, boolean voto) {
 		/*
-		 * rate <idPost> <vote>
+		 * rate post
 		 *
-		 * 1. Send rate request to server
-		 * 2. Receive rate response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return true if the operation is successful
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. rate post
 		 */
 
-		System.out.println("rate " + idPost + " " + (voto ? "1" : "-1"));
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return false;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. rate post
+		try {
+			sender.rate_post(Integer.parseInt(idPost), voto);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return false;
 		}
 
-		try {
-			// 1. Send rate request to server
-			Win_message rate_request = new Win_message();
-			rate_request.addString(Win_message.RATE_REQUEST);
-			rate_request.addString(idPost);
-			rate_request.addString(voto ? "+1" : "-1");
-			rate_request.send(socket_channel);
-
-			// 2. Receive rate response from server
-			Win_message rate_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (rate_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Rate failed : " + rate_response.getString(1));
-				return false;
-			} else if (rate_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Post rated");
-				// 4. Return true if the operation is successful
-				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -913,58 +760,39 @@ public class Client {
 	 * può aggiungere più di un commento ad un post. La sintassi utilizzata dagli
 	 * utenti per commentare è: comment <idPost> <comment>.
 	 *
-	 * @param idPost
-	 * @param comment
-	 * @return
+	 * @param idPost the id of the post to comment
+	 * @param comment the comment to add
+	 * @return true if the post is commented, false otherwise
 	 */
 	public boolean addComment(String idPost, String comment) {
 		/*
-		 * comment <idPost> <comment>
+		 * add comment
 		 *
-		 * 1. Send comment request to server
-		 * 2. Receive comment response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return true if the operation is successful
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. add comment
 		 */
 
-		System.out.println("comment " + idPost + " " + comment);
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return false;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return false;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. add comment
+		try {
+			sender.comment_post(Integer.parseInt(idPost), comment);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return false;
 		}
 
-		try {
-			// 1. Send comment request to server
-			Win_message comment_request = new Win_message();
-			comment_request.addString(Win_message.COMMENT_REQUEST);
-			comment_request.addString(idPost);
-			comment_request.addString(comment);
-			comment_request.send(socket_channel);
-
-			// 2. Receive comment response from server
-			Win_message comment_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (comment_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Comment failed : " + comment_response.getString(1));
-				return false;
-			} else if (comment_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Comment added");
-				// 4. Return true if the operation is successful
-				return true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -972,54 +800,36 @@ public class Client {
 	 * restituisce il totale e la storia delle transazioni (ad es. <incremento>
 	 * <timestamp>). Il comando corrispondente è wallet.
 	 *
-	 * @return
+	 * @return the Wallet_representation of the user's wallet if the operation is
+	 *  	 successful, null otherwise
 	 */
 	public Wallet_representation getWallet() {
 		/*
-		 * wallet
+		 * get wallet
 		 *
-		 * 1. Send wallet request to server
-		 * 2. Receive wallet response from server
-		 * 3. If the operation is not successful, also print the error message
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. get wallet
 		 */
 
-		System.out.println("wallet");
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return null;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. get wallet
+		try {
+			return sender.wallet();
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return null;
 		}
-
-		try {
-			// 1. Send wallet request to server
-			Win_message wallet_request = new Win_message();
-			wallet_request.addString(Win_message.WALLET_REQUEST);
-			wallet_request.send(socket_channel);
-
-			// 2. Receive wallet response from server
-			Win_message wallet_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (wallet_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Wallet failed : " + wallet_response.getString(1));
-				return null;
-			} else if (wallet_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Wallet received");
-				Wallet_representation wallet = new Wallet_representation();
-				wallet.deserialize(wallet_response.getString(1));
-				return wallet;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 
@@ -1030,60 +840,36 @@ public class Client {
 	 * quindi calcola la conversione. L’operazione è eseguita mediante il comando:
 	 * wallet btc.
 	 *
-	 * @return
+	 * @return the value of the user's wallet in bitcoin if successful, -1 otherwise
 	 */
 	public double getWalletInBitcoin() {
 		/*
-		 * wallet btc
+		 * get wallet in bitcoin
 		 *
-		 * 1. Send wallet btc request to server
-		 * 2. Receive wallet btc response from server
-		 * 3. If the operation is not successful, also print the error message
-		 * 4. Return the wallet value in bitcoin if the operation is successful
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. get wallet in bitcoin
 		 */
 
-		System.out.println("wallet btc");
-
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return -1;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return -1;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. get wallet in bitcoin
+		try {
+			return sender.wallet_btc();
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return -1;
 		}
-
-		try {
-			// 1. Send wallet btc request to server
-			Win_message wallet_btc_request = new Win_message();
-			wallet_btc_request.addString(Win_message.WALLET_BTC_REQUEST);
-			wallet_btc_request.send(socket_channel);
-
-			// 2. Receive wallet btc response from server
-			Win_message wallet_btc_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (wallet_btc_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Wallet btc failed : " + wallet_btc_response.getString(1));
-				return -1;
-			} else if (wallet_btc_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. If the operation is not successful, also print the error message
-				System.out.println("Wallet btc value : " + wallet_btc_response.getString(1));
-				// 4. Return the wallet value in bitcoin if the operation is successful
-				return Double.parseDouble(wallet_btc_response.getString(1));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return .0;
 	}
-
-	public void test() {
-		System.out.println("Client:test()");
-	}
-
 
 	public void exit() {
 
@@ -1097,7 +883,6 @@ public class Client {
 		logout();
 		_on = false;
 	}
-
 
 	public int add_follower(String username) {
 		/*

@@ -30,13 +30,11 @@ import java.nio.channels.SocketChannel;
  * The methods return a Winsome_Exception if something goes wrong.
  * <p></p>
  * Constructor:
- * 1. Winsome_Server_Sender(SocketChannel socket_channel,
- * Server_RMI_Interface server_rmi) = create a new Winsome_Server_Sender.
+ * 1. Winsome_Server_Sender(SocketChannel socket_channel) = create a new Winsome_Server_Sender.
  */
 public class Winsome_Server_Sender {
 	// Member variables
 	private final SocketChannel socket_channel;
-	private final Server_RMI_Interface server_rmi;
 
 	/**
 	 * Create a new Winsome_Server_Sender.
@@ -44,9 +42,8 @@ public class Winsome_Server_Sender {
 	 * @param socket_channel = the socket channel to communicate with the server.
 	 * @param server_rmi     = the server RMI interface.
 	 */
-	public Winsome_Server_Sender(SocketChannel socket_channel, Server_RMI_Interface server_rmi) {
+	public Winsome_Server_Sender(SocketChannel socket_channel) {
 		this.socket_channel = socket_channel;
-		this.server_rmi = server_rmi;
 	}
 
 	/**
@@ -865,5 +862,39 @@ public class Winsome_Server_Sender {
 
 		// Wallet btc successful.
 		return Double.parseDouble(wallet_btc_response.getString(2));
+	}
+
+	/**
+	 * Disconnect from the server.
+	 *
+	 * @throws Winsome_Exception if something goes wrong (check the message for details).
+	 */
+	public void disconnect() throws Winsome_Exception {
+		/*
+		 * disconnect request:
+		 * 1. request type = DISCONNECT_REQUEST
+		 *
+		 * disconnect response:
+		 * 1. SUCCESS / ERROR
+		 * 2. message (if error)
+		 *
+		 * 1. Create the request.
+		 * 2. Send the request.
+		 */
+
+		// 1. Create the request.
+		Win_message disconnect_request = new Win_message();
+		disconnect_request.addString(Win_message.EXIT);
+
+		try {
+			// 2. Send disconnect request to server
+			disconnect_request.send(socket_channel);
+
+		} catch (IOException e) {
+			throw new Winsome_DB_Exception.GenericException(
+					"Problems with the TCP connection, unable to send/receive packages.");
+		}
+
+		// Disconnect successful.
 	}
 }

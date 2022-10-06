@@ -13,10 +13,12 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Client {
 	SocketChannel socket_channel;
+	Winsome_Server_Sender sender;
 	private final ClientCLI c_interface;
 	private final Client_properties properties;
 	private Server_RMI_Interface server_rmi_interface;
@@ -29,6 +31,7 @@ public class Client {
 	private int multicast_port;
 	private String multicast_address;
 	private String multicast_network_name;
+
 
 	private Client_notification_Thread notification_thread;
 
@@ -181,136 +184,94 @@ public class Client {
 	 * l’utente ha già effettuato la login o la password è errata, restituisce un
 	 * messaggio d’errore. Il comando corrispondente è login <username> <password>.
 	 *
-	 * @param username
-	 * @param password
-	 * @return
+	 * @param username the username of the user to login
+	 * @param password the password of the user to login
+	 * @return 0 if the login is successful, -1 otherwise
 	 */
 	public int login(String username, String password) {
 		/*
 		 * login to server
 		 *
-		 * 1. Connect to server
-		 * 2. Send login request to server
-		 * 3. Receive login response from server
-		 * 4. If login is successful, set _logged to true and start notification thread
-		 * 5. Return the result
+		 * 1. if already logged, print error and return
+		 * 2. connect to server
+		 * 3. login with username and password
+		 * 4. check for exceptions
 		 */
 
-		System.out.println("login");
-
-
-		try {
-			// 1. Connect to server
-			if (!connected) connect();
-
-			Win_message login_request = new Win_message();
-
-			login_request.addString(Win_message.LOGIN_REQUEST);
-			login_request.addString(username);
-			login_request.addString(password);
-
-
-			// 2. Send login request to server
-			login_request.send(socket_channel);
-
-			// 3. Receive login response from server of unknown size
-			Win_message login_response = Win_message.receive(socket_channel);
-
-			// DEBUG
-			System.out.println("response: " + login_response);
-
-			// 4. If login is successful, set _logged to true
-			if (login_response.getString(0).equals(Win_message.SUCCESS)) {
-				logged = true;
-				this.user = new LocalUser(username);
-				try {
-					if (server_rmi_interface.receive_updates(client_rmi_stub, username) == 0) {
-						System.out.println("RMI registered");
-					} else {
-						System.out.println("RMI not registered");
-						logout();
-						return -1;
-					}
-				} catch (RemoteException e) {
-					System.out.println(e.getMessage());
-					System.out.println("RMI not registered");
-					logout();
-					return -1;
-				}
-				return 0;
-			} else if (login_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Login failed : " + login_response.getString(1));
-				return -1;
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		// 1. if already logged, print error and return
+		if (logged) {
+			System.out.println("You are already logged in");
+			return -1;
 		}
 
-		return -1;
+		// 2. connect to server
+		try {
+			this.connect();
+		} catch (IOException e) {
+			System.err.println("Error connecting to server");
+			return -1;
+		}
+
+		// 3. login with username and password
+		try{
+			sender.login(username, password);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return -1;
+		}
+
+		return 0;
 	}
 
 	/**
 	 * Effettua il logout dell’utente dal servizio. Corrisponde al comando logout.
-	 *
-	 * @throws NullPointerException
+	 * @return 0 if the logout is successful, -1 otherwise
 	 */
-	public int logout()
-			throws NullPointerException {
+	public int logout() {
 		/*
 		 * logout from server
 		 *
-		 * 1. Send logout request to server
-		 * 2. Receive logout response from server
-		 * 3. If logout is successful, set _logged to false
-		 * 4. Disconnect from server
-		 * 5. Set user to null
-		 * 6. set _connected to false
-		 * 7. stop notification thread
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. logout
+		 * 4. disconnect from server
+		 * 5. set logged to false
+		 * 6. set user to null
 		 */
 
-		System.out.println("logout");
-
-		if (!connected) {
-			System.out.println("Not connected");
-			return -1;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged in");
+			System.out.println("You are not logged in");
 			return -1;
 		}
 
-		try {
-			// 1. Send logout request to server
-			Win_message logout_request = new Win_message();
-			logout_request.addString(Win_message.LOGOUT_REQUEST);
-			logout_request.send(socket_channel);
-
-			// 2. Receive logout response from server
-			Win_message logout_response = Win_message.receive(socket_channel);
-
-			// 3. If logout is successful, set _logged to false
-			if (!logout_response.getString(0).equals(Win_message.SUCCESS)) {
-				System.out.println("Logout failed : " + logout_response.getString(1));
-				return -1;
-			}
-
-			//4. Disconnect from server
-			disconnect();
-
-			// 5. Set user to null
-			user = null;
-
-			// 6. set _connected to false
-			connected = false;
-
-			return 0;
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("You are not connected to the server");
+			return -1;
 		}
 
-		return -1;
+		// 3. logout
+		try {
+			sender.logout();
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return -1;
+		}
+
+		// 4. disconnect from server
+		try {
+			this.disconnect();
+			// 5. set logged to false
+			logged = false;
+			// 6. set user to null
+			user = null;
+		} catch (IOException e) {
+			System.err.println("Error disconnecting from server");
+			return -1;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -319,54 +280,39 @@ public class Client {
 	 * almeno un tag in comune con l’utente che ha fatto la richiesta. Il comando
 	 * associato è list users.
 	 *
-	 * @return
-	 * @throws NullPointerException
+	 * @return the list of users
 	 */
-	public List<String> listUsers()
-			throws NullPointerException {
-
+	public List<String> listUsers() {
 		/*
 		 * list users
 		 *
-		 * 1. Send list users request to server
-		 * 2. Receive list users response from server
-		 * 3. Return the list of users
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. get list of users
 		 */
 
-		System.out.println("list users");
-
-		if (!connected) {
-			System.out.println("Not connected");
-			return null;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
+			System.out.println("You are not logged in");
 			return null;
 		}
 
-		try {
-			// 1. Send list users request to server
-			Win_message list_users_request = new Win_message();
-			list_users_request.addString(Win_message.LIST_USERS_REQUEST);
-			list_users_request.send(socket_channel);
-
-			// 2. Receive list users response from server
-			Win_message list_users_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (list_users_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("List users failed : " + list_users_response.getString(1));
-				return null;
-			} else if (list_users_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. Return the list of users
-				return list_users_response.getStrings().subList(1, list_users_response.getStrings().size());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("You are not connected to the server");
+			return null;
 		}
 
-		return null;
+		// 3. get list of users
+		List<String> users;
+		try {
+			users = Arrays.asList(sender.list_users());
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return null;
+		}
+
+		return users;
 	}
 
 	/**
@@ -377,28 +323,31 @@ public class Client {
 	 * i dettagli di implementazione nella sezione successiva. Corrisponde al
 	 * comando list followers.
 	 *
-	 * @return
-	 * @throws NullPointerException
+	 * @return the list of followers
 	 */
 	public List<String> listFollowers() {
 		/*
 		 * list followers
 		 *
-		 * 1. Return the list of followers
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. return list of followers
 		 */
 
 		System.out.println("list followers");
 
-		if (!connected) {
-			System.out.println("Not connected");
-			return null;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
 			return null;
 		}
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("Not connected");
+			return null;
+		}
 
-		// 1. Return the list of followers
+		// 3. Return the list of followers
 		return user.get_followers();
 	}
 
@@ -406,52 +355,40 @@ public class Client {
 	 * Utilizzata da un utente per visualizzare la lista degli utenti di cui è
 	 * follower. Questo metodo è corrispondente al comando list following.
 	 *
-	 * @return
+	 * @return the list of following
 	 */
 	public List<String> listFollowing() {
 		/*
 		 * list following
 		 *
-		 * 1. Send list following request to server
-		 * 2. Receive list following response from server
-		 * 3. Return the list of following
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. return list of following
 		 */
 
 		System.out.println("list following");
 
+		// 1. if not logged, print error and return
+		if (!logged) {
+			System.out.println("Not logged");
+			return null;
+		}
+		// 2. if not connected, print error and return
 		if (!connected) {
 			System.out.println("Not connected");
 			return null;
 		}
 
-		if (!logged) {
-			System.out.println("Not logged");
+		// 3. Return the list of following
+		List<String> following;
+		try {
+			following = Arrays.asList(sender.list_following());
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
 			return null;
 		}
 
-		try {
-			// 1. Send list following request to server
-			Win_message list_following_request = new Win_message();
-			list_following_request.addString(Win_message.LIST_FOLLOWING_REQUEST);
-			list_following_request.send(socket_channel);
-
-			// 2. Receive list following response from server
-			Win_message list_following_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (list_following_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("List following failed : " + list_following_response.getString(1));
-				return null;
-			} else if (list_following_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. Return the list of following
-				return list_following_response.getStrings().subList(1, list_following_response.getStrings().size());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return following;
 	}
 
 	/**
@@ -459,106 +396,80 @@ public class Client {
 	 * momento in poi può ricevere tutti i post pubblicati da idUser. Il comando
 	 * associato è follow <username>.
 	 *
-	 * @param idUser
-	 * @return
+	 * @param idUser the id of the user to follow
+	 * @return true if the user is followed, false otherwise
 	 */
 	public boolean followUser(String idUser) {
 		/*
-		 * follow user <idUser> if not already following
+		 * follow user
 		 *
-		 * 1. Send follow user request to server
-		 * 2. Receive follow user response from server
-		 * 3. Return true
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. follow user
 		 */
 
-		System.out.println("follow user " + idUser);
+		System.out.println("follow user");
 
-		if (!connected) {
-			System.out.println("Not connected");
-			return false;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
 			return false;
 		}
-
-		try {
-			// 1. Send follow user request to server
-			Win_message follow_user_request = new Win_message();
-			follow_user_request.addString(Win_message.FOLLOW_REQUEST);
-			follow_user_request.addString(idUser);
-			follow_user_request.send(socket_channel);
-
-			// 2. Receive follow user response from server
-			Win_message follow_user_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (follow_user_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Follow user failed : " + follow_user_response.getString(1));
-				return false;
-			} else if (follow_user_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. Return true
-				return true;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
 		}
 
-		return false;
+		// 3. follow user
+		try {
+			sender.follow(idUser);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
 	 * L’utente chiede di non seguire più l’utente che ha per username idUser. Il
 	 * comando associato è unfollow <username>.
 	 *
-	 * @param idUser
-	 * @return
+	 * @param idUser the id of the user to unfollow
+	 * @return true if the user is unfollowed, false otherwise
 	 */
 	public boolean unfollowUser(String idUser) {
 		/*
-		 * unfollow user <idUser> if following
+		 * unfollow user
 		 *
-		 * 1. Send unfollow user request to server
-		 * 2. Receive unfollow user response from server
-		 * 3. Return true
+		 * 1. if not logged, print error and return
+		 * 2. if not connected, print error and return
+		 * 3. unfollow user
 		 */
 
-		System.out.println("unfollow user " + idUser);
+		System.out.println("unfollow user");
 
-		if (!connected) {
-			System.out.println("Not connected");
-			return false;
-		}
+		// 1. if not logged, print error and return
 		if (!logged) {
 			System.out.println("Not logged");
 			return false;
 		}
-
-		try {
-			// 1. Send unfollow user request to server
-			Win_message unfollow_user_request = new Win_message();
-			unfollow_user_request.addString(Win_message.UNFOLLOW_REQUEST);
-			unfollow_user_request.addString(idUser);
-			unfollow_user_request.send(socket_channel);
-
-			// 2. Receive unfollow user response from server
-			Win_message unfollow_user_response = Win_message.receive(socket_channel);
-
-			// check if the response is an error
-			if (unfollow_user_response.getString(0).equals(Win_message.ERROR)) {
-				System.out.println("Unfollow user failed : " + unfollow_user_response.getString(1));
-				return false;
-			} else if (unfollow_user_response.getString(0).equals(Win_message.SUCCESS)) {
-				// 3. Return true
-				return true;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		// 2. if not connected, print error and return
+		if (!connected) {
+			System.out.println("Not connected");
+			return false;
 		}
 
-		return false;
+		// 3. unfollow user
+		try {
+			sender.unfollow(idUser);
+		} catch (Winsome_Exception w) {
+			System.err.println(w.niceMessage());
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

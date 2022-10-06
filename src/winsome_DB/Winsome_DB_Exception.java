@@ -226,4 +226,20 @@ public class Winsome_DB_Exception {
 			return "Problem with the database, please try again later";
 		}
 	}
+
+	public static class GenericException extends Winsome_Exception {
+		private final String message;
+
+		public GenericException(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public String getMessage() {
+			return "WinSome : " + message;
+		}
+		public String niceMessage() {
+			return message;
+		}
+	}
 }

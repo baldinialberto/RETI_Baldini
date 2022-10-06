@@ -19,6 +19,16 @@ public class Wallet_representation implements Win_Serializable {
 
 	}
 
+	// Deserialization Constructor
+
+	/**
+	 * This method is used to create a new wallet representation based on a serialized wallet representation.
+	 * @param string the serialized wallet representation.
+	 */
+	public Wallet_representation(String string) {
+		deserialize(string);
+	}
+
 	// getters
 	public double getBalance() {
 		return this.balance;

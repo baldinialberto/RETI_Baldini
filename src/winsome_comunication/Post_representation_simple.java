@@ -26,6 +26,12 @@ public class Post_representation_simple implements Win_Serializable {
 	}
 
 	// Deserialization constructor
+
+	/**
+	 * This constructor is used to create a post representation from a string.
+	 * The string is a serialized post representation.
+	 * @param string The serialized post representation.
+	 */
 	public Post_representation_simple(String string) {
 		deserialize(string);
 	}

@@ -106,6 +106,18 @@ public class Server {
 		this.rewards_thread.start();
 	}
 
+	/**
+	 * Server Welcome Function
+	 * <p></p>
+	 * This function is called when the server is started
+	 * listen to the server socketChannel and accept new connections
+	 * The socketChannel is non-blocking and uses a selector to listen to the socket
+	 * <p></p>
+	 * When a new connection is accepted, the connection is added to the selector
+	 * When a connection is ready to be read, the connection is sent to a worker task
+	 * When a connection is ready to be written, the response is sent to the connection
+	 * When a connection is closed, the connection is removed from the selector
+	 */
 	public void server_welcome_service() {
 		/*
 		 * Welcome_service for the server :
@@ -210,24 +222,6 @@ public class Server {
 		}
 	}
 
-	public void save_DB() {
-		/*
-		 * save the server database
-		 *
-		 * 1. Try to save the server database
-		 * 2. If an error occurred, exit the program
-		 *
-		 */
-
-		// 1. Try to save the server database
-		if (this.server_db.save_DB() != 0) {
-			// 2. If an error occurred, exit the program
-			System.out.println("Error: failed to save the server database");
-			System.exit(1);
-		}
-	}
-
-
 
 	// Client Interactions
 	public int register_request(String username, String password, String[] tags) {
@@ -268,27 +262,33 @@ public class Server {
 		}
 
 		// 3. If the user is not logged in, check if the username and password are correct
-		if (this.server_db.user_check_password(username, password)) {
-			// 4. If the username and password are correct, add the user to the logged in users
-			if (this.connections_manager.add_connection(new Client_connection(address, username)) != 0) {
+		try {
+			if (this.server_db.check_credentials(username, password)) {
+				// 4. If the username and password are correct, add the user to the logged in users
+				if (this.connections_manager.add_connection(new Client_connection(address, username)) != 0) {
+					// DEBUG
+					System.out.println("Error: failed to add the connection to the connections manager");
+
+					// 5. Return the result
+					result.addString(Win_message.ERROR);
+					result.addString("Error: failed to add the user to the logged in users");
+					return result;
+				}
+
 				// DEBUG
-				System.out.println("Error: failed to add the connection to the connections manager");
+				System.out.println("User " + username + " logged in from " + address);
 
 				// 5. Return the result
+				result.addString(Win_message.SUCCESS);
+			} else {
+				// 5. Return the result
 				result.addString(Win_message.ERROR);
-				result.addString("Error: failed to add the user to the logged in users");
-				return result;
+				result.addString("Wrong username or password");
 			}
-
-			// DEBUG
-			System.out.println("User " + username + " logged in from " + address);
-
-			// 5. Return the result
-			result.addString(Win_message.SUCCESS);
-		} else {
+		} catch (Winsome_Exception e) {
 			// 5. Return the result
 			result.addString(Win_message.ERROR);
-			result.addString("Wrong username or password");
+			result.addString(e.niceMessage());
 		}
 		return result;
 	}
@@ -343,9 +343,15 @@ public class Server {
 			return result;
 		}
 
-		// 3. If the user is logged in, return the list of users
-		result.addString(Win_message.SUCCESS);
-		result.addStrings(this.server_db.users_with_common_tags(this.connections_manager.get_username(address)));
+		try {
+			String[] users = this.server_db.get_similar_users(this.connections_manager.get_username(address));
+			result.addString(Win_message.SUCCESS);
+			result.addStrings(users);
+		} catch (Winsome_Exception e) {
+			result.addString(Win_message.ERROR);
+			result.addString(e.niceMessage());
+		}
+
 		return result;
 	}
 
@@ -745,16 +751,16 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the wallet
-		Wallet_representation wallet = this.server_db.get_wallet(connections_manager.get_username(address));
-
-		// 4. Return the result
-		if (wallet != null) {
-			result.addString(Win_message.SUCCESS);
-			result.addString(wallet.serialize());
-		} else {
-			result.addString(Win_message.ERROR);
-			result.addString("Error getting wallet");
-		}
+//		Wallet_representation wallet = this.server_db.get_wallet(connections_manager.get_username(address));
+//
+//		// 4. Return the result
+//		if (wallet != null) {
+//			result.addString(Win_message.SUCCESS);
+//			result.addString(wallet.serialize());
+//		} else {
+//			result.addString(Win_message.ERROR);
+//			result.addString("Error getting wallet");
+//		}
 
 		return result;
 	}

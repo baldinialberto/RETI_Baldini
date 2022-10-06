@@ -20,6 +20,9 @@ public class RateDB extends User_interaction {
 	// Member variables
 	private boolean vote; // true = upvote, false = downvote
 
+	public final static String UPVOTE = "+1";
+	public final static String DOWNVOTE = "-1";
+
 	// Constructors
 	
 	// Default constructor

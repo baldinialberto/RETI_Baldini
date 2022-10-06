@@ -40,7 +40,6 @@ public class Winsome_Server_Sender {
 	 * Create a new Winsome_Server_Sender.
 	 *
 	 * @param socket_channel = the socket channel to communicate with the server.
-	 * @param server_rmi     = the server RMI interface.
 	 */
 	public Winsome_Server_Sender(SocketChannel socket_channel) {
 		this.socket_channel = socket_channel;
@@ -395,12 +394,8 @@ public class Winsome_Server_Sender {
 		}
 
 		// Blog successful.
-		Post_representation_simple[] posts = new Post_representation_simple[blog_response.size() - 1];
-		for (int i = 1; i < blog_response.size(); i++) {
-			posts[i - 1] = new Post_representation_simple(blog_response.getString(i));
-		}
-
-		return posts;
+		return blog_response.getStrings().subList(1, blog_response.size()).stream()
+				.map(Post_representation_simple::new).toArray(Post_representation_simple[]::new);
 	}
 
 	/**
@@ -452,12 +447,8 @@ public class Winsome_Server_Sender {
 		}
 
 		// Feed successful.
-		Post_representation_simple[] posts = new Post_representation_simple[feed_response.size() - 1];
-		for (int i = 1; i < feed_response.size(); i++) {
-			posts[i - 1] = new Post_representation_simple(feed_response.getString(i));
-		}
-
-		return posts;
+		return feed_response.getStrings().subList(1, feed_response.size()).stream()
+				.map(Post_representation_simple::new).toArray(Post_representation_simple[]::new);
 	}
 
 	/**
@@ -610,7 +601,7 @@ public class Winsome_Server_Sender {
 		}
 
 		// Show post successful.
-		return new Post_representation_detailed(show_post_response.getString(2));
+		return new Post_representation_detailed(show_post_response.getString(1));
 	}
 
 	/**
@@ -812,7 +803,7 @@ public class Winsome_Server_Sender {
 		}
 
 		// Wallet successful.
-		return new Wallet_representation(wallet_response.getString(2));
+		return new Wallet_representation(wallet_response.getString(1));
 	}
 
 	/**
@@ -861,7 +852,7 @@ public class Winsome_Server_Sender {
 		}
 
 		// Wallet btc successful.
-		return Double.parseDouble(wallet_btc_response.getString(2));
+		return Double.parseDouble(wallet_btc_response.getString(1));
 	}
 
 	/**

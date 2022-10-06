@@ -173,6 +173,7 @@ public class ClientCLI {
 		}
 	}
 
+
 	private void list_followers_command(List<String> args) {
 		/*
 		 * list_followers
@@ -712,9 +713,6 @@ public class ClientCLI {
 
 		String command = composed ? tokens[0] + "_" + tokens[1] : tokens[0];
 
-		// DEBUG
-		System.out.println("Command: " + command + ", composed: " + composed);
-
 		// check if the command is valid (i.e. it is in the commands map)
 		if (commands.containsKey(command)) {
 			try {
@@ -727,6 +725,7 @@ public class ClientCLI {
 			}
 		} else {
 			printErrorCommand();
+			help_command(null);
 		}
 	}
 }

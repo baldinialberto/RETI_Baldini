@@ -224,15 +224,14 @@ public class Server {
 
 
 	// Client Interactions
-	public int register_request(String username, String password, String[] tags) {
+	public void register_request(String username, String password, String[] tags) throws Winsome_Exception {
 		/*
-		  register a new user
-
-		  1. add the user to database and return the result
-
+		 * Register a new user
+		 *
+		 * 1. Register the user
 		 */
-
-		return this.server_db.add_user(username, password, tags);
+		 
+		server_db.create_user(username, password, tags);
 	}
 
 	public Win_message login_request(String username, String password, String address) {

@@ -155,17 +155,8 @@ public class Client {
 
 		String[] tags_array = new String[tags.size()];
 		tags_array = tags.toArray(tags_array);
-		int result = server_rmi_interface.register_user(username, password, tags_array);
-
 		// 2. Print the result
-		if (result == 0)
-			System.out.println("Registration successful");
-		else if (result == 1)
-			System.out.println("Username already exists");
-		else if (result == 2)
-			System.out.println("Password is empty");
-		else
-			System.out.println("Unknown error");
+		System.out.println(server_rmi_interface.register_user(username, password, tags_array));
 	}
 
 	/**

@@ -19,13 +19,13 @@ public interface Server_RMI_Interface extends Remote {
 	 * @param username the username of the user to be registered
 	 * @param password the password of the user to be registered
 	 * @param tags     an array of tags that the user is interested in
-	 * @return a boolean value to indicate if the registration was successful or not
+	 * @return the result of the registration
 	 * @throws java.rmi.RemoteException
 	 * @author Winsome
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	int register_user(String username, String password, String[] tags) throws java.rmi.RemoteException;
+	String register_user(String username, String password, String[] tags) throws java.rmi.RemoteException;
 
 	/**
 	 * receive_updates is used to receive updates from the server through an RMI call

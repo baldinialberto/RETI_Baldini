@@ -1,5 +1,6 @@
 package winsome_server;
 
+import winsome_DB.RateDB;
 import winsome_DB.Winsome_DB_Exception;
 import winsome_DB.Winsome_Database;
 import winsome_comunication.*;
@@ -14,6 +15,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -68,6 +70,11 @@ public class Server {
 		// 3. Create a new server database object
 		this.server_db = Winsome_Database.getInstance(
 				this.properties.get_posts_database(), this.properties.get_users_database(), true);
+		try {
+			this.server_db.load_DB();
+		} catch (Winsome_Exception e) {
+			System.err.println(e.getMessage());
+		}
 
 		// 3.1 Try to load the server database
 //		if (this.server_db.load_DB() != 0) {
@@ -222,7 +229,6 @@ public class Server {
 		}
 	}
 
-
 	// Client Interactions
 	public void register_request(String username, String password, String[] tags) throws Winsome_Exception {
 		/*
@@ -230,7 +236,7 @@ public class Server {
 		 *
 		 * 1. Register the user
 		 */
-		 
+
 		server_db.create_user(username, password, tags);
 	}
 
@@ -298,7 +304,7 @@ public class Server {
 		 *
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
-		 * 3. If the user is logged in, remove the user from the logged in users
+		 * 3. If the user is logged in, remove the user from the logged-in users
 		 * 4. Return the result
 		 */
 
@@ -342,6 +348,7 @@ public class Server {
 			return result;
 		}
 
+		// 3. If the user is logged in, return the list of users
 		try {
 			String[] users = this.server_db.get_similar_users(this.connections_manager.get_username(address));
 			result.addString(Win_message.SUCCESS);
@@ -374,8 +381,15 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, return the list of users
-		result.addString(Win_message.SUCCESS);
-		result.addStrings(this.server_db.user_followings(this.connections_manager.get_username(address)));
+		try {
+			String[] users = this.server_db.get_user_following(this.connections_manager.get_username(address));
+			result.addString(Win_message.SUCCESS);
+			result.addStrings(users);
+		} catch (Winsome_Exception e) {
+			result.addString(Win_message.ERROR);
+			result.addString(e.niceMessage());
+		}
+
 		return result;
 	}
 
@@ -386,7 +400,7 @@ public class Server {
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
 		 * 3. If the user is logged in, ask the database to follow the user
-		 * 4. Return the result
+		 * 4. notify <username> (if online) that he is followed
 		 */
 
 		Win_message result = new Win_message();
@@ -400,14 +414,19 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to follow the user
-		int res = this.server_db.follow_username(this.connections_manager.get_username(address), username);
-		if (res == Winsome_Database.DB_ERROR_CODE.SUCCESS.ordinal()) {
-			// 4. Return the result
+		try {
+			this.server_db.user_follows(this.connections_manager.get_username(address), username);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+			// 4. notify <username> (if online) that he is followed
+			Client_RMI_Interface callback = this.connections_manager.get_callback_of_username(username);
+			if (callback != null) {
+				callback.send_follower_update(this.connections_manager.get_username(address), true);
+			}
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString(Winsome_Database.DB_ERROR_CODE.getStringOf(res));
+			result.addString(e.niceMessage());
+		} catch (RemoteException e) {
+			System.err.println("Error while sending follower update to " + username);
 		}
 
 		return result;
@@ -420,7 +439,7 @@ public class Server {
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
 		 * 3. If the user is logged in, ask the database to unfollow the user
-		 * 4. Return the result
+		 * 4. notify <username> (if online) that he is unfollowed
 		 */
 
 		Win_message result = new Win_message();
@@ -434,13 +453,19 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to unfollow the user
-		if (this.server_db.unfollow_username(this.connections_manager.get_username(address), username) == 0) {
-			// 4. Return the result
+		try {
+			this.server_db.user_unfollows(this.connections_manager.get_username(address), username);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+			// 4. notify <username> (if online) that he is unfollowed
+			Client_RMI_Interface callback = this.connections_manager.get_callback_of_username(username);
+			if (callback != null) {
+				callback.send_follower_update(this.connections_manager.get_username(address), false);
+			}
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("User not found");
+			result.addString(e.niceMessage());
+		} catch (RemoteException e) {
+			System.err.println("Error while sending follower update to " + username);
 		}
 
 		return result;
@@ -467,14 +492,12 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to create the post
-		if (this.server_db.add_post_deprecated(this.connections_manager.get_username(address),
-				this.connections_manager.get_username(address), title, content) == 0) {
-			// 4. Return the result
+		try {
+			this.server_db.create_post(this.connections_manager.get_username(address), title, content);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error creating post");
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -501,18 +524,14 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the blog
-		ArrayList<Post_representation_simple> posts = this.server_db.get_blog(this.connections_manager.get_username(address));
-		if (posts == null) {
-			// 4. Return the result
+		try {
+			Post_representation_simple[] posts = this.server_db.get_user_blog(this.connections_manager.get_username(address));
+			result.addString(Win_message.SUCCESS);
+			// add an array of strings that are the serialized posts
+			result.addStrings(Arrays.stream(posts).map(Post_representation_simple::serialize).toArray(String[]::new));
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error getting blog");
-			return result;
-		}
-
-		// 4. Return the result
-		result.addString(Win_message.SUCCESS);
-		for (Post_representation_simple post : posts) {
-			result.addString(post.serialize());
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -524,7 +543,7 @@ public class Server {
 		 *
 		 * 1. Check if the user is logged in
 		 * 2. If the user is not logged in, return an error message
-		 * 3. If the user is logged in, ask the database to get the blog
+		 * 3. If the user is logged in, ask the database to get the post
 		 * 4. Return the result
 		 */
 
@@ -538,18 +557,16 @@ public class Server {
 			return result;
 		}
 
-		// 3. If the user is logged in, ask the database to get the blog
-		Post_representation_detailed post = this.server_db.get_post_detailed(post_id);
-		if (post == null) {
-			// 4. Return the result
+		// 3. If the user is logged in, ask the database to get the post
+		try {
+			Post_representation_detailed post = this.server_db.get_post(post_id);
+			result.addString(Win_message.SUCCESS);
+			// add an array of strings that are the serialized posts
+			result.addString(post.serialize());
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error getting post");
-			return result;
+			result.addString(e.niceMessage());
 		}
-
-		// 4. Return the result
-		result.addString(Win_message.SUCCESS);
-		result.addString(post.serialize());
 
 		return result;
 	}
@@ -575,18 +592,14 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the feed
-		ArrayList<Post_representation_simple> posts = this.server_db.get_feed(this.connections_manager.get_username(address));
-		if (posts == null) {
-			// 4. Return the result
+		try {
+			Post_representation_simple[] posts = this.server_db.get_user_feed(this.connections_manager.get_username(address));
+			result.addString(Win_message.SUCCESS);
+			// add an array of strings that are the serialized posts
+			result.addStrings(Arrays.stream(posts).map(Post_representation_simple::serialize).toArray(String[]::new));
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error getting feed");
-			return result;
-		}
-
-		// 4. Return the result
-		result.addString(Win_message.SUCCESS);
-		for (Post_representation_simple post : posts) {
-			result.addString(post.serialize());
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -613,13 +626,12 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to delete the post
-		if (this.server_db.delete_post_deprecated(connections_manager.get_username(address), postId) == 0) {
-			// 4. Return the result
+		try {
+			this.server_db.remove_post(this.connections_manager.get_username(address), postId);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error deleting post");
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -646,13 +658,12 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to rewin the post
-		if (this.server_db.rewin_post_deprecated(connections_manager.get_username(address), postId) == 0) {
-			// 4. Return the result
+		try {
+			this.server_db.rewin_post(this.connections_manager.get_username(address), postId);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error rewinning post");
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -679,13 +690,12 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to comment on the post
-		if (this.server_db.comment_post_deprecated(connections_manager.get_username(address), postId, comment) == 0) {
-			// 4. Return the result
+		try {
+			this.server_db.comment_on_post(this.connections_manager.get_username(address), postId, comment);
 			result.addString(Win_message.SUCCESS);
-		} else {
-			// 4. Return the result
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error commenting on post");
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -713,17 +723,11 @@ public class Server {
 
 		// 3. If the user is logged in, ask the database to rate the post
 		try {
-			this.server_db.rate_post(connections_manager.get_username(address), postId, rate.equals("+1"))
-				// 4. Return the result
-				result.addString(Win_message.SUCCESS);
-		} catch (Winsome_DB_Exception.UsernameNotFound e) {
-			throw new RuntimeException(e);
-		} catch (Winsome_DB_Exception.PostNotFound e) {
-			throw new RuntimeException(e);
-		} catch (Winsome_DB_Exception.PostAlreadyRated e) {
-			throw new RuntimeException(e);
-		} catch (Winsome_DB_Exception.DatabaseNotInitialized e) {
-			throw new RuntimeException(e);
+			this.server_db.rate_post(this.connections_manager.get_username(address), postId, rate.equals(RateDB.UPVOTE));
+			result.addString(Win_message.SUCCESS);
+		} catch (Winsome_Exception e) {
+			result.addString(Win_message.ERROR);
+			result.addString(e.niceMessage());
 		}
 
 		return result;
@@ -750,16 +754,13 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the wallet
-//		Wallet_representation wallet = this.server_db.get_wallet(connections_manager.get_username(address));
-//
-//		// 4. Return the result
-//		if (wallet != null) {
-//			result.addString(Win_message.SUCCESS);
-//			result.addString(wallet.serialize());
-//		} else {
-//			result.addString(Win_message.ERROR);
-//			result.addString("Error getting wallet");
-//		}
+		try {
+			result.addString(Win_message.SUCCESS);
+			result.addString(this.server_db.get_user_wallet(this.connections_manager.get_username(address)).serialize());
+		} catch (Winsome_Exception e) {
+			result.addString(Win_message.ERROR);
+			result.addString(e.niceMessage());
+		}
 
 		return result;
 	}
@@ -789,45 +790,44 @@ public class Server {
 		}
 
 		// 3. If the user is logged in, ask the database to get the user's wallet balance
-		double balance = this.server_db.get_wallet_balance(connections_manager.get_username(address));
-
-		// 4. Get the BTC currency with the random.org website
 		try {
-			URL random_org_url = new URL("https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new");
-			HttpURLConnection random_org_connection = (HttpURLConnection) random_org_url.openConnection();
-			random_org_connection.setRequestMethod("GET");
-			BufferedReader in = new BufferedReader(new InputStreamReader(random_org_connection.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-
-			// DEBUG
-			// System.out.println("BTC currency: " + response);
-
-			double btc;
-			try {
-				btc = Double.parseDouble(response.toString());
-			} catch (NumberFormatException e) {
-				// 5. Return the wallet balance in BTC currency
-				result.addString(Win_message.ERROR);
-				result.addString("Error getting BTC currency");
-				return result;
-			}
-
+			double balance = this.server_db.get_user_wallet(this.connections_manager.get_username(address)).getBalance();
+			// 4. Get the BTC currency with the random.org website
+			double btc = this.get_btc_rate();
 			// 5. Return the wallet balance in BTC currency
 			result.addString(Win_message.SUCCESS);
-			result.addString(String.valueOf(balance * (btc / 1000)));
-
-		} catch (IOException e) {
-			System.out.println("Error getting BTC currency : " + e.getMessage());
+			result.addString(String.valueOf(balance * btc));
+		} catch (Winsome_Exception e) {
 			result.addString(Win_message.ERROR);
-			result.addString("Error getting BTC currency");
+			result.addString(e.niceMessage());
+		} catch (IOException ee) {
+			result.addString(Win_message.ERROR);
+			result.addString("Error while getting the BTC rate");
 		}
 
 		return result;
+	}
+
+	private double get_btc_rate() throws IOException {
+		URL random_org_url = new URL("https://www.random.org/integers/?num=1&min=0&max=1000&col=1&base=10&format=plain&rnd=new");
+		HttpURLConnection random_org_connection = (HttpURLConnection) random_org_url.openConnection();
+		random_org_connection.setRequestMethod("GET");
+		BufferedReader in = new BufferedReader(new InputStreamReader(random_org_connection.getInputStream()));
+		String inputLine;
+		StringBuilder response = new StringBuilder();
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		double btc;
+		try {
+			btc = Double.parseDouble(response.toString());
+		} catch (NumberFormatException e) {
+			btc = 0;
+		}
+
+		return btc;
 	}
 
 	/**
@@ -859,11 +859,11 @@ public class Server {
 
 		// 4. send to the newly registered client the user's followers and the details for the multicast
 		try {
-			callback.send_followers(this.server_db.user_followers(username).toArray(new String[0]));
+			callback.send_followers(this.server_db.get_user_followers(username));
 			callback.send_multicast_details(this.properties.get_multicast_address(),
 					this.properties.get_multicast_port(), "wlan1");
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
+		} catch (RemoteException | Winsome_Exception e) {
+			System.err.println(e.getMessage());
 		}
 
 		return 0;
@@ -886,6 +886,17 @@ public class Server {
 	}
 
 	public void reward_users() {
-		server_db.reward_users_deprecated();
+		server_db.reward_everyone();
+	}
+
+	public void close() {
+		try {
+			this.rewards_thread.interrupt();
+			this.server_db.close();
+			this.server_socket.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 }

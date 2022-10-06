@@ -1,5 +1,6 @@
 package winsome_client;
 
+import winsome_DB.RateDB;
 import winsome_comunication.Post_representation_detailed;
 import winsome_comunication.Post_representation_simple;
 import winsome_comunication.Wallet_representation;
@@ -71,8 +72,6 @@ public class ClientCLI {
 
 		try {
 			client.register(username, password, tags);
-			// 3. print the result
-			System.out.println("register command : User " + username + " registered");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -161,7 +160,7 @@ public class ClientCLI {
 		try {
 			List<String> users = client.listUsers();
 			// 3. print the result (if there are users)
-			if (users.size() > 0) {
+			if (users != null && users.size() > 0) {
 				System.out.println("list_users command : Users :");
 				for (String user : users) {
 					System.out.println(user);
@@ -194,7 +193,7 @@ public class ClientCLI {
 		try {
 			List<String> followers = client.listFollowers();
 			// 3. print the result (if there are followers)
-			if (followers.size() > 0) {
+			if (followers != null && followers.size() > 0) {
 				System.out.println("list_followers command : Followers :");
 				for (String follower : followers) {
 					System.out.println(follower);
@@ -227,7 +226,7 @@ public class ClientCLI {
 		try {
 			List<String> following = client.listFollowing();
 			// 3. print the result (if there are users followed)
-			if (following.size() > 0) {
+			if (following != null && following.size() > 0) {
 				System.out.println("list_following command : Following :");
 				for (String user : following) {
 					System.out.println(user);
@@ -406,7 +405,7 @@ public class ClientCLI {
 			// 2. call the show_feed method of the client
 			List<Post_representation_simple> post = client.showFeed();
 			// 3. print the result
-			if (post.size() > 0) {
+			if (post != null && post.size() > 0) {
 				System.out.println("show_feed command : Posts :");
 				for (Post_representation_simple p : post) {
 					System.out.println(p);
@@ -469,15 +468,12 @@ public class ClientCLI {
 
 		// 2. call the delete method of the client
 		String post_id = args.get(0);
-		try {
-			if (client.deletePost(post_id)) {
-				// 3. print the result
-				System.out.println("delete command : Post deleted");
-			} else {
-				System.out.println("delete command : Post not deleted");
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+
+		if (client.deletePost(post_id)) {
+			// 3. print the result
+			System.out.println("delete command : Post deleted");
+		} else {
+			System.out.println("delete command : Post not deleted");
 		}
 	}
 
@@ -499,15 +495,11 @@ public class ClientCLI {
 
 		// 2. call the rewin method of the client
 		String post_id = args.get(0);
-		try {
-			if (client.rewinPost(post_id)) {
-				// 3. print the result
-				System.out.println("rewin command : Post rewin");
-			} else {
-				System.out.println("rewin command : Post not rewin");
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+		if (client.rewinPost(post_id)) {
+			// 3. print the result
+			System.out.println("rewin command : Post rewin");
+		} else {
+			System.out.println("rewin command : Post not rewin");
 		}
 	}
 
@@ -531,21 +523,18 @@ public class ClientCLI {
 		String post_id = args.get(0);
 		String rating = args.get(1);
 		// 2.1 Check if the rating is a number either 1 or -1
-		if (!rating.equals("+1") && !rating.equals("-1")) {
+		if (!rating.equals(RateDB.UPVOTE) && !rating.equals(RateDB.DOWNVOTE)) {
 			System.out.println("rate command : Wrong rating : " +
 					"usage : rate <post_id> <rating>\n" +
-					"rating must be +1 for like or -1 for dislike");
+					"rating must be " + RateDB.UPVOTE +
+					" for like or " + RateDB.DOWNVOTE + " for dislike");
 			return;
 		}
-		try {
-			if (client.ratePost(post_id, rating.equals("+1"))) {
-				// 3. print the result
-				System.out.println("rate command : Post rated");
-			} else {
-				System.out.println("rate command : Post not rated");
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+		if (client.ratePost(post_id, rating.equals(RateDB.UPVOTE))) {
+			// 3. print the result
+			System.out.println("rate command : Post rated");
+		} else {
+			System.out.println("rate command : Post not rated");
 		}
 	}
 
@@ -571,15 +560,11 @@ public class ClientCLI {
 		for (int i = 2; i < args.size(); i++) {
 			comment.append(" ").append(args.get(i));
 		}
-		try {
-			if (client.addComment(post_id, comment.toString())) {
-				// 3. print the result
-				System.out.println("comment command : Comment added");
-			} else {
-				System.out.println("comment command : Comment not added");
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+		if (client.addComment(post_id, comment.toString())) {
+			// 3. print the result
+			System.out.println("comment command : Comment added");
+		} else {
+			System.out.println("comment command : Comment not added");
 		}
 	}
 
@@ -592,13 +577,10 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet method of the client
-		try {
-			Wallet_representation wallet = client.getWallet();
-			// 2. print the result
-			System.out.println("wallet command : " + wallet);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+		Wallet_representation wallet = client.getWallet();
+		// 2. print the result
+		System.out.println("wallet command : " + wallet);
+
 	}
 
 	private void wallet_btc_command(List<String> args) {
@@ -610,13 +592,12 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet_btc method of the client
-		try {
-			double wallet = client.getWalletInBitcoin();
-			// 2. print the result
-			System.out.println("wallet_btc command : Wallet :" + wallet + " BTC");
-			System.out.println(wallet);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+		double wallet = client.getWalletInBitcoin();
+		// 2. print the result
+		if (wallet == -1) {
+			System.out.println("wallet_btc command : Error");
+		} else {
+			System.out.println("wallet_btc command : " + wallet);
 		}
 	}
 
@@ -707,7 +688,9 @@ public class ClientCLI {
 		 */
 
 		// promt the user to enter a command
-		System.out.print("Enter a command: ");
+		System.out.print(
+				(client.isRewards_updated() ? "** " : "") +
+						"Enter a command: ");
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String line = reader.readLine();
@@ -716,13 +699,13 @@ public class ClientCLI {
 		// if the first token is "list", "show" or "wallet" followed by "btc" then the command is composed of 2 tokens
 		// otherwise the command is composed of 1 token
 
-
 		boolean composed = tokens[0].equals("list") ||
 				tokens[0].equals("show") ||
 				(tokens[0].equals("wallet") && tokens.length > 1 && tokens[1].equals("btc"));
 		if (composed) {
 			if (tokens.length < 2) {
-				System.out.println("Invalid command");
+				System.out.println("Invalid command, available commands are:");
+				help_command(null);
 				return;
 			}
 		}
@@ -730,8 +713,7 @@ public class ClientCLI {
 		String command = composed ? tokens[0] + "_" + tokens[1] : tokens[0];
 
 		// DEBUG
-		// System.out.println("Command: " + command);
-		// System.out.println("Commands available: " + commands.keySet());
+		System.out.println("Command: " + command + ", composed: " + composed);
 
 		// check if the command is valid (i.e. it is in the commands map)
 		if (commands.containsKey(command)) {

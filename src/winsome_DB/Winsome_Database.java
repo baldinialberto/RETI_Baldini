@@ -29,7 +29,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	final private String users_file_path;
 	private boolean posts_backup_valid = true;
 	private boolean users_backup_valid = true;
-	private boolean create_if_not_exist;
+	private final boolean create_if_not_exist;
 	private boolean initialized = false;
 	private static Winsome_Database instance = null;
 	private final Winsome_DB_Thread thread = new Winsome_DB_Thread(this);
@@ -50,7 +50,6 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 * 2. Set the file path of the users file.
 		 * 3. Set the create_if_not_exist flag.
 		 * 4. Create the locks.
-		 * 5. Start the thread.
 		 */
 
 		// 1. Set the file path of the posts file.
@@ -69,9 +68,6 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		users_W_lock = users_RW_lock.writeLock();
 		posts_R_lock = posts_RW_lock.readLock();
 		posts_W_lock = posts_RW_lock.writeLock();
-
-		// 5. Start the thread
-		thread.start();
 	}
 
 	// Instance getter
@@ -102,6 +98,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 *
 		 * 1. Load the posts from the posts file.
 		 * 2. Load the users from the users file.
+		 * 3. Set the initialized flag to true.
+		 * 4. Start the database thread.
 		 */
 
 		// 1. Load the posts from the posts file.
@@ -112,6 +110,9 @@ public class Winsome_Database implements Winsome_DB_Interface {
 
 		// 3. Set the initialized flag to true.
 		initialized = true;
+
+		// 4. Start the thread.
+		thread.start();
 	}
 	private void load_posts() throws Winsome_DB_Exception.PostsDatabaseNotFound {
 		/*
@@ -592,27 +593,30 @@ public class Winsome_Database implements Winsome_DB_Interface {
 
 	/**
 	 * This method removes a post from the database.
+	 * If the post is rewined, it will be removed only on the user's blog.
+	 * If the post is owned by the user, it will be removed from the database (any rewined link will be removed).
 	 *
 	 * @param username The username that wants to remove the post.
 	 * @param post_id  The id of the post to remove.
 	 * @throws Winsome_DB_Exception.UsernameNotFound       if the username is not found in the database.
 	 * @throws Winsome_DB_Exception.PostNotFound           if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotOwned           if the post is not owned by the user.
+	 * @throws Winsome_DB_Exception.PostNotInBlog          if the post is not int the user's blog.
 	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public void remove_post(String username, String post_id) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostNotOwned, Winsome_DB_Exception.DatabaseNotInitialized {
+	public void remove_post(String username, String post_id) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostNotInBlog, Winsome_DB_Exception.DatabaseNotInitialized {
 		/*
 		 * This method removes a post from the database.
 		 *
 		 * 1. If the database is not initialized, throw an exception.
 		 * 2. If the username is not found in the database, throw an exception.
 		 * 3. If the post is not found in the database, throw an exception.
-		 * 4. If the post is not owned by the user, throw an exception.
-		 * 5. Remove the post from the database.
-		 * 6. Remove the post from the user's posts.
-		 * 7. Dirty the posts backup.
-		 * 8. Dirty the users backup.
+		 * 4. If the post is not in the user's blog, throw an exception.
+		 * 5. If the user is not the author of the post remove it from the user's blog and return.
+		 * 6. Remove the post from the database.
+		 * 7. Remove the post from the user's posts.
+		 * 8. Dirty the posts backup.
+		 * 9. Dirty the users backup.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
@@ -640,23 +644,31 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		users_W_lock.lock();
 		posts_W_lock.lock();
 
-		// 4. If the post is not owned by the user, throw an exception.
+		// 4. If the post is not in the user's blog, throw an exception.
 		if (!users.get(username).getPosts().contains(post_id)) {
 			posts_W_lock.unlock();
 			users_W_lock.unlock();
-			throw new Winsome_DB_Exception.PostNotOwned(username, post_id);
+			throw new Winsome_DB_Exception.PostNotInBlog(username, post_id);
 		}
 
-		// 5. Remove the post from the database.
+		// 5. If the user is not the author of the post remove it from the user's blog and return.
+		if (!posts.getPosts().get(post_id).getAuthor().equals(username)) {
+			users.get(username).getPosts().remove(post_id);
+			posts_W_lock.unlock();
+			users_W_lock.unlock();
+			return;
+		}
+
+		// 6. Remove the post from the database.
 		posts.getPosts().remove(post_id);
 
-		// 6. Remove the post from the user's posts.
+		// 7. Remove the post from the user's posts.
 		users.get(username).getPosts().remove(post_id);
 
-		// 7. Dirty the posts backup.
+		// 8. Dirty the posts backup.
 		posts_backup_valid = false;
 
-		// 8. Dirty the users backup.
+		// 9. Dirty the users backup.
 		users_backup_valid = false;
 
 		posts_W_lock.unlock();
@@ -881,6 +893,65 @@ public class Winsome_Database implements Winsome_DB_Interface {
 
 		// 6. Dirty the posts backup.
 		posts_backup_valid = false;
+
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
+	}
+
+	/**
+	 * This method is used to rewin a post (post an already existing post in the user's blog).
+	 * The post remain the same, but the post is added in the user's blog.
+	 *
+	 * @param username The username of the user who wants to rewin the post.
+	 * @param postId   The id of the post to rewin.
+	 */
+	@Override
+	public void rewin_post(String username, String postId) throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.PostAlreadyRewined, Winsome_DB_Exception.DatabaseNotInitialized {
+		/*
+		 * This method is used to rewin a post (post an already existing post in the user's blog).
+		 *
+		 * 1. If the database is not initialized, throw an exception.
+		 * 2. If the username is not found in the database, throw an exception.
+		 * 3. If the post is not found in the database, throw an exception.
+		 * 4. If the post is already posted by the user, throw an exception.
+		 * 5. Add the post to the user's blog.
+		 */
+
+		// 1. If the database is not initialized, throw an exception.
+		if (!initialized)
+			throw new Winsome_DB_Exception.DatabaseNotInitialized();
+
+		users_R_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. If the username is not found in the database, throw an exception.
+		if (!users.containsKey(username)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.UsernameNotFound(username);
+		}
+
+		// 3. If the post is not found in the database, throw an exception.
+		if (!posts.getPosts().containsKey(postId)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostNotFound(postId);
+		}
+
+		// 4. If the post is already posted by the user, throw an exception.
+		if (users.get(username).getPosts().contains(postId)) {
+			posts_R_lock.unlock();
+			users_R_lock.unlock();
+			throw new Winsome_DB_Exception.PostAlreadyRewined(username, postId);
+		}
+
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+
+		users_W_lock.lock();
+		posts_W_lock.lock();
+		// 5. Add the post to the user's blog.
+		users.get(username).getPosts().add(postId);
 
 		posts_W_lock.unlock();
 		users_W_lock.unlock();

@@ -159,12 +159,12 @@ public interface Winsome_DB_Interface {
 	 * @param post_id The id of the post to remove.
 	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
 	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotOwned if the post is not owned by the user.
+	 * @throws Winsome_DB_Exception.PostNotInBlog if the post is not owned by the user.
 	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void remove_post(String username, String post_id)
 			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
-			Winsome_DB_Exception.PostNotOwned, Winsome_DB_Exception.DatabaseNotInitialized;
+			Winsome_DB_Exception.PostNotInBlog, Winsome_DB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a post's rates.
@@ -213,6 +213,16 @@ public interface Winsome_DB_Interface {
 	void comment_on_post(String username, String post_id, String comment)
 			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
 			Winsome_DB_Exception.PostCommentedByAuthor, Winsome_DB_Exception.DatabaseNotInitialized;
+
+	/**
+	 * This method is used to rewin a post (post an already existing post in the user's blog).
+	 * The post remain the same, but the post is added in the user's blog.
+	 * @param username The username of the user who wants to rewin the post.
+	 * @param postId The id of the post to rewin.
+	 */
+	void rewin_post(String username, String postId)
+			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
+			Winsome_DB_Exception.PostAlreadyRewined, Winsome_DB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get a post's simple representation.
@@ -277,4 +287,6 @@ public interface Winsome_DB_Interface {
 	 * This method is used to close the database.
 	 */
 	void close();
+
+
 }

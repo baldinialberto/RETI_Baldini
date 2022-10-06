@@ -40,8 +40,8 @@ public class Client_notification_Thread extends Thread {
 					continue;
 				}
 
-				// 3.2. Print the message.
-				System.out.println(new String(buffer).trim());
+				// 3.2. notify client that are new rewards
+				client.new_rewards_available();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -57,11 +57,10 @@ public class Server_Rewards_Thread extends Thread {
 			this.update_rewards();
 
 			// 4. Wait until 60 seconds have passed.
-			while (System.currentTimeMillis() - start_time < 120000) {
+			while (System.currentTimeMillis() - start_time < 10000) {
 				try {
 					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (InterruptedException ignored) {
 				}
 			}
 

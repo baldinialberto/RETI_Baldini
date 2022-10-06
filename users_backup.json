@@ -10,7 +10,7 @@
     },
     "posts" : [ ],
     "following" : [ "paperino" ],
-    "followers" : [ "paperino" ]
+    "followers" : [ "paperino", "pippo" ]
   },
   "pluto" : {
     "username" : "pluto",
@@ -35,7 +35,7 @@
       "transactions" : [ ]
     },
     "posts" : [ ],
-    "following" : [ "paperino" ],
+    "following" : [ "topolino", "paperino" ],
     "followers" : [ ]
   },
   "paperino" : {

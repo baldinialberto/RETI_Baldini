@@ -8,12 +8,10 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.rmi.NoSuchObjectException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +27,7 @@ public class Client {
 	private boolean _on = false;
 	private boolean connected = false;
 	private boolean logged = false;
+	private boolean rewards_updated = false;
 	private int multicast_port;
 	private String multicast_address;
 	private String multicast_network_name;
@@ -78,6 +77,18 @@ public class Client {
 
 	public void start_CLI() {
 		c_interface.exec();
+	}
+
+	public void new_rewards_available() {
+		rewards_updated = true;
+	}
+
+	public void rewards_read() {
+		rewards_updated = false;
+	}
+
+	public boolean isRewards_updated() {
+		return rewards_updated;
 	}
 
 	private void connect() throws IOException {
@@ -187,7 +198,7 @@ public class Client {
 
 		// 2. connect to server
 		try {
-			this.connect();
+			connect();
 		} catch (IOException e) {
 			System.err.println("Error connecting to server");
 			return -1;
@@ -196,7 +207,11 @@ public class Client {
 		// 3. login with username and password
 		try{
 			sender.login(username, password);
+			user = new LocalUser(username);
 			server_rmi_interface.receive_updates(client_rmi_stub, username);
+			start_notification_thread();
+			logged = true;
+			rewards_read();
 		} catch (Winsome_Exception w) {
 			System.err.println(w.niceMessage());
 			return -1;
@@ -251,6 +266,7 @@ public class Client {
 			logged = false;
 			// 6. set user to null
 			user = null;
+			rewards_read();
 		} catch (IOException e) {
 			System.err.println("Error disconnecting from server");
 			return -1;
@@ -816,7 +832,12 @@ public class Client {
 
 		// 3. get wallet
 		try {
-			return sender.wallet();
+			Wallet_representation wallet =  sender.wallet();
+
+			// TODO check if it's correct
+
+			this.rewards_read();
+			return wallet;
 		} catch (Winsome_Exception w) {
 			System.err.println(w.niceMessage());
 			return null;
@@ -855,7 +876,9 @@ public class Client {
 
 		// 3. get wallet in bitcoin
 		try {
-			return sender.wallet_btc();
+			double wallet_btc = sender.wallet_btc();
+			this.rewards_read();
+			return wallet_btc;
 		} catch (Winsome_Exception w) {
 			System.err.println(w.niceMessage());
 			return -1;

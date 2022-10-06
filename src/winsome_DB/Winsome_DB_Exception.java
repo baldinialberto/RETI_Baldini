@@ -133,21 +133,21 @@ public class Winsome_DB_Exception {
 		}
 	}
 
-	public static class PostNotOwned extends Winsome_Exception {
+	public static class PostNotInBlog extends Winsome_Exception {
 		private final String postId;
 		private final String username;
 
-		public PostNotOwned(String postId, String username) {
+		public PostNotInBlog(String postId, String username) {
 			this.postId = postId;
 			this.username = username;
 		}
 
 		@Override
 		public String getMessage() {
-			return "WinSome 09 : " + postId + " is not owned by " + username;
+			return "WinSome 09 : " + postId + " is not in the blog of " + username;
 		}
 		public String niceMessage() {
-			return "You do not own this post";
+			return "You have not posted this post";
 		}
 	}
 
@@ -169,6 +169,24 @@ public class Winsome_DB_Exception {
 		}
 	}
 
+	public static class PostAlreadyRewined extends Winsome_Exception {
+		private final String postId;
+		private final String username;
+
+		public PostAlreadyRewined(String postId, String username) {
+			this.postId = postId;
+			this.username = username;
+		}
+
+		@Override
+		public String getMessage() {
+			return "WinSome 11 : " + username + " already rewined " + postId;
+		}
+		public String niceMessage() {
+			return "You already rewined this post";
+		}
+	}
+
 	public static class PostCommentedByAuthor extends Winsome_Exception {
 		private final String postId;
 		private final String username;
@@ -180,7 +198,7 @@ public class Winsome_DB_Exception {
 
 		@Override
 		public String getMessage() {
-			return "WinSome 11 : " + username + " cannot comment his own post (" + postId + ")";
+			return "WinSome 12 : " + username + " cannot comment his own post (" + postId + ")";
 		}
 		public String niceMessage() {
 			return "You cannot comment your own post";
@@ -190,7 +208,7 @@ public class Winsome_DB_Exception {
 	public static class UsersDatabaseNotFound extends Winsome_Exception {
 		@Override
 		public String getMessage() {
-			return "WinSome 12 : Users database not found";
+			return "WinSome 13 : Users database not found";
 		}
 		public String niceMessage() {
 			return "Problem with the database, please try again later";
@@ -200,7 +218,7 @@ public class Winsome_DB_Exception {
 	public static class PostsDatabaseNotFound extends Winsome_Exception {
 		@Override
 		public String getMessage() {
-			return "WinSome 13 : Posts database not found";
+			return "WinSome 14 : Posts database not found";
 		}
 		public String niceMessage() {
 			return "Problem with the database, please try again later";
@@ -210,7 +228,7 @@ public class Winsome_DB_Exception {
 	public static class DatabaseNotInitialized extends Winsome_Exception {
 		@Override
 		public String getMessage() {
-			return "WinSome 14 : Database not initialized";
+			return "WinSome 15 : Database not initialized";
 		}
 		public String niceMessage() {
 			return "Problem with the database, please try again later";
@@ -220,7 +238,7 @@ public class Winsome_DB_Exception {
 	public static class DatabaseNotSaved extends Winsome_Exception {
 		@Override
 		public String getMessage() {
-			return "WinSome 15 : Database not saved";
+			return "WinSome 16 : Database not saved";
 		}
 		public String niceMessage() {
 			return "Problem with the database, please try again later";
@@ -242,4 +260,6 @@ public class Winsome_DB_Exception {
 			return message;
 		}
 	}
+
+
 }

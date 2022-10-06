@@ -94,13 +94,14 @@ public class Client_connections_Manager extends ConcurrentHashMap<String, Client
 	}
 
 	/**
-	 * get_callback
+	 * get_callback_of_address
 	 * this method is used to get the callback object of a connection
 	 *
 	 * @param address the address of the connection
-	 * @return the callback object of the connection
+	 * @return the callback object of the connection associated with the address
+	 * if successful, null otherwise
 	 */
-	public Client_RMI_Interface get_callback(String address) {
+	public Client_RMI_Interface get_callback_of_address(String address) {
 		/*
 		 * get the callback object of a connection
 		 *
@@ -121,6 +122,40 @@ public class Client_connections_Manager extends ConcurrentHashMap<String, Client
 		// 3. if the connection exists, return the callback object
 		return this.get(address).get_callback();
 	}
+
+	/**
+	 * get_callback_of_username
+	 * this method is used to get the address of a connection
+	 *
+	 * @param username the username of the connection
+	 * @return the callback object of the connection associated with the username
+	 * if successful, null otherwise
+	 */
+	public Client_RMI_Interface get_callback_of_username(String username) {
+		/*
+		 * get the callback object of a connection
+		 *
+		 * 1. check the parameters
+		 * 2. check if the connection exists:
+		 *  loop through the connections manager and check if the username exists
+		 * 3. if the connection exists, return the callback object
+		 */
+
+		// 1. check the parameters
+		if (username == null)
+			return null;
+
+		// 2. check if the connection exists:
+		// loop through the connections manager and check if the username exists
+		for (Client_connection c : this.values()) {
+			if (c.get_username().equals(username))
+				return c.get_callback();
+		}
+
+		// 3. if the connection exists, return the callback object
+		return null;
+	}
+
 
 	/**
 	 * get_address
@@ -149,7 +184,7 @@ public class Client_connections_Manager extends ConcurrentHashMap<String, Client
 		// 2. loop through the addresses
 		for (String address : addresses) {
 			// 3. get the callback object of the connection
-			Client_RMI_Interface callback = this.get_callback(address);
+			Client_RMI_Interface callback = this.get_callback_of_address(address);
 
 			// 4. if not null, add the callback object to the list
 			if (callback != null)

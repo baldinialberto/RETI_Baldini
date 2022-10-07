@@ -2,9 +2,12 @@ package winsome_DB;
 
 import winsome_comunication.*;
 import winsome_server.Winsome_DB_Interface;
+import winsome_server.Winsome_Reward;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -228,6 +231,27 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		return 0;
 	}
 
+	private void lock_both_R() {
+		users_R_lock.lock();
+		posts_R_lock.lock();
+	}
+
+	private void unlock_both_R() {
+		posts_R_lock.unlock();
+		users_R_lock.unlock();
+	}
+
+	private void lock_both_W() {
+		users_W_lock.lock();
+		posts_W_lock.lock();
+	}
+
+	private void unlock_both_W() {
+		posts_W_lock.unlock();
+		users_W_lock.unlock();
+	}
+
+	// Public Methods
 
 	/**
 	 * This method creates a new user in the database.
@@ -623,8 +647,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
@@ -638,24 +661,20 @@ public class Winsome_Database implements Winsome_DB_Interface {
 			throw new Winsome_DB_Exception.PostNotFound(post_id);
 		}
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
-		users_W_lock.lock();
-		posts_W_lock.lock();
+		lock_both_W();
 
 		// 4. If the post is not in the user's blog, throw an exception.
 		if (!users.get(username).getPosts().contains(post_id)) {
-			posts_W_lock.unlock();
-			users_W_lock.unlock();
+			unlock_both_W();
 			throw new Winsome_DB_Exception.PostNotInBlog(username, post_id);
 		}
 
 		// 5. If the user is not the author of the post remove it from the user's blog and return.
 		if (!posts.getPosts().get(post_id).getAuthor().equals(username)) {
 			users.get(username).getPosts().remove(post_id);
-			posts_W_lock.unlock();
-			users_W_lock.unlock();
+			unlock_both_W();
 			return;
 		}
 
@@ -671,8 +690,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		// 9. Dirty the users backup.
 		users_backup_valid = false;
 
-		posts_W_lock.unlock();
-		users_W_lock.unlock();
+		unlock_both_W();
 	}
 
 	/**
@@ -787,20 +805,17 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.UsernameNotFound(username);
 		}
 
 		// 3. If the post is not found in the database, throw an exception.
 		if (!posts.getPosts().containsKey(post_id)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.PostNotFound(post_id);
 		}
 
@@ -808,17 +823,14 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		ArrayList<RateDB> rates = posts.getPosts().get(post_id).getRates();
 		for (RateDB r : rates) {
 			if (r.getAuthor().equals(username)) {
-				posts_R_lock.unlock();
-				users_R_lock.unlock();
+				unlock_both_R();
 				throw new Winsome_DB_Exception.PostAlreadyRated(username, post_id);
 			}
 		}
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
-		users_W_lock.lock();
-		posts_W_lock.lock();
+		lock_both_W();
 
 		// 5. Add the rate to the post.
 		posts.getPosts().get(post_id).addVote(new RateDB(username, rate));
@@ -826,8 +838,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		// 6. Dirty the posts backup.
 		posts_backup_valid = false;
 
-		posts_W_lock.unlock();
-		users_W_lock.unlock();
+		unlock_both_W();
 	}
 
 	/**
@@ -858,34 +869,28 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.UsernameNotFound(username);
 		}
 
 		// 3. If the post is not found in the database, throw an exception.
 		if (!posts.getPosts().containsKey(post_id)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.PostNotFound(post_id);
 		}
 
 		// 4. If the user is the author of the post, throw an exception.
 		if (posts.getPosts().get(post_id).getAuthor().equals(username)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.PostCommentedByAuthor(username, post_id);
 		}
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
-		users_W_lock.lock();
 		posts_W_lock.lock();
 
 		// 5. Add the comment to the post.
@@ -895,7 +900,6 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		posts_backup_valid = false;
 
 		posts_W_lock.unlock();
-		users_W_lock.unlock();
 	}
 
 	/**
@@ -915,46 +919,44 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 * 3. If the post is not found in the database, throw an exception.
 		 * 4. If the post is already posted by the user, throw an exception.
 		 * 5. Add the post to the user's blog.
+		 * 6. Dirty the posts backup.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.UsernameNotFound(username);
 		}
 
 		// 3. If the post is not found in the database, throw an exception.
 		if (!posts.getPosts().containsKey(postId)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.PostNotFound(postId);
 		}
 
 		// 4. If the post is already posted by the user, throw an exception.
 		if (users.get(username).getPosts().contains(postId)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.PostAlreadyRewined(username, postId);
 		}
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
-		users_W_lock.lock();
-		posts_W_lock.lock();
+		lock_both_W();
+
 		// 5. Add the post to the user's blog.
 		users.get(username).getPosts().add(postId);
 
-		posts_W_lock.unlock();
-		users_W_lock.unlock();
+		// 6. Dirty the users backup.
+		users_backup_valid = false;
+
+		unlock_both_W();
 	}
 
 	/**
@@ -1056,12 +1058,11 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.UsernameNotFound(username);
 		}
 
@@ -1073,8 +1074,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		for (int i = 0; i < posts_ids.length; i++)
 			ret[i] = posts.getPosts().get(posts_ids[i]).representation_simple();
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
 		return ret;
 	}
@@ -1103,13 +1103,11 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();
 
-		users_R_lock.lock();
-		posts_R_lock.lock();
+		lock_both_R();
 
 		// 2. If the username is not found in the database, throw an exception.
 		if (!users.containsKey(username)) {
-			posts_R_lock.unlock();
-			users_R_lock.unlock();
+			unlock_both_R();
 			throw new Winsome_DB_Exception.UsernameNotFound(username);
 		}
 
@@ -1132,8 +1130,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		for (Post_DB post : posts_list)
 			ret[i++] = post.representation_simple();
 
-		posts_R_lock.unlock();
-		users_R_lock.unlock();
+		unlock_both_R();
 
 		return ret;
 	}
@@ -1195,7 +1192,59 @@ public class Winsome_Database implements Winsome_DB_Interface {
 	 */
 	@Override
 	public void reward_everyone() {
-		// TODO: Implement this method.
+		/*
+		 * This method is used to reward every user with a certain amount of coins.
+		 *
+		 * 1. If the database is not initialized, return.
+		 * 2. Go through every post and calculate every reward.
+		 * 2.1. The reward returned by the post is a list of usernames and the amount of coins to reward them.
+		 * 3. Divide the author's between the author and the users that rewined the post (those
+		 *   that rewined the post are rewarded with a percentage of the author's reward).
+		 * 4. Reward the users.
+		 */
+
+		// 1. If the database is not initialized, return.
+		if (!initialized)
+			return;
+
+		users_W_lock.lock();
+		posts_R_lock.lock();
+
+		// 2. Go through every post and calculate every reward.
+		for (Post_DB post : posts.getPosts().values()) {
+			// 2.1. The reward returned by the post is a list of usernames and the amount of coins to reward them.
+			List<Winsome_Reward> rewards = post.calculate_rewards();
+			if (rewards == null)
+				continue;
+
+			// 3. Divide the author's between the author and the users that rewined the post (those
+			//    that rewined the post are rewarded with a percentage of the author's reward).
+			List<String> users_rewined = new ArrayList<>();
+			for (User_DB u : users.values())
+				if (u.getPosts().contains(post.getId()))
+					users_rewined.add(u.getUsername());
+
+			double reward_author = rewards.get(0).value;
+			double reward_rewined = reward_author * 0.1; // 10% of the author's reward then goes to the rewined users.
+			reward_author -= reward_rewined;
+
+			// 4. Reward the users.
+
+			// Reward the author.
+			users.get(rewards.get(0).username).getWallet().add_transaction(new Transaction_DB(reward_author));
+
+			// Reward the rewined users.
+			for (String user : users_rewined)
+				users.get(user).getWallet().add_transaction(new Transaction_DB(reward_rewined / users_rewined.size()));
+
+			// Reward the other users (curators).
+			for (Winsome_Reward reward : rewards.subList(1, rewards.size()))
+				users.get(reward.username).getWallet().add_transaction(new Transaction_DB(reward.value));
+
+		}
+
+		posts_R_lock.unlock();
+		users_W_lock.unlock();
 	}
 
 	/**
@@ -1219,7 +1268,7 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		}
 
 		// 2. Interrupt the thread that saves the database.
-		thread.interrupt();
+		thread.mustStop();
 
 		// 3. Save the database.
 		try {
@@ -1229,6 +1278,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		}
 
 		// 4. Set the database as not initialized.
+		lock_both_W();
 		initialized = false;
+		unlock_both_W();
 	}
 }

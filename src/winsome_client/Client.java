@@ -833,9 +833,6 @@ public class Client {
 		// 3. get wallet
 		try {
 			Wallet_representation wallet =  sender.wallet();
-
-			// TODO check if it's correct
-
 			this.rewards_read();
 			return wallet;
 		} catch (Winsome_Exception w) {

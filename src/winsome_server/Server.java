@@ -1,7 +1,6 @@
 package winsome_server;
 
 import winsome_DB.RateDB;
-import winsome_DB.Winsome_DB_Exception;
 import winsome_DB.Winsome_Database;
 import winsome_comunication.*;
 
@@ -14,7 +13,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
@@ -881,7 +879,7 @@ public class Server {
 		return properties.get_multicast_port();
 	}
 
-	public void interupt_rewards_thread() {
+	public void interrupt_rewards_thread() {
 		this.rewards_thread.interrupt();
 	}
 
@@ -891,7 +889,7 @@ public class Server {
 
 	public void close() {
 		try {
-			this.rewards_thread.interrupt();
+			interrupt_rewards_thread();
 			this.server_db.close();
 			this.server_socket.close();
 		} catch (IOException e) {

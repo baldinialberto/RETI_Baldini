@@ -84,5 +84,4 @@ public class Comment_DB extends User_interaction {
 		return new Comment_representation(this.author, this.comment,
 				new SimpleDateFormat("yyyy-MM-dd HH:mm").format(this.time_created));
 	}
-
 }

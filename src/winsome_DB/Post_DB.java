@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a post in the database.
@@ -235,120 +236,119 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		 * This method is used to calculate the reward of this post.
 		 *
 		 * 1. Get the list of votes and comments newer than the time_last_reward.
-		 * 2. Calculate the reward of this post.
-		 * 3. Return the reward of this post.
+		 * 2. Calculate the rewards of this post divided by the author and the curators.
+		 *  (the author gets 80% of the rewards and the curators get 20% of the rewards)
+		 * 3. Return the list of rewards.
 		 */
 
-		class Pair<A, B> {
-			public final A first;
-			public B second;
-
-			public Pair(A first, B second) {
-				this.first = first;
-				this.second = second;
-			}
-		}
-
-		double res = .0;
-
-		double author_share = .7;
-		double curator_share = .3;
-
 		// 1. Get the list of votes and comments newer than the time_last_reward.
-		ArrayList<RateDB> votes_to_elaborate = new ArrayList<>();
-		ArrayList<RateDB> votes_known = new ArrayList<>(votes);
-		ArrayList<Comment_DB> comments_to_elaborate = new ArrayList<>();
-		ArrayList<Comment_DB> comments_known = new ArrayList<>(comments);
-
-
-		ArrayList<Pair<String, Integer>> users_commented = new ArrayList<>();
-		ArrayList<Pair<String, Integer>> users_voted = new ArrayList<>();
-
-
+		List<RateDB> votes = new ArrayList<>();
 		for (RateDB vote : this.votes) {
 			if (vote.getTime_created().after(this.time_last_reward)) {
-				votes_to_elaborate.add(vote);
+				votes.add(vote);
 			}
 		}
+		List<Comment_DB> comments = new ArrayList<>();
 		for (Comment_DB comment : this.comments) {
 			if (comment.getTime_created().after(this.time_last_reward)) {
-				comments_to_elaborate.add(comment);
+				comments.add(comment);
 			}
 		}
 
-		if (comments_to_elaborate.size() == 0 && votes_to_elaborate.size() == 0) {
-			return new ArrayList<>();
-		}
-		n_rewards++;
-		// 2. Calculate the reward of this post.
-		// votes
-		// logn(max(Sum(p = 0 to new_votes) vote[+1 for upvote, -1 for downvote], 0) +1)
-		double sum = 0;
-		for (RateDB vote : votes_to_elaborate) {
+		// 2. Calculate the rewards of this post divided by the author and the curators.
+		//    (the author gets 80% of the rewards and the curators get 20% of the rewards)
+		// Only positive votes and comments are rewarded.
+		// The rewards are calculated as follows:
+		//    - The author gets 80% of the total rewards.
+		//    - The curators get 20% of the total rewards.
+		//    - The rewards are divided equally among the curators (only those who liked or commented).
+		// The total reward is calculated as follows:
+		// For the votes:
+		// logn(max(0, (sum of the new votes)) + 1) / n_rewards
+		// For the comments:
+		// logn(sum of the new comments, each comment is worth (2/(1 + e^(-Cp +1))) + 1)
+		// [where Cp is the number of times the user has commented on this post]
+
+		// Calculate the total reward.
+		double total_reward = 0;
+		List<Winsome_Reward> rewards = new ArrayList<>();
+		rewards.add(new Winsome_Reward(0, this.author));
+
+		// Calculate the reward for the votes.
+		double sum_votes = 0;
+		for (RateDB vote : votes) {
 			if (vote.getRate()) {
-				sum += 1;
-				users_voted.add(new Pair<>(vote.getAuthor(), 1));
+				sum_votes++;
+				rewards.add(new Winsome_Reward(1, vote.getAuthor()));
 			} else {
-				sum -= 1;
+				sum_votes--;
 			}
 		}
-		res += Math.log(Math.max(sum, 0) + 1);
+		total_reward += Math.log(Math.max(0, sum_votes) + 1) / this.n_rewards;
 
-		// comments
-		// logn(Sum(p = 0 to new_comments) (2/(1 + e^-(comments_made_by_user -1)) + 1
-		sum = 0;
-		for (Comment_DB comment : comments_to_elaborate) {
-			users_commented.add(new Pair<>(comment.getAuthor(), 1));
-			int comments_made_by_user = 0;
-			for (Comment_DB comment2 : comments_known) {
-				if (comment2.getAuthor().equals(comment.getAuthor())) {
-					comments_made_by_user++;
-					users_commented.get(users_commented.size() - 1).second++;
-				}
-			}
-			sum += 2 / (1 + Math.exp(-(comments_made_by_user - 1))) + 1;
+		// Calculate the reward for the comments.
+		double sum_comments = 0;
+		int cp;
+		for (Comment_DB comment : comments) {
+			cp = get_ncomment_of_user(comment.getAuthor());
+			sum_comments += 2 / (1 + Math.exp(-cp + 1));
+			rewards.add(new Winsome_Reward(cp, comment.getAuthor()));
 		}
-		res += Math.log(sum);
+		total_reward += Math.log(sum_comments + 1) / this.n_rewards;
 
-		// res /= n_rewards;
-		res /= Math.max(n_rewards, 1);
+		// Calculate the rewards for the author and the curators.
+		double reward_author = total_reward * 0.8;
+		double reward_curators = total_reward * 0.2;
 
-		// 3. Return the reward of this post.
-		double author_reward = res * author_share;
-		double curator_reward = res * curator_share;
-		ArrayList<Winsome_Reward> rewards = new ArrayList<>();
-		rewards.add(new Winsome_Reward(author_reward, this.author));
+		// Assign the rewards to the author.
+		rewards.get(0).value = reward_author;
 
-		return rewards;
+		// Assign the rewards to the curators.
+		// The current value of the rewards is used to calculate each curator's reward.
+		// Each vote is worth 1, each comment is wort 1/n_comments (the current value of the reward).
+		// The rewards are divided equally among the curators (so if a user has posted multiple comments, he will get
+		// multiple smaller rewards).
+		// For example there are 3 votes and 2 comments (1 is a first comment[1], another is a third comment[3]).
+		// The user who posted the third comments gets 1/3 of the reward of a user who posted the first comment or rated.
+		// The user who posted the first comment gets the same reward of a user who rated.
 
-//        Integer max_comments = 0;
-//        for (Pair<String, Integer> pair : users_commented) {
-//            if (pair.second > max_comments) {
-//                max_comments = pair.second;
-//            }
-//        }
-//
-//        ArrayList<Pair<String, Double>> curator_rewards = new ArrayList<>();
-//
-//        for (Pair<String, Integer> pair : users_commented) {
-//            curator_rewards.add(new Pair<>(pair.first, max_comments / (double) pair.second));
-//        }
-//        for (Pair<String, Integer> pair : users_voted) {
-//            curator_rewards.add(new Pair<>(pair.first, (double) max_comments));
-//        }
-//
-//        double sum_curator_rewards = 0;
-//        for (Pair<String, Double> pair : curator_rewards) {
-//            sum_curator_rewards += pair.second;
-//        }
-//
-//        for (Pair<String, Double> pair : curator_rewards) {
-//            rewards.add(new Winsome_Reward(curator_reward * pair.second / sum_curator_rewards, pair.first));
-//        }
-//
-//        return rewards;
+		// Calculate the total number of votes and comments.
+		int n_curators = 0;
+		for (Winsome_Reward reward : rewards.subList(1, rewards.size())) {
+			n_curators += reward.value;
+		}
+
+		// Calculate the reward for each curator.
+		for (Winsome_Reward reward : rewards.subList(1, rewards.size())) {
+			reward.value = reward_curators * reward.value / n_curators;
+		}
+
+		// TODO: continue here
+		
+		return null;
 	}
-	
+
+	private int get_ncomment_of_user(String username) {
+		/*
+		 * This method is used to get the number of comments of a user on this post.
+		 *
+		 * 1. Loop through the list of comments.
+		 * 2. If the user has commented on this post, increase the counter.
+		 * 3. Return the counter.
+		 */
+
+		// 1. Loop through the list of comments.
+		int counter = 0;
+		for (Comment_DB comment : this.comments) {
+			// 2. If the user has commented on this post, increase the counter.
+			if (comment.getAuthor().equals(username)) {
+				counter++;
+			}
+		}
+		// 3. Return the counter.
+		return counter;
+	}
+
 	@Override
 	public String toString() {
 		return "Post{" +

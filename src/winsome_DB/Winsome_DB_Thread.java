@@ -10,6 +10,7 @@ public class Winsome_DB_Thread  extends Thread {
 	private final Winsome_Database database;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
+	boolean shall_stop = false;
 
 	public Winsome_DB_Thread(Winsome_Database database) {
 		super();
@@ -41,9 +42,17 @@ public class Winsome_DB_Thread  extends Thread {
 				}
 			} catch (Winsome_Exception e) {
 				System.err.println(e.getMessage());
-			} catch (InterruptedException e) {
-				break;
+			} catch (InterruptedException ignored) {
 			}
-		} while (!isInterrupted());
+		} while (!shall_stop);
+
+		lock.unlock();
+	}
+
+	public void mustStop() {
+		lock.lock();
+		shall_stop = true;
+		condition.signal();
+		lock.unlock();
 	}
 }

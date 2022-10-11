@@ -1,35 +1,47 @@
 {
   "posts" : {
     "0" : {
-      "id" : "0",
       "author" : "paperino",
+      "time_created" : 1664887912062,
+      "id" : "0",
       "title" : "oggi ho fatto.",
       "text" : "La cacca viola",
       "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664887912062,
-      "n_rewards" : 0,
-      "time_last_reward" : 1664887912062
+      "rates" : [ {
+        "author" : "topolino",
+        "time_created" : 1665499155904,
+        "rate" : true
+      } ],
+      "n_rewards" : 1,
+      "time_last_reward" : 1665499160228
     },
     "1" : {
-      "id" : "1",
       "author" : "paperino",
+      "time_created" : 1664888849412,
+      "id" : "1",
       "title" : "oggi ho fatto.",
       "text" : "la cacca verde",
-      "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664888849412,
-      "n_rewards" : 0,
-      "time_last_reward" : 1664888849412
+      "comments" : [ {
+        "author" : "pippo",
+        "time_created" : 1665499224866,
+        "comment" : "ok"
+      }, {
+        "author" : "pippo",
+        "time_created" : 1665499229368,
+        "comment" : "ooko"
+      } ],
+      "rates" : [ ],
+      "n_rewards" : 2,
+      "time_last_reward" : 1665499239401
     },
     "2" : {
-      "id" : "2",
       "author" : "paperino",
+      "time_created" : 1664888927762,
+      "id" : "2",
       "title" : "oggi ho fatto.",
       "text" : "la cacca rossa",
       "comments" : [ ],
-      "votes" : [ ],
-      "time_created" : 1664888927762,
+      "rates" : [ ],
       "n_rewards" : 0,
       "time_last_reward" : 1664888927762
     }

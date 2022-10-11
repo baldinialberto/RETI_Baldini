@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a post in the database.
@@ -36,7 +35,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 	private String title;
 	private String text;
 	private ArrayList<Comment_DB> comments;
-	private ArrayList<RateDB> votes;
+	private ArrayList<RateDB> rates;
 	private int n_rewards;
 	private Timestamp time_last_reward;
 
@@ -76,7 +75,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		this.comments = new ArrayList<>();
 
 		// 6. Create a new list of votes for this post.
-		this.votes = new ArrayList<>();
+		this.rates = new ArrayList<>();
 
 		// 7. Set the time_created Timestamp
 		this.time_created = new Timestamp(System.currentTimeMillis());
@@ -119,7 +118,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		return comments;
 	}
 	public ArrayList<RateDB> getRates() {
-		return votes;
+		return rates;
 	}
 	public Timestamp getTime_last_reward() {
 		return time_last_reward;
@@ -141,8 +140,8 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 	public void setComments(ArrayList<Comment_DB> comments) {
 		this.comments = comments;
 	}
-	public void setVotes(ArrayList<RateDB> votes) {
-		this.votes = votes;
+	public void setRates(ArrayList<RateDB> rates) {
+		this.rates = rates;
 	}
 	public void setTime_created(Timestamp time_created) {
 		this.time_created = time_created;
@@ -173,7 +172,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		 */
 
 		// 1. Add the vote to the list of votes of this post.
-		this.votes.add(vote);
+		this.rates.add(vote);
 	}
 	
 	// Representation
@@ -197,7 +196,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		// 1. Return the Post_detailed object.
 		int upvotes = 0;
 		int downvotes = 0;
-		for (RateDB vote : this.votes) {
+		for (RateDB vote : this.rates) {
 			if (vote.getRate()) {
 				upvotes++;
 			} else {
@@ -221,7 +220,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		 */
 
 		// 1. Loop through the list of votes.
-		for (RateDB vote : this.votes) {
+		for (RateDB vote : this.rates) {
 			// 2. If the user has voted on this post, return true.
 			if (vote.getAuthor().equals(user)) {
 				return true;
@@ -243,7 +242,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 
 		// 1. Get the list of votes and comments newer than the time_last_reward.
 		List<RateDB> votes = new ArrayList<>();
-		for (RateDB vote : this.votes) {
+		for (RateDB vote : this.rates) {
 			if (vote.getTime_created().after(this.time_last_reward)) {
 				votes.add(vote);
 			}
@@ -254,6 +253,15 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 				comments.add(comment);
 			}
 		}
+
+		// If there are no votes or comments, return null.
+		if (votes.size() == 0 && comments.size() == 0) {
+			return null;
+		}
+
+		// Otherwise, calculate the rewards.
+		this.time_last_reward = new Timestamp(System.currentTimeMillis());
+		this.n_rewards++;
 
 		// 2. Calculate the rewards of this post divided by the author and the curators.
 		//    (the author gets 80% of the rewards and the curators get 20% of the rewards)
@@ -272,7 +280,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 		// Calculate the total reward.
 		double total_reward = 0;
 		List<Winsome_Reward> rewards = new ArrayList<>();
-		rewards.add(new Winsome_Reward(0, this.author));
+		rewards.add(new Winsome_Reward(0, this.author)); // The author is the first reward.
 
 		// Calculate the reward for the votes.
 		double sum_votes = 0;
@@ -323,9 +331,24 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 			reward.value = reward_curators * reward.value / n_curators;
 		}
 
-		// TODO: continue here
+		// Calculate max and sum
+		double max = 0, sum = 0;
+		for (Winsome_Reward reward : rewards.subList(1, rewards.size())) {
+			if (reward.value > max) {
+				max = reward.value;
+			}
+			sum += (1/reward.value);
+		}
+
+		// Assign the rewards to the curators.
+		for (Winsome_Reward reward : rewards.subList(1, rewards.size())) {
+			reward.value = (reward_curators / sum) * (reward.value / max);
+		}
+
+		// Debug
+		System.out.printf("Rewards for post %s : %s\n", this.id, rewards);
 		
-		return null;
+		return rewards;
 	}
 
 	private int get_ncomment_of_user(String username) {
@@ -357,7 +380,7 @@ public class Post_DB extends User_interaction implements JSON_Serializable {
 				", body='" + text + '\'' +
 				", time_created=" + time_created +
 				", time_last_reward=" + time_last_reward +
-				", votes=" + votes +
+				", votes=" + rates +
 				", comments=" + comments +
 				", n_rewards=" + n_rewards +
 				'}';

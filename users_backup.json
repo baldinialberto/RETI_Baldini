@@ -5,8 +5,11 @@
     "tags" : [ "disney", "formaggio" ],
     "wallet" : {
       "username" : "topolino",
-      "balance" : 0.0,
-      "transactions" : [ ]
+      "balance" : 0.019218120556728054,
+      "transactions" : [ {
+        "time_created" : 1665499160237,
+        "value" : 0.019218120556728054
+      } ]
     },
     "posts" : [ ],
     "following" : [ "paperino" ],
@@ -31,8 +34,14 @@
     "tags" : [ "disney", "sport" ],
     "wallet" : {
       "username" : "pippo",
-      "balance" : 0.0,
-      "transactions" : [ ]
+      "balance" : 0.02733652002485777,
+      "transactions" : [ {
+        "time_created" : 1665499229368,
+        "value" : 0.019218120556728054
+      }, {
+        "time_created" : 1665499239401,
+        "value" : 0.008118399468129716
+      } ]
     },
     "posts" : [ ],
     "following" : [ "topolino", "paperino" ],
@@ -44,8 +53,17 @@
     "tags" : [ "disney", "paperissima" ],
     "wallet" : {
       "username" : "paperino",
-      "balance" : 0.0,
-      "transactions" : [ ]
+      "balance" : 1.4694441340337274,
+      "transactions" : [ {
+        "time_created" : 1665499160236,
+        "value" : 0.5545177444479562
+      }, {
+        "time_created" : 1665499229368,
+        "value" : 0.5545177444479562
+      }, {
+        "time_created" : 1665499239401,
+        "value" : 0.360408645137815
+      } ]
     },
     "posts" : [ "0", "1", "2" ],
     "following" : [ "topolino" ],

@@ -18,7 +18,7 @@ import java.sql.Timestamp;
  */
 public class RateDB extends User_interaction {
 	// Member variables
-	private boolean vote; // true = upvote, false = downvote
+	private boolean rate; // true = upvote, false = downvote
 
 	public final static String UPVOTE = "+1";
 	public final static String DOWNVOTE = "-1";
@@ -26,7 +26,7 @@ public class RateDB extends User_interaction {
 	// Constructors
 	
 	// Default constructor
-	public RateDB(String username, boolean vote) {
+	public RateDB(String username, boolean rate) {
 		/*
 		 * This constructor is used when we want to create a new vote.
 		 * 1. Set the username of this vote.
@@ -38,7 +38,7 @@ public class RateDB extends User_interaction {
 		this.author = username;
 
 		// 2. Set the vote of this vote.
-		this.vote = vote;
+		this.rate = rate;
 
 		// 3. Set the time created of this vote.
 		this.time_created = new Timestamp(System.currentTimeMillis());
@@ -63,19 +63,19 @@ public class RateDB extends User_interaction {
 
 	// Getters
 	public boolean getRate() {
-		return this.vote;
+		return this.rate;
 	}
 	
 	// Setters
-	public void setVote(boolean vote) {
-		this.vote = vote;
+	public void setRate(boolean rate) {
+		this.rate = rate;
 	}
 	
 	
 	@Override
 	public String toString() {
 		return "Vote{" +
-				"vote=" + (vote ? "like" : "dislike") +
+				"vote=" + (rate ? "like" : "dislike") +
 				", author='" + author + '\'' +
 				", time_created=" + time_created +
 				'}';

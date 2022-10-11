@@ -1207,6 +1207,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		if (!initialized)
 			return;
 
+		boolean dirty = false;
+
 		users_W_lock.lock();
 		posts_R_lock.lock();
 
@@ -1217,30 +1219,45 @@ public class Winsome_Database implements Winsome_DB_Interface {
 			if (rewards == null)
 				continue;
 
+			dirty = true;
+
 			// 3. Divide the author's between the author and the users that rewined the post (those
 			//    that rewined the post are rewarded with a percentage of the author's reward).
 			List<String> users_rewined = new ArrayList<>();
 			for (User_DB u : users.values())
-				if (u.getPosts().contains(post.getId()))
+				if (!u.getUsername().equals(post.getAuthor()) && u.getPosts().contains(post.getId()))
 					users_rewined.add(u.getUsername());
 
 			double reward_author = rewards.get(0).value;
-			double reward_rewined = reward_author * 0.1; // 10% of the author's reward then goes to the rewined users.
+			double reward_rewined = users_rewined.size() > 0 ? reward_author * 0.1 : 0; // 10% of the author's reward then goes to the rewined users.
 			reward_author -= reward_rewined;
 
 			// 4. Reward the users.
 
 			// Reward the author.
 			users.get(rewards.get(0).username).getWallet().add_transaction(new Transaction_DB(reward_author));
+			// DEBUG
+			System.out.println("Rewarding " + rewards.get(0).username + " with " + reward_author + " coins.");
 
 			// Reward the rewined users.
-			for (String user : users_rewined)
+			for (String user : users_rewined) {
 				users.get(user).getWallet().add_transaction(new Transaction_DB(reward_rewined / users_rewined.size()));
+				// DEBUG
+				System.out.println("Rewarding " + user + " with " + reward_rewined / users_rewined.size() + " coins.");
+			}
 
 			// Reward the other users (curators).
-			for (Winsome_Reward reward : rewards.subList(1, rewards.size()))
+			for (Winsome_Reward reward : rewards.subList(1, rewards.size())) {
 				users.get(reward.username).getWallet().add_transaction(new Transaction_DB(reward.value));
+				// DEBUG
+				System.out.println("Rewarding " + reward.username + " with " + reward.value + " coins.");
+			}
 
+		}
+
+		if (dirty) {
+			posts_backup_valid = false;
+			users_backup_valid = false;
 		}
 
 		posts_R_lock.unlock();

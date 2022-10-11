@@ -8,4 +8,10 @@ public class Winsome_Reward {
 		this.value = value;
 		this.username = username;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Reward: " + value + " to " + username;
+	}
 }

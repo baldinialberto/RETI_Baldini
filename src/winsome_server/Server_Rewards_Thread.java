@@ -5,6 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is used to send reward notifications to the clients.
@@ -16,18 +19,22 @@ public class Server_Rewards_Thread extends Thread {
 	private final byte[] buffer = new byte[1024];
 	// member variables
 	private final Server server;
-	private DatagramPacket packet;
 	private DatagramSocket socket;
+	private final Lock lock = new ReentrantLock();
+	private final Condition condition = lock.newCondition();
+
+	private final int minutes_to_reward;
 
 
 	// constructor
-	public Server_Rewards_Thread(Server server) {
+	public Server_Rewards_Thread(Server server, int minutes_to_reward) {
 		this.server = server;
+		this.minutes_to_reward = minutes_to_reward;
 
 		try {
 			socket = new DatagramSocket(this.server.getMulticast_port() + 1);
 		} catch (SocketException e) {
-			System.out.println("Error: Could not create a socket for the rewards thread.");
+			System.err.println("Error: Could not create a socket for the rewards thread.");
 			e.printStackTrace();
 		}
 
@@ -48,6 +55,8 @@ public class Server_Rewards_Thread extends Thread {
 		 * 5. Send the notifications.
 		 */
 
+		lock.lock();
+
 		// 1. While the thread is running.
 		while (this.isAlive()) {
 			// 2. Save the current time.
@@ -56,13 +65,16 @@ public class Server_Rewards_Thread extends Thread {
 			// 3. Update the rewards.
 			this.update_rewards();
 
-			// 4. Wait until 60 seconds have passed.
-			// TODO read time between updates from a config file
-			while (System.currentTimeMillis() - start_time < 10000) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException ignored) {
-				}
+			// 4. Wait til <minutes_to_reward> minutes have passed.
+			try {
+				long time_to_wait = (long) minutes_to_reward * 60 * 1000 - (System.currentTimeMillis() - start_time);
+
+				// DEBUG
+				System.out.println("Time to wait: " + time_to_wait + " ms, seconds: " + time_to_wait / 1000);
+
+				if (time_to_wait > 0)
+					condition.await(time_to_wait, java.util.concurrent.TimeUnit.MILLISECONDS);
+			} catch (InterruptedException | IllegalMonitorStateException ignored) {
 			}
 
 			// 5. Send the notifications.
@@ -72,6 +84,8 @@ public class Server_Rewards_Thread extends Thread {
 			System.out.flush();
 			System.out.println("Rewards updated.");
 		}
+
+		lock.unlock();
 	}
 
 	/**
@@ -89,7 +103,7 @@ public class Server_Rewards_Thread extends Thread {
 			// 1.1 fill the buffer with "REWARDS UPDATED" message
 			String message = "REWARDS UPDATED";
 			System.arraycopy(message.getBytes(), 0, buffer, 0, message.length());
-			packet = new DatagramPacket(buffer, buffer.length,
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
 					InetAddress.getByName(this.server.getMulticast_address()),
 					this.server.getMulticast_port());
 

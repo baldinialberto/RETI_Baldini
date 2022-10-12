@@ -2,7 +2,7 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.Transition_representation;
+import winsome_comunication.Transaction_representation;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class Transaction_DB implements JSON_Serializable {
 	}
 
 	// Representation
-	public Transition_representation representation() {
+	public Transaction_representation representation() {
 		/*
 		 * This method is used to convert a transaction to a simple transaction.
 		 *
@@ -86,7 +86,7 @@ public class Transaction_DB implements JSON_Serializable {
 		 */
 
 		// 1. Create a new simple transaction.
-		Transition_representation transition_simple = new Transition_representation();
+		Transaction_representation transition_simple = new Transaction_representation();
 
 		// 2. Set the time created of the simple transaction.
 		transition_simple.setTime_created(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(this.time_created));

@@ -107,7 +107,7 @@ public class Server {
 		}
 
 		// 7. Start the reward thread
-		this.rewards_thread = new Server_Rewards_Thread(this);
+		this.rewards_thread = new Server_Rewards_Thread(this, this.properties.get_reward_time());
 		this.rewards_thread.start();
 	}
 

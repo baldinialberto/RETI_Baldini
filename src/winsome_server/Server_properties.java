@@ -21,7 +21,7 @@ public class Server_properties {
 	 * 7. RMI_NAME=<rmi_name> (default: Server_registration_RMI)
 	 * 8. MULTICAST_ADDRESS=<multicast_address> (no default value)
 	 * 9. MULTICAST_PORT=<multicast_port> (default: 8000)
-	 * 10. TIME_OUT=<time_out> (default: 1000)
+	 * 10. REWARD_TIME=<reward_time> (default: 10)
 	 * 11. WORKERS=<number of worker threads> (default: 10)
 	 *
 	 * the properties are stored in a HashMap<String, String>
@@ -124,12 +124,12 @@ public class Server_properties {
 		}
 	}
 
-	public int get_time_out() {
+	public int get_reward_time() {
 		/*
-		 * return the time-out if it exists, otherwise return the default value
+		 * return the reward-time if it exists, otherwise return the default value
 		 */
-		if (this.properties.containsKey("TIME_OUT")) {
-			return Integer.parseInt(this.properties.get("TIME_OUT"));
+		if (this.properties.containsKey("REWARD_TIME")) {
+			return Integer.parseInt(this.properties.get("REWARD_TIME"));
 		} else {
 			return 1000;
 		}
@@ -214,7 +214,7 @@ public class Server_properties {
 		properties.put("POSTS_DATABASE", "posts_backup.json");
 		properties.put("RMI_NAME", "Server_registration_RMI");
 		properties.put("MULTICAST_PORT", "8000");
-		properties.put("TIME_OUT", "1000");
+		properties.put("REWARD_TIME", "10");
 		properties.put("WORKERS", "10");
 
 		// write the properties to the file

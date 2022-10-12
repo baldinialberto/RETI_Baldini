@@ -52,9 +52,13 @@
       "title" : "oggi ho fatto.",
       "text" : "la cacca arancione",
       "comments" : [ ],
-      "rates" : [ ],
-      "n_rewards" : 0,
-      "time_last_reward" : 1665563299758
+      "rates" : [ {
+        "author" : "pippo",
+        "time_created" : 1665580176067,
+        "rate" : true
+      } ],
+      "n_rewards" : 1,
+      "time_last_reward" : 1665580181682
     }
   },
   "last_post_id" : "3"

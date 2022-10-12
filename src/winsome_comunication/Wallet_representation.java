@@ -6,12 +6,12 @@ import java.util.List;
 public class Wallet_representation implements Win_Serializable {
 	// member variables
 	double balance;
-	List<Transition_representation> transitions = new ArrayList<>();
+	List<Transaction_representation> transaction = new ArrayList<>();
 
 	// constructor
-	public Wallet_representation(double balance, List<Transition_representation> transitions) {
+	public Wallet_representation(double balance, List<Transaction_representation> transactions) {
 		this.balance = balance;
-		this.transitions = transitions;
+		this.transaction = transactions;
 	}
 
 	// empty constructor
@@ -39,23 +39,43 @@ public class Wallet_representation implements Win_Serializable {
 		this.balance = balance;
 	}
 
-	public List<Transition_representation> getTransitions() {
-		return this.transitions;
+	public List<Transaction_representation> getTransaction() {
+		return this.transaction;
 	}
 
-	public void setTransitions(List<Transition_representation> transitions) {
-		this.transitions = transitions;
+	public void setTransaction(List<Transaction_representation> transaction) {
+		this.transaction = transaction;
 	}
 
 	// add transition
-	public void add_transition(Transition_representation transition) {
-		this.transitions.add(transition);
+	public void add_transition(Transaction_representation transition) {
+		this.transaction.add(transition);
 	}
 
 	@Override
 	public String toString() {
-		// TODO improve this
-		return "Wallet_simple [balance=" + balance + ", transitions=" + transitions + "]";
+		/*
+		 * This method is used to convert the wallet representation to a string.
+		 * The string will be shown in the console.
+		 * The format is as follows:
+		 * Wallet : balance = <balance(xx.xx)>, <number of transitions>:
+		 * <transition 1> (<amount> at <time>)
+		 * <transition 2> (<amount> at <time>)
+		 * ...
+		 * <transition n> (<amount> at <time>)
+		 */
+		StringBuilder s = new StringBuilder();
+		s.append("Wallet : balance = ").append(String.format("%.2f", this.balance));
+		s.append(", #transactions = ").append(this.transaction.size());
+
+		if (this.transaction.size() == 0) s.append("\n");
+
+		for (Transaction_representation transition : this.transaction) {
+			s.append("\n").append(String.format("\t%.4f", transition.getValue()));
+			s.append(" at ").append(transition.getTime_created());
+		}
+
+		return s.toString();
 	}
 
 	@Override
@@ -78,7 +98,7 @@ public class Wallet_representation implements Win_Serializable {
 		sb.append(this.balance);
 
 		// 3. Append the transitions.
-		for (Transition_representation transition : this.transitions) {
+		for (Transaction_representation transition : this.transaction) {
 			sb.append("||");
 			sb.append(transition.serialize());
 		}
@@ -112,9 +132,9 @@ public class Wallet_representation implements Win_Serializable {
 
 		// 3. For each transition, deserialize it and add it to the list.
 		for (int i = 1; i < split.length; i++) {
-			Transition_representation transition = new Transition_representation();
+			Transaction_representation transition = new Transaction_representation();
 			transition.deserialize(split[i]);
-			this.transitions.add(transition);
+			this.transaction.add(transition);
 		}
 	}
 }

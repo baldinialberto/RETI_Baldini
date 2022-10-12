@@ -2,7 +2,7 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.Transition_representation;
+import winsome_comunication.Transaction_representation;
 import winsome_comunication.Wallet_representation;
 
 import java.io.File;
@@ -114,7 +114,7 @@ public class WalletDB implements JSON_Serializable {
 		 */
 
 		// 1. Create a List of Wallet_Transition_simple objects from the list of transactions.
-		List<Transition_representation> transactions_simple = new ArrayList<>();
+		List<Transaction_representation> transactions_simple = new ArrayList<>();
 		for (Transaction_DB transaction : this.transactions) {
 			transactions_simple.add(transaction.representation());
 		}

@@ -178,6 +178,11 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 * 3. Save the users to the users file.
 		 */
 
+		// DEBUG
+		// Print that the database is being saved.
+		// In green color.
+		System.out.println("\033[32mSaving the database...\033[0m");
+
 		// 1. If the database is not initialized, throw an exception.
 		if (!initialized)
 			throw new Winsome_DB_Exception.DatabaseNotInitialized();

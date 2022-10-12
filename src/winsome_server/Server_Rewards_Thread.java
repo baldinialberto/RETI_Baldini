@@ -57,6 +57,7 @@ public class Server_Rewards_Thread extends Thread {
 			this.update_rewards();
 
 			// 4. Wait until 60 seconds have passed.
+			// TODO read time between updates from a config file
 			while (System.currentTimeMillis() - start_time < 10000) {
 				try {
 					Thread.sleep(1000);

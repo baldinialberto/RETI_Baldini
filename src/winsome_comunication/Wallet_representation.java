@@ -54,6 +54,7 @@ public class Wallet_representation implements Win_Serializable {
 
 	@Override
 	public String toString() {
+		// TODO improve this
 		return "Wallet_simple [balance=" + balance + ", transitions=" + transitions + "]";
 	}
 

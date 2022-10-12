@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Client {
+	// Member variables
 	SocketChannel socket_channel;
 	Winsome_Server_Sender sender;
 	private final ClientCLI c_interface;
@@ -32,9 +33,10 @@ public class Client {
 	private String multicast_address;
 	private String multicast_network_name;
 
-
 	private Client_notification_Thread notification_thread;
 
+	// Constructors
+	// Default constructor
 	public Client(String properties_filepath) {
 		/*
 		 * client constructor
@@ -151,7 +153,8 @@ public class Client {
 	 *
 	 * @param username the username of the user to register
 	 * @param password the password of the user to register
-	 * @param tags the interests of the user to register
+	 * @param tags     the interests of the user to register
+	 * @throws RemoteException if the server is not reachable
 	 */
 	public void register(String username, String password, List<String> tags)
 			throws RemoteException {
@@ -178,9 +181,10 @@ public class Client {
 	 *
 	 * @param username the username of the user to login
 	 * @param password the password of the user to login
-	 * @return 0 if the login is successful, -1 otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public int login(String username, String password) {
+	public void login(String username, String password)
+			throws Winsome_Exception {
 		/*
 		 * login to server
 		 *
@@ -192,42 +196,35 @@ public class Client {
 
 		// 1. if already logged, print error and return
 		if (logged) {
-			System.out.println("You are already logged in");
-			return -1;
+			throw new Winsome_Exception_Generic("You are already logged in");
 		}
 
 		// 2. connect to server
 		try {
 			connect();
 		} catch (IOException e) {
-			System.err.println("Error connecting to server");
-			return -1;
+			throw new Winsome_Exception_Generic("Cannot connect to server");
 		}
 
 		// 3. login with username and password
-		try{
+		try {
 			sender.login(username, password);
 			user = new LocalUser(username);
 			server_rmi_interface.receive_updates(client_rmi_stub, username);
 			start_notification_thread();
 			logged = true;
 			rewards_read();
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return -1;
 		} catch (RemoteException e) {
-			System.err.println("Error connecting to server");
-			return -1;
+			throw new Winsome_Exception_Generic("Cannot connect to server");
 		}
-
-		return 0;
 	}
 
 	/**
 	 * Effettua il logout dell’utente dal servizio. Corrisponde al comando logout.
-	 * @return 0 if the logout is successful, -1 otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public int logout() {
+	public void logout()
+			throws Winsome_Exception {
 		/*
 		 * logout from server
 		 *
@@ -241,23 +238,16 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("You are not logged in");
-			return -1;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("You are not connected to the server");
-			return -1;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. logout
-		try {
-			sender.logout();
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return -1;
-		}
+		sender.logout();
 
 		// 4. disconnect from server
 		try {
@@ -268,11 +258,8 @@ public class Client {
 			user = null;
 			rewards_read();
 		} catch (IOException e) {
-			System.err.println("Error disconnecting from server");
-			return -1;
+			throw new Winsome_Exception_Generic("Cannot disconnect from server");
 		}
-
-		return 0;
 	}
 
 	/**
@@ -282,9 +269,11 @@ public class Client {
 	 * associato è list users.
 	 *
 	 * @return the list of users with at least one tag in common with the user
-	 *  if the operation is successful, null otherwise
+	 * if the operation is successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public List<String> listUsers() {
+	public List<String> listUsers()
+			throws Winsome_Exception {
 		/*
 		 * list users
 		 *
@@ -295,24 +284,17 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("You are not logged in");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("You are not connected to the server");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. get list of users
 		List<String> users;
-		try {
-			users = Arrays.asList(sender.list_users());
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
+		users = Arrays.asList(sender.list_users());
 
 		return users;
 	}
@@ -326,8 +308,10 @@ public class Client {
 	 * comando list followers.
 	 *
 	 * @return the list of followers if the user is logged, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public List<String> listFollowers() {
+	public List<String> listFollowers()
+			throws Winsome_Exception {
 		/*
 		 * list followers
 		 *
@@ -338,13 +322,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. Return the list of followers
@@ -356,8 +338,10 @@ public class Client {
 	 * follower. Questo metodo è corrispondente al comando list following.
 	 *
 	 * @return the list of following if the operation is successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public List<String> listFollowing() {
+	public List<String> listFollowing()
+			throws Winsome_Exception {
 		/*
 		 * list following
 		 *
@@ -368,25 +352,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. Return the list of following
-		List<String> following;
-		try {
-			following = Arrays.asList(sender.list_following());
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
-
-		return following;
+		return Arrays.asList(sender.list_following());
 	}
 
 	/**
@@ -395,9 +369,10 @@ public class Client {
 	 * associato è follow <username>.
 	 *
 	 * @param idUser the id of the user to follow
-	 * @return true if the user is followed, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean followUser(String idUser) {
+	public void followUser(String idUser)
+			throws Winsome_Exception {
 		/*
 		 * follow user
 		 *
@@ -408,24 +383,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. follow user
-		try {
-			sender.follow(idUser);
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.follow(idUser);
 	}
 
 	/**
@@ -433,9 +399,10 @@ public class Client {
 	 * comando associato è unfollow <username>.
 	 *
 	 * @param idUser the id of the user to unfollow
-	 * @return true if the user is unfollowed, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean unfollowUser(String idUser) {
+	public void unfollowUser(String idUser)
+			throws Winsome_Exception {
 		/*
 		 * unfollow user
 		 *
@@ -446,24 +413,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. unfollow user
-		try {
-			sender.unfollow(idUser);
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.unfollow(idUser);
 	}
 
 	/**
@@ -473,8 +431,10 @@ public class Client {
 	 * blog.
 	 *
 	 * @return the list of posts of the user's blog if successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public List<Post_representation_simple> viewBlog() {
+	public List<Post_representation_simple> viewBlog()
+			throws Winsome_Exception {
 		/*
 		 * view blog
 		 *
@@ -485,25 +445,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. Return the list of posts
-		List<Post_representation_simple> posts;
-		try {
-			posts = Arrays.asList(sender.blog());
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
-
-		return posts;
+		return Arrays.asList(sender.blog());
 	}
 
 	/**
@@ -515,11 +465,12 @@ public class Client {
 	 * Il comando che l’utente digita per creare un post ha la seguente sintassi:
 	 * post <title> <content>.
 	 *
-	 * @param titolo the title of the post
+	 * @param titolo    the title of the post
 	 * @param contenuto the content of the post
-	 * @return true if the post is created, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean createPost(String titolo, String contenuto) {
+	public void createPost(String titolo, String contenuto)
+			throws Winsome_Exception {
 		/*
 		 * create post
 		 *
@@ -530,24 +481,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. create post
-		try {
-			sender.create_post(titolo, contenuto);
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.create_post(titolo, contenuto);
 	}
 
 	/**
@@ -556,8 +498,10 @@ public class Client {
 	 * titolo del post. La funzione viene attivata mediante il comando show feed.
 	 *
 	 * @return the list of posts in the user's feed if successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public List<Post_representation_simple> showFeed() {
+	public List<Post_representation_simple> showFeed()
+			throws Winsome_Exception {
 		/*
 		 * show feed
 		 *
@@ -568,25 +512,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. Return the list of posts
-		List<Post_representation_simple> posts;
-		try {
-			posts = Arrays.asList(sender.feed());
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
-
-		return posts;
+		return Arrays.asList(sender.feed());
 	}
 
 	/**
@@ -600,8 +534,10 @@ public class Client {
 	 *
 	 * @param idPost the id of the post
 	 * @return the post representation if successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public Post_representation_detailed showPost(String idPost) {
+	public Post_representation_detailed showPost(String idPost)
+			throws Winsome_Exception {
 		/*
 		 * show post
 		 *
@@ -612,25 +548,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. Return the post
-		Post_representation_detailed post;
-		try {
-			post = sender.show_post(Integer.parseInt(idPost));
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
-
-		return post;
+		return sender.show_post(Integer.parseInt(idPost));
 	}
 
 	/**
@@ -643,9 +569,10 @@ public class Client {
 	 * Il comando corrispondente alla cancellazione è delete <idPost>.
 	 *
 	 * @param idPost the id of the post to delete
-	 * @return true if the post is deleted, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean deletePost(String idPost) {
+	public void deletePost(String idPost)
+			throws Winsome_Exception {
 		/*
 		 * delete post
 		 *
@@ -656,24 +583,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. delete post
-		try {
-			sender.delete_post(Integer.parseInt(idPost));
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.delete_post(Integer.parseInt(idPost));
 	}
 
 	/**
@@ -682,9 +600,10 @@ public class Client {
 	 * mediante il comando rewin <idPost>.
 	 *
 	 * @param idPost the id of the post to rewin
-	 * @return true if the post is rewin, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean rewinPost(String idPost) {
+	public void rewinPost(String idPost)
+			throws Winsome_Exception {
 		/*
 		 * rewin post
 		 *
@@ -695,24 +614,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. rewin post
-		try {
-			sender.rewin_post(Integer.parseInt(idPost));
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.rewin_post(Integer.parseInt(idPost));
 	}
 
 	/**
@@ -725,10 +635,11 @@ public class Client {
 	 * voto positivo +1, voto negativo -1.
 	 *
 	 * @param idPost the id of the post to rate
-	 * @param voto the rate to assign
-	 * @return true if the post is rated, false otherwise
+	 * @param voto   the rate to assign
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean ratePost(String idPost, boolean voto) {
+	public void ratePost(String idPost, boolean voto)
+			throws Winsome_Exception {
 		/*
 		 * rate post
 		 *
@@ -739,24 +650,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. rate post
-		try {
-			sender.rate_post(Integer.parseInt(idPost), voto);
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.rate_post(Integer.parseInt(idPost), voto);
 	}
 
 	/**
@@ -767,11 +669,12 @@ public class Client {
 	 * può aggiungere più di un commento ad un post. La sintassi utilizzata dagli
 	 * utenti per commentare è: comment <idPost> <comment>.
 	 *
-	 * @param idPost the id of the post to comment
+	 * @param idPost  the id of the post to comment
 	 * @param comment the comment to add
-	 * @return true if the post is commented, false otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public boolean addComment(String idPost, String comment) {
+	public void addComment(String idPost, String comment)
+			throws Winsome_Exception {
 		/*
 		 * add comment
 		 *
@@ -782,24 +685,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return false;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return false;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. add comment
-		try {
-			sender.comment_post(Integer.parseInt(idPost), comment);
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return false;
-		}
-
-		return true;
+		sender.comment_post(Integer.parseInt(idPost), comment);
 	}
 
 	/**
@@ -808,9 +702,11 @@ public class Client {
 	 * <timestamp>). Il comando corrispondente è wallet.
 	 *
 	 * @return the Wallet_representation of the user's wallet if the operation is
-	 *  	 successful, null otherwise
+	 * successful, null otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public Wallet_representation getWallet() {
+	public Wallet_representation getWallet()
+			throws Winsome_Exception {
 		/*
 		 * get wallet
 		 *
@@ -821,26 +717,18 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return null;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return null;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. get wallet
-		try {
-			Wallet_representation wallet =  sender.wallet();
-			this.rewards_read();
-			return wallet;
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return null;
-		}
+		Wallet_representation wallet = sender.wallet();
+		this.rewards_read();
+		return wallet;
 	}
-
 
 	/**
 	 * Operazione per recuperare il valore del proprio portafoglio convertito in
@@ -850,8 +738,10 @@ public class Client {
 	 * wallet btc.
 	 *
 	 * @return the value of the user's wallet in bitcoin if successful, -1 otherwise
+	 * @throws Winsome_Exception if the operation is not successful
 	 */
-	public double getWalletInBitcoin() {
+	public double getWalletInBitcoin()
+			throws Winsome_Exception {
 		/*
 		 * get wallet in bitcoin
 		 *
@@ -862,24 +752,17 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			System.out.println("Not logged");
-			return -1;
+			throw new Winsome_Exception_Generic("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			System.out.println("Not connected");
-			return -1;
+			throw new Winsome_Exception_Generic("You are not connected to server");
 		}
 
 		// 3. get wallet in bitcoin
-		try {
-			double wallet_btc = sender.wallet_btc();
-			this.rewards_read();
-			return wallet_btc;
-		} catch (Winsome_Exception w) {
-			System.err.println(w.niceMessage());
-			return -1;
-		}
+		double wallet_btc = sender.wallet_btc();
+		this.rewards_read();
+		return wallet_btc;
 	}
 
 	public void exit() {
@@ -891,7 +774,10 @@ public class Client {
 
 		System.out.flush();
 
-		logout();
+		try {
+			logout();
+		} catch (Winsome_Exception ignored) {
+		}
 		_on = false;
 	}
 
@@ -947,9 +833,9 @@ public class Client {
 		this.multicast_network_name = network_name;
 
 		// DEBUG
-		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
-				" multicast_port: " + multicast_port +
-				" multicast_network_name: " + multicast_network_name);
+//		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
+//				" multicast_port: " + multicast_port +
+//				" multicast_network_name: " + multicast_network_name);
 
 		return 0;
 	}

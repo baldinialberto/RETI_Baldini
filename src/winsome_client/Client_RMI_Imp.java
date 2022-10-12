@@ -26,7 +26,7 @@ public class Client_RMI_Imp extends RemoteObject implements Client_RMI_Interface
 	@Override
 	public void send_followers(String[] followers) throws java.rmi.RemoteException {
 		// DEBUG
-		System.out.println("Client_RMI_Imp.send_followers: " + followers.length);
+		// System.out.println("Client_RMI_Imp.send_followers: " + followers.length);
 
 		int res;
 		synchronized (client) {
@@ -37,7 +37,7 @@ public class Client_RMI_Imp extends RemoteObject implements Client_RMI_Interface
 	@Override
 	public void send_multicast_details(String ip, int port, String network_name) throws java.rmi.RemoteException {
 		// DEBUG
-		System.out.println("Client_RMI_Imp.send_multicast_details: " + ip + " " + port + " " + network_name);
+		// System.out.println("Client_RMI_Imp.send_multicast_details: " + ip + " " + port + " " + network_name);
 
 		int res;
 		res = client.set_multicast(ip, port, network_name);

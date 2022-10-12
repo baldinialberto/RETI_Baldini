@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientCLI {
 
@@ -46,7 +47,28 @@ public class ClientCLI {
 	}
 
 	private void printErrorCommand() {
-		System.out.println("Command not recognized");
+		System.out.println("< Command not recognized");
+	}
+	public static void printResponse(String response) {
+		System.out.println("<\t" + response);
+	}
+	public static void printResponse(String[] response) {
+		System.out.printf("< \t%s\n", response[0]);
+		for (int i = 1; i < response.length; i++) {
+			System.out.printf("..\t%s\n", response[i]);
+		}
+	}
+	public static void printResponse(List<String> response) {
+		System.out.printf("< \t%s\n", response.get(0));
+		for (String s : response.subList(1, response.size())) {
+			System.out.printf("..\t%s\n", s);
+		}
+	}
+	public static void printCommandPrompt() {
+		System.out.print("> ");
+	}
+	public static void printError(String error) {
+		System.out.println(">< " + error);
 	}
 
 	private void register_command(List<String> args) {
@@ -60,7 +82,7 @@ public class ClientCLI {
 
 		// 1. check if there are at least 3 arguments, no more than 7
 		if (args.size() < 3 || args.size() > 7) {
-			System.out.println("register command : Wrong number of arguments : " +
+			printError("register command : Wrong number of arguments : " +
 					"usage : register <username> <password> <tag> <tag> ... <tag>");
 			return;
 		}
@@ -73,7 +95,7 @@ public class ClientCLI {
 		try {
 			client.register(username, password, tags);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 
 	}
@@ -89,7 +111,7 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 2 arguments
 		if (args.size() != 2) {
-			System.out.println("login command : Wrong number of arguments : " +
+			printError("login command : Wrong number of arguments : " +
 					"usage : login <username> <password>");
 			return;
 		}
@@ -99,14 +121,11 @@ public class ClientCLI {
 		String password = args.get(1);
 
 		try {
-			if (client.login(username, password) == 0) {
-				// 3. print the result
-				System.out.println("login command : User " + username + " logged in");
-			} else {
-				System.out.println("login command : User " + username + " not logged in");
-			}
+			client.login(username, password);
+			// 3. print the result
+			printResponse("User " + username + " logged in");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -121,7 +140,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("logout command : Wrong number of arguments : " +
+			printError("logout command : Wrong number of arguments : " +
 					"usage : logout");
 			return;
 		}
@@ -129,14 +148,11 @@ public class ClientCLI {
 		// 2. call the logout method of the client
 		try {
 			String username = client.get_username();
-			if (client.logout() == 0) {
-				// 3. print the result
-				System.out.println("logout command : User " + username + " logged out");
-			} else {
-				System.out.println("logout command : User " + username + " not logged out");
-			}
+			client.logout();
+			// 3. print the result
+			printResponse("User " + username + " logged out");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -151,7 +167,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("list_users command : Wrong number of arguments : " +
+			printError("list_users command : Wrong number of arguments : " +
 					"usage : list_users");
 			return;
 		}
@@ -161,15 +177,12 @@ public class ClientCLI {
 			List<String> users = client.listUsers();
 			// 3. print the result (if there are users)
 			if (users != null && users.size() > 0) {
-				System.out.println("list_users command : Users :");
-				for (String user : users) {
-					System.out.println(user);
-				}
+				printResponse(users);
 			} else {
-				System.out.println("list_users command : No users");
+				printResponse("No users found");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -185,7 +198,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("list_followers command : Wrong number of arguments : " +
+			printError("list_followers command : Wrong number of arguments : " +
 					"usage : list_followers");
 			return;
 		}
@@ -195,15 +208,12 @@ public class ClientCLI {
 			List<String> followers = client.listFollowers();
 			// 3. print the result (if there are followers)
 			if (followers != null && followers.size() > 0) {
-				System.out.println("list_followers command : Followers :");
-				for (String follower : followers) {
-					System.out.println(follower);
-				}
+				printResponse(followers);
 			} else {
-				System.out.println("list_followers command : No followers");
+				printResponse("No followers found");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -218,7 +228,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("list_following command : Wrong number of arguments : " +
+			printError("list_following command : Wrong number of arguments : " +
 					"usage : list_following");
 			return;
 		}
@@ -228,15 +238,12 @@ public class ClientCLI {
 			List<String> following = client.listFollowing();
 			// 3. print the result (if there are users followed)
 			if (following != null && following.size() > 0) {
-				System.out.println("list_following command : Following :");
-				for (String user : following) {
-					System.out.println(user);
-				}
+				printResponse(following);
 			} else {
-				System.out.println("list_following command : Not following anyone");
+				printResponse("No users followed");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -251,21 +258,18 @@ public class ClientCLI {
 
 		// 1. check if there is one argument
 		if (args.size() != 1) {
-			System.out.println("follow command : Wrong number of arguments : " +
+			printError("follow command : Wrong number of arguments : " +
 					"usage : follow <username>");
 			return;
 		}
 
 		// 2. call the follow method of the client
 		try {
-			if (client.followUser(args.get(0))) {
-				// 3. print the result
-				System.out.println("follow command : User " + args.get(0) + " followed");
-			} else {
-				System.out.println("follow command : User " + args.get(0) + " not followed");
-			}
+			client.followUser(args.get(0));
+			// 3. print the result
+			printResponse("User " + args.get(0) + " followed");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage() + ", user " + args.get(0) + " not followed");
 		}
 	}
 
@@ -280,21 +284,18 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 1 argument
 		if (args.size() != 1) {
-			System.out.println("unfollow command : Wrong number of arguments : " +
+			printError("unfollow command : Wrong number of arguments : " +
 					"usage : unfollow <username>");
 			return;
 		}
 
 		// 2. call the unfollow method of the client
 		try {
-			if (client.unfollowUser(args.get(0))) {
-				// 3. print the result
-				System.out.println("unfollow command : User " + args.get(0) + " unfollowed");
-			} else {
-				System.out.println("unfollow command : User " + args.get(0) + " not unfollowed");
-			}
+			client.unfollowUser(args.get(0));
+			// 3. print the result
+			printResponse("User " + args.get(0) + " unfollowed");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage() + ", user " + args.get(0) + " not unfollowed");
 		}
 	}
 
@@ -309,7 +310,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("blog command : Wrong number of arguments : " +
+			printError("blog command : Wrong number of arguments : " +
 					"usage : blog");
 			return;
 		}
@@ -319,15 +320,12 @@ public class ClientCLI {
 			List<Post_representation_simple> post = client.viewBlog();
 			// 3. print the result
 			if (post != null && post.size() > 0) {
-				System.out.println("blog command : Posts :");
-				for (Post_representation_simple p : post) {
-					System.out.println(p);
-				}
+				printResponse(post.stream().map(Post_representation_simple::toString).collect(Collectors.toList()));
 			} else {
-				System.out.println("blog command : No posts");
+				printResponse("No posts found");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -342,7 +340,7 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 2 arguments
 		if (args.size() < 2) {
-			System.out.println("post command : Wrong number of arguments : " +
+			printError("post command : Wrong number of arguments : " +
 					"usage : post <title> <content>");
 			return;
 		}
@@ -370,19 +368,16 @@ public class ClientCLI {
 
 		// Check if the title and content are not empty
 		if (title.length() == 0 || content.length() == 0) {
-			System.out.println("post command : Title or content is empty");
+			printError("post command : Title or content is empty");
 			return;
 		}
 
 		try {
-			if (client.createPost(title.toString(), content.toString())) {
-				// 3. print the result
-				System.out.println("post command : Post created");
-			} else {
-				System.out.println("post command : Post not created");
-			}
+			client.createPost(title.toString(), content.toString());
+			// 3. print the result
+			printResponse("Post created");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage() + ", post not created");
 		}
 	}
 
@@ -397,7 +392,7 @@ public class ClientCLI {
 
 		// 1. check if there are no arguments
 		if (args.size() != 0) {
-			System.out.println("show_feed command : Wrong number of arguments : " +
+			printError("show_feed command : Wrong number of arguments : " +
 					"usage : show_feed");
 			return;
 		}
@@ -407,15 +402,12 @@ public class ClientCLI {
 			List<Post_representation_simple> post = client.showFeed();
 			// 3. print the result
 			if (post != null && post.size() > 0) {
-				System.out.println("show_feed command : Posts :");
-				for (Post_representation_simple p : post) {
-					System.out.println(p);
-				}
+				printResponse(post.stream().map(Post_representation_simple::toString).collect(Collectors.toList()));
 			} else {
-				System.out.println("show_feed command : No posts");
+				printResponse("No posts found");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -430,7 +422,7 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 1 argument
 		if (args.size() != 1) {
-			System.out.println("show_post command : Wrong number of arguments : " +
+			printError("show_post command : Wrong number of arguments : " +
 					"usage : show_post <post_id>");
 			return;
 		}
@@ -441,13 +433,12 @@ public class ClientCLI {
 			Post_representation_detailed post = client.showPost(post_id);
 			// 3. print the result
 			if (post != null) {
-				System.out.println("show_post command : Post :");
-				System.out.println(post);
+				printResponse(post.toString());
 			} else {
-				System.out.println("show_post command : Post not found");
+				printResponse("No post found");
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -462,7 +453,7 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 1 argument
 		if (args.size() != 1) {
-			System.out.println("delete command : Wrong number of arguments : " +
+			printError("delete command : Wrong number of arguments : " +
 					"usage : delete <post_id>");
 			return;
 		}
@@ -470,11 +461,12 @@ public class ClientCLI {
 		// 2. call the delete method of the client
 		String post_id = args.get(0);
 
-		if (client.deletePost(post_id)) {
+		try {
+			client.deletePost(post_id);
 			// 3. print the result
-			System.out.println("delete command : Post deleted");
-		} else {
-			System.out.println("delete command : Post not deleted");
+			printResponse("Post deleted");
+		} catch (Exception e) {
+			printResponse(e.getMessage() + ", post not deleted");
 		}
 	}
 
@@ -489,18 +481,19 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 1 argument
 		if (args.size() != 1) {
-			System.out.println("rewin command : Wrong number of arguments : " +
+			printError("rewin command : Wrong number of arguments : " +
 					"usage : rewin <post_id>");
 			return;
 		}
 
 		// 2. call the rewin method of the client
 		String post_id = args.get(0);
-		if (client.rewinPost(post_id)) {
+		try {
+			client.rewinPost(post_id);
 			// 3. print the result
-			System.out.println("rewin command : Post rewin");
-		} else {
-			System.out.println("rewin command : Post not rewin");
+			printResponse("Post rewin");
+		} catch (Exception e) {
+			printResponse(e.getMessage() + ", post not rewin");
 		}
 	}
 
@@ -515,8 +508,10 @@ public class ClientCLI {
 
 		// 1. check if there are exactly 2 arguments
 		if (args.size() != 2) {
-			System.out.println("rate command : Wrong number of arguments : " +
-					"usage : rate <post_id> <rating>");
+			printError("rate command : Wrong rating : " +
+					"usage : rate <post_id> <rating>\n" +
+					"rating must be " + RateDB.UPVOTE +
+					" for like or " + RateDB.DOWNVOTE + " for dislike");
 			return;
 		}
 
@@ -525,17 +520,18 @@ public class ClientCLI {
 		String rating = args.get(1);
 		// 2.1 Check if the rating is a number either 1 or -1
 		if (!rating.equals(RateDB.UPVOTE) && !rating.equals(RateDB.DOWNVOTE)) {
-			System.out.println("rate command : Wrong rating : " +
+			printError("rate command : Wrong rating : " +
 					"usage : rate <post_id> <rating>\n" +
 					"rating must be " + RateDB.UPVOTE +
 					" for like or " + RateDB.DOWNVOTE + " for dislike");
 			return;
 		}
-		if (client.ratePost(post_id, rating.equals(RateDB.UPVOTE))) {
+		try {
+			client.ratePost(post_id, rating.equals(RateDB.UPVOTE));
 			// 3. print the result
-			System.out.println("rate command : Post rated");
-		} else {
-			System.out.println("rate command : Post not rated");
+			printResponse("Post rated");
+		} catch (Exception e) {
+			printResponse(e.getMessage() + ", post not rated");
 		}
 	}
 
@@ -550,7 +546,7 @@ public class ClientCLI {
 
 		// 1. check if there are at least 2 arguments
 		if (args.size() < 2) {
-			System.out.println("comment command : Wrong number of arguments : " +
+			printError("comment command : Wrong number of arguments : " +
 					"usage : comment <post_id> <comment>");
 			return;
 		}
@@ -561,11 +557,12 @@ public class ClientCLI {
 		for (int i = 2; i < args.size(); i++) {
 			comment.append(" ").append(args.get(i));
 		}
-		if (client.addComment(post_id, comment.toString())) {
+		try {
+			client.addComment(post_id, comment.toString());
 			// 3. print the result
-			System.out.println("comment command : Comment added");
-		} else {
-			System.out.println("comment command : Comment not added");
+			printResponse("Post commented");
+		} catch (Exception e) {
+			printResponse(e.getMessage() + ", post not commented");
 		}
 	}
 
@@ -578,10 +575,14 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet method of the client
-		Wallet_representation wallet = client.getWallet();
-		// 2. print the result
-		System.out.println("wallet command : " + wallet);
+		try{
+			Wallet_representation wallet = client.getWallet();
+			// 2. print the result
+			printResponse(wallet.toString());
 
+		} catch (Exception e) {
+			printResponse(e.getMessage());
+		}
 	}
 
 	private void wallet_btc_command(List<String> args) {
@@ -593,12 +594,12 @@ public class ClientCLI {
 		 */
 
 		// 1. call the wallet_btc method of the client
-		double wallet = client.getWalletInBitcoin();
-		// 2. print the result
-		if (wallet == -1) {
-			System.out.println("wallet_btc command : Error");
-		} else {
-			System.out.println("wallet_btc command : " + wallet);
+		try {
+			double wallet = client.getWalletInBitcoin();
+			// 2. print the result
+			printResponse(Double.toString(wallet));
+		} catch (Exception e) {
+			printResponse(e.getMessage());
 		}
 	}
 
@@ -649,7 +650,7 @@ public class ClientCLI {
 						"wallet btc - show the wallet of the logged user in bitcoin\n" +
 						"exit - logout the logged user\n";
 
-		System.out.println(help);
+		printResponse(help);
 	}
 
 	private void exit_command(List<String> args) {
@@ -689,9 +690,8 @@ public class ClientCLI {
 		 */
 
 		// promt the user to enter a command
-		System.out.print(
-				(client.isRewards_updated() ? "** " : "") +
-						"Enter a command: ");
+		System.out.print(client.isRewards_updated() ? "** " : "");
+		printCommandPrompt();
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String line = reader.readLine();
@@ -720,7 +720,7 @@ public class ClientCLI {
 				commands.get(command).invoke(this, new ArrayList<>(
 						Arrays.asList(tokens).subList(composed ? 2 : 1, tokens.length)));
 			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage() + " " + e.getCause());
+				printError("Error: " + e.getMessage() + " " + e.getCause());
 				e.printStackTrace();
 			}
 		} else {

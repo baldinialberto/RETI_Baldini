@@ -5,6 +5,7 @@ import winsome_DB.Winsome_DB_Exception;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 
 /**
  * This class is used by the client to communicate to the server.
@@ -192,7 +193,12 @@ public class Winsome_Server_Sender {
 		}
 
 		// List_users successful.
-		return list_users_response.getStrings().subList(1, list_users_response.size()).toArray(new String[0]);
+		User_representation[] users = new User_representation[list_users_response.size() - 1];
+		for (int i = 1; i < list_users_response.size(); i++) {
+			users[i - 1] = new User_representation(list_users_response.getString(i));
+		}
+
+		return Arrays.stream(users).map(User_representation::toString).toArray(String[]::new);
 	}
 
 	/**

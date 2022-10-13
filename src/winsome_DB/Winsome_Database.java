@@ -1157,6 +1157,8 @@ public class Winsome_Database implements Winsome_DB_Interface {
 		 * 2. If the username is not found in the database, throw an exception.
 		 * 3. Get the users' interests.
 		 * 4. Get every username that has at least one interest in common with the user. (The user is not included in the list.)
+		 * 5. Remove every user that is already being followed by the user.
+		 * 6. For each username get the serialized representation of the user.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
@@ -1187,9 +1189,18 @@ public class Winsome_Database implements Winsome_DB_Interface {
 				similar_users.add(user);
 		}
 
+		// 5. Remove every user that is already being followed by the user.
+		String[] following = users.get(username).getFollowing().toArray(new String[0]);
+		Arrays.asList(following).forEach(similar_users::remove);
+
+		// 6. For each username get the serialized representation of the user.
+		String[] ret = similar_users.toArray(new String[0]);
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = users.get(ret[i]).representation().serialize();
+
 		users_R_lock.unlock();
 
-		return similar_users.toArray(new String[0]);
+		return ret;
 	}
 
 	/**

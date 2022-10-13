@@ -3,6 +3,7 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import winsome_comunication.User_representation;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,6 +152,11 @@ public class User_DB implements JSON_Serializable {
 	}
 	public void remove_post(String postID) {
 		this.posts.remove(postID);
+	}
+
+	// Representation
+	public User_representation representation() {
+		return new User_representation(this.username, this.tags);
 	}
 
 	@Override

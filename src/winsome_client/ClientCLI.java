@@ -50,18 +50,16 @@ public class ClientCLI {
 		System.out.println("< Command not recognized");
 	}
 	public static void printResponse(String response) {
-		System.out.println("<\t" + response);
+		printResponse(response.split("\n"));
 	}
 	public static void printResponse(String[] response) {
-		System.out.printf("< \t%s\n", response[0]);
-		for (int i = 1; i < response.length; i++) {
-			System.out.printf("..\t%s\n", response[i]);
+		for (String s : response) {
+			System.out.printf("<\t%s\n", s);
 		}
 	}
 	public static void printResponse(List<String> response) {
-		System.out.printf("< \t%s\n", response.get(0));
-		for (String s : response.subList(1, response.size())) {
-			System.out.printf("..\t%s\n", s);
+		for (String s : response) {
+			System.out.printf("<\t%s\n", s);
 		}
 	}
 	public static void printCommandPrompt() {
@@ -664,8 +662,8 @@ public class ClientCLI {
 		 *
 		 * register <username> <password> <tag> <tag> ... this command is used to register a new user
 		 *    to the system. The # of tags is limited to 5 but less than 5 is allowed.
-		 * login <username> <password> this command is used to login to the system.
-		 * logout this command is used to logout from the system.
+		 * login <username> <password> this command is used to log into the system.
+		 * logout this command is used to log out from the system.
 		 * list users this command is used to list all the users in the system that have at least
 		 *    one tag in common with the current user.
 		 * list following this command is used to list all the users that the current user is following.
@@ -689,7 +687,7 @@ public class ClientCLI {
 		 * Every other command will result in an error message.
 		 */
 
-		// promt the user to enter a command
+		// prompt the user to enter a command
 		System.out.print(client.isRewards_updated() ? "** " : "");
 		printCommandPrompt();
 

@@ -8,10 +8,10 @@ package winsome_comunication;
  */
 public class Post_representation_simple implements Win_Serializable {
 	// Member variables
-	private String title;
-	private String content;
-	private String author;
-	private String id;
+	protected String title;
+	protected String content;
+	protected String author;
+	protected String id;
 
 	// Constructor
 	public Post_representation_simple(String title, String content, String author, String id) {
@@ -78,10 +78,10 @@ public class Post_representation_simple implements Win_Serializable {
 		 * This method is used to get a pretty string representation of the post.
 		 *
 		 * the string representation is in the following format:
-		 * <id> | <title> by <author> : <content>
+		 * <id> | <author> | <title>
 		 */
 
-		return String.format("%s | %s by %s : %s", id, title, author, content);
+		return String.format("%-6s | %-10s | %-20s", this.id, this.author, this.title);
 	}
 
 	@Override

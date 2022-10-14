@@ -12,7 +12,7 @@ public class ClientMain {
 		// 1. create client
 		Client client = new Client("client_config.txt");
 
-		Runtime.getRuntime().addShutdownHook(new Client_shutdown_hook(client));
+		Runtime.getRuntime().addShutdownHook(new ClientSH(client));
 
 		// 2. start command line interface
 		client.start_CLI();

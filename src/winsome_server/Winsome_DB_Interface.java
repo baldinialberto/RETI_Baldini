@@ -1,10 +1,10 @@
 package winsome_server;
 
-import winsome_DB.Winsome_DB_Exception;
-import winsome_comunication.Comment_representation;
-import winsome_comunication.Post_representation_detailed;
+import winsome_DB.WinsomeDB_Exception;
+import winsome_comunication.CommentRepr;
+import winsome_comunication.PostReprDetailed;
 import winsome_comunication.Post_representation_simple;
-import winsome_comunication.Wallet_representation;
+import winsome_comunication.WalletRepr;
 
 /**
  * This interface is used by the Winsome Server to communicate with the Database.
@@ -56,86 +56,86 @@ public interface Winsome_DB_Interface {
 	 * @param username The username of the new user.
 	 * @param password The password of the new user.
 	 * @param tags The tags (interests) of the new user.
-	 * @throws Winsome_DB_Exception.UsernameAlreadyExists if the username already exists in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameAlreadyExists if the username already exists in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void create_user(String username, String password, String[] tags)
-			throws Winsome_DB_Exception.UsernameAlreadyExists, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameAlreadyExists, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method checks if a user's credentials are correct.
 	 * @param username The username of the user to check.
 	 * @param password The password of the user to check.
 	 * @return True if the credentials are correct, false otherwise.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	boolean check_credentials(String username, String password)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method makes a user follow another user.
 	 * @param username The username of the user that wants to follow.
 	 * @param username_to_follow The username of the user to follow.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.UsernameAlreadyFollows if the user already follows the user to follow.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.UsernameAlreadyFollows if the user already follows the user to follow.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void user_follows(String username, String username_to_follow)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.UsernameAlreadyFollows,
-			Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.UsernameAlreadyFollows,
+			WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method makes a user unfollow another user.
 	 * @param username The username of the user that wants to unfollow.
 	 * @param username_to_unfollow The username of the user to unfollow.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.UsernameNotFollowing if the user is not following the user to unfollow.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.UsernameNotFollowing if the user is not following the user to unfollow.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void user_unfollows(String username, String username_to_unfollow)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.UsernameNotFollowing,
-			Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.UsernameNotFollowing,
+			WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a user's followers list.
 	 * @param username The username of the user to get the followers.
 	 * @return An array of usernames of the followers.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	String[] get_user_followers(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a user's following list.
 	 * @param username The username of the user to get the following.
 	 * @return An array of usernames of the following.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	String[] get_user_following(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a user's wallet.
 	 * @param username The username of the user to get the wallet.
 	 * @return A Wallet_representation object with the wallet information.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Wallet_representation get_user_wallet(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+	WalletRepr get_user_wallet(String username)
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a user's posts.
 	 * @param username The username of the user to get the posts.
 	 * @return An array of Post_representation objects with the posts' information.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	Post_representation_simple[] get_user_posts(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	// POSTS //
 
@@ -144,75 +144,75 @@ public interface Winsome_DB_Interface {
 	 * @param author The username of the author of the post.
 	 * @param title The title of the post.
 	 * @param content The content of the post.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
-	 * @throws Winsome_DB_Exception.PostInvalidTitle if the title is invalid.
-	 * @throws Winsome_DB_Exception.PostInvalidContent if the content is invalid.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.PostInvalidTitle if the title is invalid.
+	 * @throws WinsomeDB_Exception.PostInvalidContent if the content is invalid.
 	 */
 	void create_post(String author, String title, String content)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized,
-			Winsome_DB_Exception.PostInvalidTitle, Winsome_DB_Exception.PostInvalidContent;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized,
+			WinsomeDB_Exception.PostInvalidTitle, WinsomeDB_Exception.PostInvalidContent;
 
 	/**
 	 * This method removes a post from the database.
 	 * @param username The username that wants to remove the post.
 	 * @param post_id The id of the post to remove.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotInBlog if the post is not owned by the user.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.PostNotInBlog if the post is not owned by the user.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void remove_post(String username, String post_id)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
-			Winsome_DB_Exception.PostNotInBlog, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound,
+			WinsomeDB_Exception.PostNotInBlog, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a post's rates.
 	 * @param post_id The id of the post to get the rates.
 	 * @return An array of booleans (true if the rate is like, false if it is dislike).
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	boolean[] get_post_rates(String post_id)
-			throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method gets a post's comments.
 	 * @param post_id The id of the post to get the comments.
 	 * @return An array of Comment_representation objects with the comments' information.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Comment_representation[] get_post_comments(String post_id)
-			throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+	CommentRepr[] get_post_comments(String post_id)
+			throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to like/dislike a post.
 	 * @param username The username of the user who wants to rate the post.
 	 * @param post_id The id of the post to rate.
 	 * @param rate The rate of the user to the post.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.PostAlreadyRated if the user has already rated the post.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.PostAlreadyRated if the user has already rated the post.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void rate_post(String username, String post_id, boolean rate)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
-			Winsome_DB_Exception.PostAlreadyRated, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound,
+			WinsomeDB_Exception.PostAlreadyRated, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to comment a post.
 	 * @param username The username of the user who wants to comment the post.
 	 * @param post_id The id of the post to comment.
 	 * @param comment The comment of the user to the post.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.PostCommentedByAuthor if the user is the author of the post.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.PostCommentedByAuthor if the user is the author of the post.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	void comment_on_post(String username, String post_id, String comment)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
-			Winsome_DB_Exception.PostCommentedByAuthor, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound,
+			WinsomeDB_Exception.PostCommentedByAuthor, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to rewin a post (post an already existing post in the user's blog).
@@ -221,28 +221,28 @@ public interface Winsome_DB_Interface {
 	 * @param postId The id of the post to rewin.
 	 */
 	void rewin_post(String username, String postId)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.PostNotFound,
-			Winsome_DB_Exception.PostAlreadyRewined, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound,
+			WinsomeDB_Exception.PostAlreadyRewined, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get a post's simple representation.
 	 * @param post_id The id of the post to get the representation.
 	 * @return A Post_representation_simple object with the post's information.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	Post_representation_simple get_post_simple(String post_id)
-			throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get a post's full representation.
 	 * @param post_id the id of the post to get the representation.
 	 * @return A Post_representation_detailed object with the post's information.
-	 * @throws Winsome_DB_Exception.PostNotFound if the post is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Post_representation_detailed get_post(String post_id)
-			throws Winsome_DB_Exception.PostNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+	PostReprDetailed get_post(String post_id)
+			throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	// GENERAL //
 
@@ -250,31 +250,31 @@ public interface Winsome_DB_Interface {
 	 * This method is used to get the posts of a user.
 	 * @param username The username of the user to get the posts.
 	 * @return An array of Post_representation_simple objects with the posts' information.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	Post_representation_simple[] get_user_blog(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get the posts of a user's feed.
 	 * @param username The username of the user to get the feed.
 	 * @return An array of Post_representation_simple objects with the posts' information.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	Post_representation_simple[] get_user_feed(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get the usernames of users with similar interests with the given user.
 	 * @param username The username of the user to get the similar users.
 	 * @return An array of strings with the usernames of the similar users.
-	 * @throws Winsome_DB_Exception.UsernameNotFound if the username is not found in the database.
-	 * @throws Winsome_DB_Exception.DatabaseNotInitialized if the database is not initialized.
+	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
+	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	String[] get_similar_users(String username)
-			throws Winsome_DB_Exception.UsernameNotFound, Winsome_DB_Exception.DatabaseNotInitialized;
+			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	// GLOBAL //
 

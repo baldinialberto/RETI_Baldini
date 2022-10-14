@@ -2,8 +2,8 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.Transaction_representation;
-import winsome_comunication.Wallet_representation;
+import winsome_comunication.TransactionRepr;
+import winsome_comunication.WalletRepr;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class WalletDB implements JSON_Serializable {
 	// Member variables
 	private String username;
 	private double balance;
-	private List<Transaction_DB> transactions;
+	private List<TransactionDB> transactions;
 
 	// Constructors
 
@@ -73,7 +73,7 @@ public class WalletDB implements JSON_Serializable {
 	public double getBalance() {
 		return this.balance;
 	}
-	public List<Transaction_DB> getTransactions() {
+	public List<TransactionDB> getTransactions() {
 		return this.transactions;
 	}
 
@@ -84,12 +84,12 @@ public class WalletDB implements JSON_Serializable {
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
-	public void setTransactions(List<Transaction_DB> transactions) {
+	public void setTransactions(List<TransactionDB> transactions) {
 		this.transactions = transactions;
 	}
 
 	// Adders
-	public void add_transaction(Transaction_DB transaction) {
+	public void add_transaction(TransactionDB transaction) {
 		/*
 		 * This method is used to add a transaction to the list of transactions.
 		 *
@@ -105,7 +105,7 @@ public class WalletDB implements JSON_Serializable {
 	}
 
 	// Representation
-	public Wallet_representation representation() {
+	public WalletRepr representation() {
 		/*
 		 * This method is used to convert a Wallet object to a Wallet_simple object.
 		 *
@@ -114,12 +114,12 @@ public class WalletDB implements JSON_Serializable {
 		 */
 
 		// 1. Create a List of Wallet_Transition_simple objects from the list of transactions.
-		List<Transaction_representation> transactions_simple = new ArrayList<>();
-		for (Transaction_DB transaction : this.transactions) {
+		List<TransactionRepr> transactions_simple = new ArrayList<>();
+		for (TransactionDB transaction : this.transactions) {
 			transactions_simple.add(transaction.representation());
 		}
 
 		// 2. Return a new Wallet_simple object.
-		return new Wallet_representation(this.balance, transactions_simple);
+		return new WalletRepr(this.balance, transactions_simple);
 	}
 }

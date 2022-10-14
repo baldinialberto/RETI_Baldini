@@ -31,6 +31,19 @@
     "following" : [ "paperino" ],
     "followers" : [ ]
   },
+  "paperone" : {
+    "username" : "paperone",
+    "password" : "paperone00",
+    "tags" : [ "disney", "soldi" ],
+    "wallet" : {
+      "username" : "paperone",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ "paperino" ],
+    "followers" : [ ]
+  },
   "pippo" : {
     "username" : "pippo",
     "password" : "pippo00",
@@ -79,6 +92,6 @@
     },
     "posts" : [ "0", "1", "2" ],
     "following" : [ "topolino" ],
-    "followers" : [ "topolino", "pluto", "pippo" ]
+    "followers" : [ "topolino", "pluto", "paperone", "pippo" ]
   }
 }

@@ -1,9 +1,9 @@
 package winsome_client;
 
 import winsome_DB.RateDB;
-import winsome_comunication.Post_representation_detailed;
+import winsome_comunication.PostReprDetailed;
 import winsome_comunication.Post_representation_simple;
-import winsome_comunication.Wallet_representation;
+import winsome_comunication.WalletRepr;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -428,7 +428,7 @@ public class ClientCLI {
 		// 2. call the show_post method of the client
 		String post_id = args.get(0);
 		try {
-			Post_representation_detailed post = client.showPost(post_id);
+			PostReprDetailed post = client.showPost(post_id);
 			// 3. print the result
 			if (post != null) {
 				printResponse(post.toString());
@@ -574,7 +574,7 @@ public class ClientCLI {
 
 		// 1. call the wallet method of the client
 		try{
-			Wallet_representation wallet = client.getWallet();
+			WalletRepr wallet = client.getWallet();
 			// 2. print the result
 			printResponse(wallet.toString());
 

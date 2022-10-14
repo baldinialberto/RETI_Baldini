@@ -15,15 +15,22 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class is used to represent the client
+ * uses a TCP connection to communicate with the server
+ * uses an RMI connection to receive updates from the server
+ *  and to register a new user
+ * listens at a Multicast address to receive updates from the server
+ */
 public class Client {
 	// Member variables
 	SocketChannel socket_channel;
-	Winsome_Server_Sender sender;
+	WinsomeServerSender sender;
 	private final ClientCLI c_interface;
-	private final Client_properties properties;
-	private Server_RMI_Interface server_rmi_interface;
-	private Client_RMI_Imp client_rmi;
-	private Client_RMI_Interface client_rmi_stub;
+	private final ClientProperties properties;
+	private ServerRMI_Interface server_rmi_interface;
+	private ClientRMI_Imp client_rmi;
+	private ClientRMI_Interface client_rmi_stub;
 	private LocalUser user;
 	private boolean _on = false;
 	private boolean connected = false;
@@ -33,10 +40,13 @@ public class Client {
 	private String multicast_address;
 	private String multicast_network_name;
 
-	private Client_notification_Thread notification_thread;
+	private ClientNotificationThread notification_thread;
 
 	// Constructors
-	// Default constructor
+
+	/**
+	 * Default constructor
+	 */
 	public Client(String properties_filepath) {
 		/*
 		 * client constructor
@@ -49,7 +59,7 @@ public class Client {
 		 */
 
 		// 1. load server properties
-		properties = new Client_properties(properties_filepath);
+		properties = new ClientProperties(properties_filepath);
 
 		// 2. create client interface
 		c_interface = new ClientCLI(this);
@@ -57,42 +67,68 @@ public class Client {
 		// 3. connect to server's RMI
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
-			server_rmi_interface = (Server_RMI_Interface) r.lookup(properties.get_rmi_name());
+			server_rmi_interface = (ServerRMI_Interface) r.lookup(properties.get_rmi_name());
 
 			// 4. create client's RMI
-			client_rmi = new Client_RMI_Imp(this);
-			client_rmi_stub = (Client_RMI_Interface) UnicastRemoteObject.exportObject(client_rmi, 0);
+			client_rmi = new ClientRMI_Imp(this);
+			client_rmi_stub = (ClientRMI_Interface) UnicastRemoteObject.exportObject(client_rmi, 0);
 			_on = true;
 		} catch (Exception e) {
 			System.err.println("Client exception: " + e.getMessage());
 		}
 	}
 
+	// Methods
+
+	/**
+	 * This method is used to retrieve the client's current logged user
+	 */
 	public String get_username() {
 		return user.get_username();
 	}
 
+	/**
+	 * This method is used to get the current status of the client
+	 * @return true if the client is alive, false otherwise
+	 */
 	public boolean is_on() {
 		// DEBUG
 		return _on;
 	}
 
+	/**
+	 * This method start the Command Line Interface
+	 */
 	public void start_CLI() {
 		c_interface.exec();
 	}
 
+	/**
+	 * This method is used to notify the client that the server has sent a multicast message
+	 */
 	public void new_rewards_available() {
 		rewards_updated = true;
 	}
 
+	/**
+	 * This method is used to remove any pending notifications
+	 */
 	public void rewards_read() {
 		rewards_updated = false;
 	}
 
+	/**
+	 * This method is used to check if there are any pending notifications
+	 * @return true if there are pending notifications, false otherwise
+	 */
 	public boolean isRewards_updated() {
 		return rewards_updated;
 	}
 
+	/**
+	 * This method is used to connect to the server
+	 * @throws IOException if the connection fails
+	 */
 	private void connect() throws IOException {
 		/*
 		 * connect to server
@@ -105,13 +141,17 @@ public class Client {
 		try {
 			socket_channel = SocketChannel.open(
 					new InetSocketAddress(properties.get_server_address(), properties.get_tcp_port()));
-			sender = new Winsome_Server_Sender(socket_channel);
+			sender = new WinsomeServerSender(socket_channel);
 			connected = true;
 		} catch (IOException e) {
 			throw new IOException(e);
 		}
 	}
 
+	/**
+	 * This method is used to disconnect from the server
+	 * @throws IOException if the disconnection fails
+	 */
 	private void disconnect() throws IOException {
 		/*
 		 * disconnect from server
@@ -126,7 +166,7 @@ public class Client {
 
 		try {
 			sender.disconnect();
-		} catch (Winsome_Exception e) {
+		} catch (WinsomeException e) {
 			System.err.println(e.niceMessage());
 		}
 
@@ -181,10 +221,10 @@ public class Client {
 	 *
 	 * @param username the username of the user to login
 	 * @param password the password of the user to login
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void login(String username, String password)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * login to server
 		 *
@@ -196,14 +236,14 @@ public class Client {
 
 		// 1. if already logged, print error and return
 		if (logged) {
-			throw new Winsome_Exception_Generic("You are already logged in");
+			throw new WinsomeExceptionGeneric("You are already logged in");
 		}
 
 		// 2. connect to server
 		try {
 			connect();
 		} catch (IOException e) {
-			throw new Winsome_Exception_Generic("Cannot connect to server");
+			throw new WinsomeExceptionGeneric("Cannot connect to server");
 		}
 
 		// 3. login with username and password
@@ -215,16 +255,16 @@ public class Client {
 			logged = true;
 			rewards_read();
 		} catch (RemoteException e) {
-			throw new Winsome_Exception_Generic("Cannot connect to server");
+			throw new WinsomeExceptionGeneric("Cannot connect to server");
 		}
 	}
 
 	/**
 	 * Effettua il logout dell’utente dal servizio. Corrisponde al comando logout.
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void logout()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * logout from server
 		 *
@@ -238,12 +278,12 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. logout
@@ -258,7 +298,7 @@ public class Client {
 			user = null;
 			rewards_read();
 		} catch (IOException e) {
-			throw new Winsome_Exception_Generic("Cannot disconnect from server");
+			throw new WinsomeExceptionGeneric("Cannot disconnect from server");
 		}
 	}
 
@@ -270,10 +310,10 @@ public class Client {
 	 *
 	 * @return the list of users with at least one tag in common with the user
 	 * if the operation is successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public List<String> listUsers()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * list users
 		 *
@@ -284,12 +324,12 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. get list of users
@@ -308,10 +348,10 @@ public class Client {
 	 * comando list followers.
 	 *
 	 * @return the list of followers if the user is logged, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public List<String> listFollowers()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * list followers
 		 *
@@ -322,11 +362,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. Return the list of followers
@@ -338,10 +378,10 @@ public class Client {
 	 * follower. Questo metodo è corrispondente al comando list following.
 	 *
 	 * @return the list of following if the operation is successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public List<String> listFollowing()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * list following
 		 *
@@ -352,11 +392,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. Return the list of following
@@ -369,10 +409,10 @@ public class Client {
 	 * associato è follow <username>.
 	 *
 	 * @param idUser the id of the user to follow
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void followUser(String idUser)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * follow user
 		 *
@@ -383,11 +423,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. follow user
@@ -399,10 +439,10 @@ public class Client {
 	 * comando associato è unfollow <username>.
 	 *
 	 * @param idUser the id of the user to unfollow
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void unfollowUser(String idUser)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * unfollow user
 		 *
@@ -413,11 +453,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. unfollow user
@@ -431,10 +471,10 @@ public class Client {
 	 * blog.
 	 *
 	 * @return the list of posts of the user's blog if successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public List<Post_representation_simple> viewBlog()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * view blog
 		 *
@@ -445,11 +485,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. Return the list of posts
@@ -467,10 +507,10 @@ public class Client {
 	 *
 	 * @param titolo    the title of the post
 	 * @param contenuto the content of the post
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void createPost(String titolo, String contenuto)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * create post
 		 *
@@ -481,11 +521,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. create post
@@ -498,10 +538,10 @@ public class Client {
 	 * titolo del post. La funzione viene attivata mediante il comando show feed.
 	 *
 	 * @return the list of posts in the user's feed if successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public List<Post_representation_simple> showFeed()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * show feed
 		 *
@@ -512,11 +552,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. Return the list of posts
@@ -534,10 +574,10 @@ public class Client {
 	 *
 	 * @param idPost the id of the post
 	 * @return the post representation if successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
-	public Post_representation_detailed showPost(String idPost)
-			throws Winsome_Exception {
+	public PostReprDetailed showPost(String idPost)
+			throws WinsomeException {
 		/*
 		 * show post
 		 *
@@ -548,11 +588,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. Return the post
@@ -569,10 +609,10 @@ public class Client {
 	 * Il comando corrispondente alla cancellazione è delete <idPost>.
 	 *
 	 * @param idPost the id of the post to delete
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void deletePost(String idPost)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * delete post
 		 *
@@ -583,11 +623,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. delete post
@@ -600,10 +640,10 @@ public class Client {
 	 * mediante il comando rewin <idPost>.
 	 *
 	 * @param idPost the id of the post to rewin
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void rewinPost(String idPost)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * rewin post
 		 *
@@ -614,11 +654,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. rewin post
@@ -636,10 +676,10 @@ public class Client {
 	 *
 	 * @param idPost the id of the post to rate
 	 * @param voto   the rate to assign
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void ratePost(String idPost, boolean voto)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * rate post
 		 *
@@ -650,11 +690,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. rate post
@@ -671,10 +711,10 @@ public class Client {
 	 *
 	 * @param idPost  the id of the post to comment
 	 * @param comment the comment to add
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public void addComment(String idPost, String comment)
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * add comment
 		 *
@@ -685,11 +725,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. add comment
@@ -703,10 +743,10 @@ public class Client {
 	 *
 	 * @return the Wallet_representation of the user's wallet if the operation is
 	 * successful, null otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
-	public Wallet_representation getWallet()
-			throws Winsome_Exception {
+	public WalletRepr getWallet()
+			throws WinsomeException {
 		/*
 		 * get wallet
 		 *
@@ -717,15 +757,15 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. get wallet
-		Wallet_representation wallet = sender.wallet();
+		WalletRepr wallet = sender.wallet();
 		this.rewards_read();
 		return wallet;
 	}
@@ -738,10 +778,10 @@ public class Client {
 	 * wallet btc.
 	 *
 	 * @return the value of the user's wallet in bitcoin if successful, -1 otherwise
-	 * @throws Winsome_Exception if the operation is not successful
+	 * @throws WinsomeException if the operation is not successful
 	 */
 	public double getWalletInBitcoin()
-			throws Winsome_Exception {
+			throws WinsomeException {
 		/*
 		 * get wallet in bitcoin
 		 *
@@ -752,11 +792,11 @@ public class Client {
 
 		// 1. if not logged, print error and return
 		if (!logged) {
-			throw new Winsome_Exception_Generic("You are not logged in");
+			throw new WinsomeExceptionGeneric("You are not logged in");
 		}
 		// 2. if not connected, print error and return
 		if (!connected) {
-			throw new Winsome_Exception_Generic("You are not connected to server");
+			throw new WinsomeExceptionGeneric("You are not connected to server");
 		}
 
 		// 3. get wallet in bitcoin
@@ -765,6 +805,9 @@ public class Client {
 		return wallet_btc;
 	}
 
+	/**
+	 * This method is used to exit the application.
+	 */
 	public void exit() {
 
 		try {
@@ -776,11 +819,17 @@ public class Client {
 
 		try {
 			logout();
-		} catch (Winsome_Exception ignored) {
+		} catch (WinsomeException ignored) {
 		}
 		_on = false;
 	}
 
+	/**
+	 * This method is usually called by the server to notify the client that a new
+	 * follower has been added.
+	 * @param username the username of the new follower
+	 * @return 0 if the operation is successful, -1 otherwise
+	 */
 	public int add_follower(String username) {
 		/*
 		 * this method is used to add a follower to the local user
@@ -799,6 +848,11 @@ public class Client {
 		}
 	}
 
+	/**
+	 * This method is usually called by the server when the client logs into
+	 * @param followers the list of followers of the user
+	 * @return 0 if the operation is successful, -1 otherwise
+	 */
 	public int addAll_followers(String[] followers) {
 		/*
 		 * this method is used to add a list of followers to the local user
@@ -818,6 +872,13 @@ public class Client {
 		return 0;
 	}
 
+	/**
+	 * This method is usually called by the server to set the multicast address, port and group
+	 * @param ip the multicast address
+	 * @param port the multicast port
+	 * @param network_name the multicast group
+	 * @return 0 if the operation is successful, -1 otherwise
+	 */
 	public int set_multicast(String ip, int port, String network_name) {
 		/*
 		 * this method is used to set the multicast ip, port and network name
@@ -833,13 +894,19 @@ public class Client {
 		this.multicast_network_name = network_name;
 
 		// DEBUG
-//		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
-//				" multicast_port: " + multicast_port +
-//				" multicast_network_name: " + multicast_network_name);
+		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
+				" multicast_port: " + multicast_port +
+				" multicast_network_name: " + multicast_network_name);
 
 		return 0;
 	}
 
+	/**
+	 * This method is usually called by the server to notify the client that an
+	 * user has been removed from the list of followers
+	 * @param username the username of the removed follower
+	 * @return 0 if the operation is successful, -1 otherwise
+	 */
 	public int remove_follower(String username) {
 		/*
 		 * this method is used to remove a follower from the local user
@@ -858,14 +925,26 @@ public class Client {
 		}
 	}
 
+	/**
+	 * This method returns the multicast port
+	 * @return the multicast port
+	 */
 	public int getMulticast_port() {
 		return multicast_port;
 	}
 
+	/**
+	 * This method returns the multicast group
+	 * @return the name of the multicast group
+	 */
 	public String getNetwork_interface() {
 		return multicast_network_name;
 	}
 
+	/**
+	 * This method returns the multicast address
+	 * @return the multicast address
+	 */
 	public InetAddress getMulticast_address() {
 		try {
 			return InetAddress.getByName(multicast_address);
@@ -874,6 +953,9 @@ public class Client {
 		}
 	}
 
+	/**
+	 * This method is used to start the Notification Thread
+	 */
 	public void start_notification_thread() {
 		/*
 		 * this method is used to start the reward thread
@@ -882,10 +964,13 @@ public class Client {
 		 */
 
 		// 1. start the reward thread
-		notification_thread = new Client_notification_Thread(this);
+		notification_thread = new ClientNotificationThread(this);
 		notification_thread.start();
 	}
 
+	/**
+	 * This method is used to stop the Notification Thread
+	 */
 	public void stop_notification_thread() {
 		/*
 		 * this method is used to stop the reward thread

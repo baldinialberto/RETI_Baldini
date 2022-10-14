@@ -6,7 +6,7 @@ package winsome_comunication;
  * The post is serializable and can be sent over the network.
  * The post is also deserializable and can be created from a string.
  */
-public class Post_representation_simple implements Win_Serializable {
+public class Post_representation_simple implements WinSerializable {
 	// Member variables
 	protected String title;
 	protected String content;

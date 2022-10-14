@@ -2,7 +2,7 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.Comment_representation;
+import winsome_comunication.CommentRepr;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class Comment_DB extends User_interaction {
 	}
 
 	// Representation
-	public Comment_representation representation() {
+	public CommentRepr representation() {
 		/*
 		 * This method is used to get a Comment_simple object from this Comment object.
 		 *
@@ -81,7 +81,7 @@ public class Comment_DB extends User_interaction {
 		 */
 
 		// 1. Create a new Comment_simple object.
-		return new Comment_representation(this.author, this.comment,
+		return new CommentRepr(this.author, this.comment,
 				new SimpleDateFormat("yyyy-MM-dd HH:mm").format(this.time_created));
 	}
 }

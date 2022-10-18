@@ -16,11 +16,10 @@ public class ClientProperties {
 	 * the properties:
 	 * 1. SERVER=<server_address> (default: localhost)
 	 * 2. TCP_PORT=<tcp_port> (default: 8080)
-	 * 3. UDP_PORT=<udp_port> (default: 8070)
-	 * 4. REGISTRY_PORT=<registry_port> (default: 1099)
-	 * 5. RMI_NAME=<rmi_name> (default: Server_registration_RMI)
-	 * 6. MULTICAST_ADDRESS=<multicast_address> (no default value)
-	 * 7. MULTICAST_PORT=<multicast_port> (default: 8000)
+	 * 3. REGISTRY_PORT=<registry_port> (default: 1099)
+	 * 4. RMI_NAME=<rmi_name> (default: Server_registration_RMI)
+	 * 5. MULTICAST_ADDRESS=<multicast_address> (default: 224.0.1.1)
+	 * 6. MULTICAST_PORT=<multicast_port> (default: 8000)
 	 */
 
 	// members
@@ -47,13 +46,6 @@ public class ClientProperties {
 		return Integer.parseInt(this.properties.getOrDefault("TCP_PORT", "8080"));
 	}
 
-	public int get_udp_port() {
-		/*
-		 * return the udp port if it exists, otherwise return the default value
-		 */
-		return Integer.parseInt(this.properties.getOrDefault("UDP_PORT", "8070"));
-	}
-
 	public int get_registry_port() {
 		/*
 		 * return the registry port if it exists, otherwise return the default value
@@ -72,7 +64,7 @@ public class ClientProperties {
 		/*
 		 * return the multicast address if it exists, otherwise return the default value
 		 */
-		return this.properties.getOrDefault("MULTICAST_ADDRESS", "NO_MULTICAST_ADDRESS");
+		return this.properties.getOrDefault("MULTICAST_ADDRESS", "224.0.1.1");
 	}
 
 	public int get_multicast_port() {

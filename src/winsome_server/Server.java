@@ -136,6 +136,9 @@ public class Server {
 		 * 2. Close the server socket channel
 		 */
 
+		int seconds = 0;
+		int max_seconds = 10;
+
 		// 1. Loop
 		while (true) {
 			// 1.1. Wait for a new connection or a new request
@@ -151,6 +154,18 @@ public class Server {
 
 			Set<SelectionKey> ready_keys = selector.selectedKeys();
 			Iterator<SelectionKey> iterator = ready_keys.iterator();
+
+			// if there are no ready keys
+			if (!iterator.hasNext()) {
+				// increment the seconds counter and check if it is greater than the max seconds
+				if (++seconds > max_seconds) {
+					// if it is, close the server
+					break;
+				}
+			} else {
+				// if there are ready keys, reset the seconds counter
+				seconds = 0;
+			}
 
 			while (iterator.hasNext()) {
 				SelectionKey key = iterator.next();
@@ -220,12 +235,8 @@ public class Server {
 			}
 		}
 
-		// 2. Close the server socket channel
-		try {
-			this.server_socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// 2. Close the server
+		this.close();
 	}
 
 	// Client Interactions

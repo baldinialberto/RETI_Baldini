@@ -59,17 +59,6 @@ public class ServerProperties {
 		}
 	}
 
-	public int get_udp_port() {
-		/*
-		 * return the udp port if it exists, otherwise return the default value
-		 */
-		if (this.properties.containsKey("UDP_PORT")) {
-			return Integer.parseInt(this.properties.get("UDP_PORT"));
-		} else {
-			return 8070;
-		}
-	}
-
 	public int get_registry_port() {
 		/*
 		 * return the registry port if it exists, otherwise return the default value
@@ -208,12 +197,12 @@ public class ServerProperties {
 
 		// set the default values
 		properties.put("TCP_PORT", "8080");
-		properties.put("UDP_PORT", "8070");
 		properties.put("REGISTRY_PORT", "1099");
 		properties.put("USERS_DATABASE", "users_backup.json");
 		properties.put("POSTS_DATABASE", "posts_backup.json");
 		properties.put("RMI_NAME", "Server_registration_RMI");
 		properties.put("MULTICAST_PORT", "8000");
+		properties.put("MULTICAST_ADDRESS", "224.0.1.1");
 		properties.put("REWARD_TIME", "10");
 		properties.put("WORKERS", "10");
 
@@ -254,9 +243,8 @@ public class ServerProperties {
 			// write the properties
 			for (String key : properties.keySet()) {
 				// skip the properties that are not used by the client
-				if (key.equals("USERS_BACKUP") ||
-						key.equals("FILES_BACKUP") ||
-						key.equals("TIME_OUT")) {
+				if (key.equals("POSTS_DATABASE") || key.equals("USERS_DATABASE") ||
+					key.equals("WORKERS") || key.equals("REWARD_TIME")) {
 					continue;
 				}
 

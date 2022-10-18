@@ -1302,6 +1302,12 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 
 		// 2. Interrupt the thread that saves the database.
 		thread.mustStop();
+		try {
+			thread.join(1000);
+		} catch (InterruptedException ignored) {
+		}
+		// DEBUG
+		System.out.println("Thread stopped.");
 
 		// 3. Save the database.
 		try {
@@ -1314,5 +1320,8 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		lock_both_W();
 		initialized = false;
 		unlock_both_W();
+
+		// DEBUG
+		System.out.println("Database closed.");
 	}
 }

@@ -11,6 +11,7 @@ public class ClientNotificationThread extends Thread {
 	private MulticastSocket multicast_socket;
 
 	public ClientNotificationThread(Client client) {
+		this.setDaemon(true);
 		this.client = client;
 	}
 

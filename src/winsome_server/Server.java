@@ -35,6 +35,9 @@ public class Server {
 	// Server socket and selector
 	private ServerSocketChannel server_socket;
 	private Selector selector;
+	ServerRMI_Imp server_rmi;
+
+	boolean is_running = true;
 
 	// constructor
 	public Server(String serverProperties_configFile, String clientProperties_configFile) {
@@ -94,7 +97,7 @@ public class Server {
 			// 5. Create a new udp server socket
 
 			// 6. Create a new server RMI object and bind it to the registry
-			ServerRMI_Imp server_rmi = new ServerRMI_Imp(this);
+			server_rmi = new ServerRMI_Imp(this);
 			ServerRMI_Interface stub = (ServerRMI_Interface) UnicastRemoteObject.exportObject(server_rmi, 0);
 			LocateRegistry.createRegistry(this.properties.get_registry_port());
 			Registry registry = LocateRegistry.getRegistry(this.properties.get_registry_port());
@@ -900,14 +903,29 @@ public class Server {
 	}
 
 	public void close() {
+		if (!is_running) {
+			return;
+		}
 		try {
 			this.workers_thread_poll.shutdown();
 			this.workers_thread_poll.awaitTermination(1, TimeUnit.MINUTES);
+			// DEBUG
+			System.out.println("All workers terminated");
+
 			interrupt_rewards_thread();
+			// DEBUG
+			System.out.println("Rewards thread terminated");
+
 			this.server_db.close();
 			this.server_socket.close();
+
+			UnicastRemoteObject.unexportObject(this.server_rmi, true);
+			// DEBUG
+			System.out.println("RMI unexported");
+
 		} catch (IOException | InterruptedException e) {
-			throw new RuntimeException(e);
+			System.err.println(e.getMessage());
 		}
+		is_running = false;
 	}
 }

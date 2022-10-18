@@ -28,6 +28,7 @@ public class Server_Rewards_Thread extends Thread {
 
 	// constructor
 	public Server_Rewards_Thread(Server server, int minutes_to_reward) {
+		this.setDaemon(true);
 		this.server = server;
 		this.minutes_to_reward = minutes_to_reward;
 
@@ -58,7 +59,7 @@ public class Server_Rewards_Thread extends Thread {
 		lock.lock();
 
 		// 1. While the thread is running.
-		while (this.isAlive()) {
+		while (!this.isInterrupted()) {
 			// 2. Save the current time.
 			long start_time = System.currentTimeMillis();
 
@@ -86,6 +87,9 @@ public class Server_Rewards_Thread extends Thread {
 		}
 
 		lock.unlock();
+
+		//DEBUG
+		System.out.println("Rewards thread stopped.");
 	}
 
 	/**

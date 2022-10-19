@@ -158,8 +158,8 @@ public class Server {
 			Set<SelectionKey> ready_keys = selector.selectedKeys();
 			Iterator<SelectionKey> iterator = ready_keys.iterator();
 
-			// if there are no ready keys
-			if (!iterator.hasNext()) {
+			// if there are no clients connected, increase the seconds counter
+			if (!iterator.hasNext() && selector.keys().size() == 1) {
 				// increment the seconds counter and check if it is greater than the max seconds
 				if (++seconds > max_seconds) {
 					// if it is, close the server
@@ -835,7 +835,7 @@ public class Server {
 
 		double btc;
 		try {
-			btc = Double.parseDouble(response.toString());
+			btc = Double.parseDouble(response.toString())/1000;
 		} catch (NumberFormatException e) {
 			btc = 0;
 		}

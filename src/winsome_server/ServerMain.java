@@ -7,5 +7,7 @@ public class ServerMain {
 		Runtime.getRuntime().addShutdownHook(new ServerSH(s));
 
 		s.server_welcome_service();
+
+		System.out.println("Server shutdown");
 	}
 }

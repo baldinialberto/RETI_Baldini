@@ -14,9 +14,9 @@
         "value" : 0.5545177444479562
       } ]
     },
-    "posts" : [ "3" ],
-    "following" : [ "paperino" ],
-    "followers" : [ "paperino", "pippo" ]
+    "posts" : [ "3", "5" ],
+    "following" : [ "topolino", "pluto", "paperino" ],
+    "followers" : [ "topolino", "paperino", "pippo" ]
   },
   "pluto" : {
     "username" : "pluto",
@@ -29,7 +29,7 @@
     },
     "posts" : [ ],
     "following" : [ "paperino" ],
-    "followers" : [ ]
+    "followers" : [ "topolino" ]
   },
   "paperone" : {
     "username" : "paperone",

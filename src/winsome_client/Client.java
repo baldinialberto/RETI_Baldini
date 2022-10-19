@@ -889,12 +889,6 @@ public class Client {
 		this.multicast_address = ip;
 		this.multicast_port = port;
 		this.multicast_network_name = network_name;
-
-		// DEBUG
-		System.out.println("Client:set_multicast() - multicast_address: " + multicast_address +
-				" multicast_port: " + multicast_port +
-				" multicast_network_name: " + multicast_network_name);
-
 	}
 
 	/**

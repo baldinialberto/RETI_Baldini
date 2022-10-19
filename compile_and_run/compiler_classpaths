@@ -1,0 +1,1 @@
+../lib/jackson-databind-2.9.7.jar:../lib/jackson-core-2.9.7.jar:../lib/jackson-annotations-2.9.7.jar:../src/winsome_client/*:../src/winsome_comunication/*:../src/winsome_server/*:../src/winsome_DB/*

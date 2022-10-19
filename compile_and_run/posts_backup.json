@@ -78,7 +78,18 @@
       "rates" : [ ],
       "n_rewards" : 0,
       "time_last_reward" : 1665646997754
+    },
+    "5" : {
+      "author" : "topolino",
+      "time_created" : 1666186840244,
+      "id" : "5",
+      "title" : "il mio ultimo post.",
+      "text" : "Addio mondo crudele",
+      "comments" : [ ],
+      "rates" : [ ],
+      "n_rewards" : 0,
+      "time_last_reward" : 1666186840244
     }
   },
-  "last_post_id" : "4"
+  "last_post_id" : "5"
 }

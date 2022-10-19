@@ -345,16 +345,17 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public void user_follows(String username, String username_to_follow) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.UsernameAlreadyFollows, WinsomeDB_Exception.DatabaseNotInitialized {
+	public void user_follows(String username, String username_to_follow) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.UsernameAlreadyFollows, WinsomeDB_Exception.DatabaseNotInitialized, WinsomeDB_Exception.UsernameFollowItself {
 		/*
 		 * This method makes a user follow another user.
 		 *
 		 * 1. If the database is not initialized, throw an exception.
 		 * 2. If the username is not found in the database, throw an exception.
 		 * 3. If the user already follows the user to follow, throw an exception.
-		 * 4. Make the user follow the user to follow.
-		 * 5. Add the user to the <username_to_follow> followers.
-		 * 6. Dirty the users backup.
+		 * 4. If the user to follow is the user, throw an exception.
+		 * 5. Make the user follow the user to follow.
+		 * 6. Add the user to the <username_to_follow> followers.
+		 * 7. Dirty the users backup.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
@@ -374,13 +375,19 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 			throw new WinsomeDB_Exception.UsernameAlreadyFollows(username, username_to_follow);
 		}
 
-		// 4. Make the user follow the user to follow.
+		// 4. If the user to follow is the user, throw an exception.
+		if (username.equals(username_to_follow)) {
+			users_W_lock.unlock();
+			throw new WinsomeDB_Exception.UsernameFollowItself(username);
+		}
+
+		// 5. Make the user follow the user to follow.
 		users.get(username).getFollowing().add(username_to_follow);
 
-		// 5. Add the user to the <username_to_follow> followers.
+		// 6. Add the user to the <username_to_follow> followers.
 		users.get(username_to_follow).getFollowers().add(username);
 
-		// 6. Dirty the users backup.
+		// 7. Dirty the users backup.
 		users_backup_valid = false;
 
 		users_W_lock.unlock();
@@ -794,7 +801,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public void rate_post(String username, String post_id, boolean rate) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.PostAlreadyRated, WinsomeDB_Exception.DatabaseNotInitialized {
+	public void rate_post(String username, String post_id, boolean rate) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.PostAlreadyRated, WinsomeDB_Exception.DatabaseNotInitialized, WinsomeDB_Exception.PostRatedByAuthor {
 		/*
 		 * This method is used to like/dislike a post.
 		 *
@@ -802,8 +809,9 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		 * 2. If the username is not found in the database, throw an exception.
 		 * 3. If the post is not found in the database, throw an exception.
 		 * 4. If the user has already rated the post, throw an exception.
-		 * 5. Add the rate to the post.
-		 * 6. Dirty the posts backup.
+		 * 5. If the user is the author of the post, throw an exception.
+		 * 6. Add the rate to the post.
+		 * 7. Dirty the posts backup.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
@@ -833,14 +841,20 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 			}
 		}
 
+		// 5. If the user is the author of the post, throw an exception.
+		if (posts.getPosts().get(post_id).getAuthor().equals(username)) {
+			unlock_both_R();
+			throw new WinsomeDB_Exception.PostRatedByAuthor(username, post_id);
+		}
+
 		unlock_both_R();
 
 		lock_both_W();
 
-		// 5. Add the rate to the post.
+		// 6. Add the rate to the post.
 		posts.getPosts().get(post_id).addVote(new RateDB(username, rate));
 
-		// 6. Dirty the posts backup.
+		// 7. Dirty the posts backup.
 		posts_backup_valid = false;
 
 		unlock_both_W();

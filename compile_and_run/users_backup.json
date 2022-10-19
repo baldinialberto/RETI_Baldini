@@ -15,8 +15,8 @@
       } ]
     },
     "posts" : [ "3", "5" ],
-    "following" : [ "topolino", "pluto", "paperino" ],
-    "followers" : [ "topolino", "paperino", "pippo" ]
+    "following" : [ "pluto", "paperino" ],
+    "followers" : [ "paperino", "pippo" ]
   },
   "pluto" : {
     "username" : "pluto",

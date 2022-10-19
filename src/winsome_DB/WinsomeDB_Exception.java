@@ -262,4 +262,36 @@ public class WinsomeDB_Exception {
 	}
 
 
+	public static class UsernameFollowItself extends WinsomeException {
+		private final String username;
+		public UsernameFollowItself(String username) {
+			this.username = username;
+		}
+		@Override
+		public String getMessage() {
+			return "WinSome 17 : " + username + " cannot follow itself";
+		}
+		public String niceMessage() {
+			return "You cannot follow yourself";
+		}
+	}
+
+	public static class PostRatedByAuthor extends WinsomeException {
+		private final String username;
+		private final String postId;
+
+		public PostRatedByAuthor(String username, String postId) {
+			this.username = username;
+			this.postId = postId;
+		}
+
+		@Override
+		public String getMessage() {
+			return "WinSome 18 : " + username + " cannot rate its own post (" + postId + ")";
+		}
+
+		public String niceMessage() {
+			return "You cannot rate your own post";
+		}
+	}
 }

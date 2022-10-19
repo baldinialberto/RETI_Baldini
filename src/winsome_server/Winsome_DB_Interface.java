@@ -83,7 +83,7 @@ public interface Winsome_DB_Interface {
 	 */
 	void user_follows(String username, String username_to_follow)
 			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.UsernameAlreadyFollows,
-			WinsomeDB_Exception.DatabaseNotInitialized;
+			WinsomeDB_Exception.DatabaseNotInitialized, WinsomeDB_Exception.UsernameFollowItself;
 
 	/**
 	 * This method makes a user unfollow another user.
@@ -198,7 +198,7 @@ public interface Winsome_DB_Interface {
 	 */
 	void rate_post(String username, String post_id, boolean rate)
 			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.PostNotFound,
-			WinsomeDB_Exception.PostAlreadyRated, WinsomeDB_Exception.DatabaseNotInitialized;
+			WinsomeDB_Exception.PostAlreadyRated, WinsomeDB_Exception.DatabaseNotInitialized, WinsomeDB_Exception.PostRatedByAuthor;
 
 	/**
 	 * This method is used to comment a post.

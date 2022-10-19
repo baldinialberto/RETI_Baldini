@@ -16,7 +16,7 @@ clean:
 	rm -rf $(BUILD_PATH)
 
 run_server:
-	java -cp @classpaths_server winsome_server.ServerMain &> $(BUILD_PATH)/server.log &
+	java -cp @classpaths_server winsome_server.ServerMain &> server.log &
 
 run_client:
 	java -cp @classpaths_client winsome_client.ClientMain

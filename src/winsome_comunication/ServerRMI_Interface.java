@@ -20,10 +20,7 @@ public interface ServerRMI_Interface extends Remote {
 	 * @param password the password of the user to be registered
 	 * @param tags     an array of tags that the user is interested in
 	 * @return the result of the registration
-	 * @throws java.rmi.RemoteException
-	 * @author Winsome
-	 * @version 1.0
-	 * @since 1.0
+	 * @throws java.rmi.RemoteException if RMI fails
 	 */
 	String register_user(String username, String password, String[] tags) throws java.rmi.RemoteException;
 
@@ -33,11 +30,10 @@ public interface ServerRMI_Interface extends Remote {
 	 *
 	 * @param callback the callback object that will be used to send updates to the client
 	 *                 the callback object must implement the ClientInterface interface
-	 * @return a boolean value to indicate if the registration was successful or not
 	 * @throws java.rmi.RemoteException
 	 * @author Winsome
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	int receive_updates(ClientRMI_Interface callback, String username) throws java.rmi.RemoteException;
+	void receive_updates(ClientRMI_Interface callback, String username) throws java.rmi.RemoteException;
 }

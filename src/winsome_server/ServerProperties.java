@@ -23,6 +23,8 @@ public class ServerProperties {
 	 * 9. MULTICAST_PORT=<multicast_port> (default: 8000)
 	 * 10. REWARD_TIME=<reward_time> (default: 10)
 	 * 11. WORKERS=<number of worker threads> (default: 10)
+	 * 12. REWARD_AUTHORS=<reward for authors> (default: 0.7)
+	 * 13. SERVER_TIMEOUT=<server timeout in sec> (default: 10)
 	 *
 	 * the properties are stored in a HashMap<String, String>
 	 *
@@ -98,9 +100,7 @@ public class ServerProperties {
 		return this.properties.getOrDefault("MULTICAST_ADDRESS", "224.0.1.1");
 	}
 
-	public void set_multicast_address(String multicast_address) {
-		properties.put("MULTICAST_ADDRESS", multicast_address);
-	}
+
 
 	public int get_multicast_port() {
 		/*
@@ -135,9 +135,41 @@ public class ServerProperties {
 		}
 	}
 
+	public double get_reward_authors() {
+		/*
+		 * return the reward for authors if it exists, otherwise return the default value
+		 */
+		if (this.properties.containsKey("REWARD_AUTHORS")) {
+			if (Double.parseDouble(this.properties.get("REWARD_AUTHORS")) > 1) {
+				return 0.7;
+			} else if (Double.parseDouble(this.properties.get("REWARD_AUTHORS")) < 0) {
+				return 0.7;
+			} else {
+				return Double.parseDouble(this.properties.get("REWARD_AUTHORS"));
+			}
+		} else {
+			return 0.7;
+		}
+	}
+
+	public int get_server_timeout() {
+		/*
+		 * return the server timeout if it exists, otherwise return the default value
+		 */
+		if (this.properties.containsKey("SERVER_TIMEOUT")) {
+			return Integer.parseInt(this.properties.get("SERVER_TIMEOUT"));
+		} else {
+			return 10;
+		}
+	}
+
 	// setters
 	public void set_server_address(String server_address) {
 		properties.put("SERVER", server_address);
+	}
+
+	public void set_multicast_address(String multicast_address) {
+		properties.put("MULTICAST_ADDRESS", multicast_address);
 	}
 
 	// methods
@@ -205,6 +237,8 @@ public class ServerProperties {
 		properties.put("MULTICAST_ADDRESS", "224.0.1.1");
 		properties.put("REWARD_TIME", "10");
 		properties.put("WORKERS", "10");
+		properties.put("REWARD_AUTHORS", "0.7");
+		properties.put("SERVER_TIMEOUT", "10");
 
 		// write the properties to the file
 		write_properties();
@@ -244,7 +278,8 @@ public class ServerProperties {
 			for (String key : properties.keySet()) {
 				// skip the properties that are not used by the client
 				if (key.equals("POSTS_DATABASE") || key.equals("USERS_DATABASE") ||
-					key.equals("WORKERS") || key.equals("REWARD_TIME")) {
+					key.equals("WORKERS") || key.equals("REWARD_TIME") ||
+					key.equals("REWARD_AUTHORS") || key.equals("SERVER_TIMEOUT")) {
 					continue;
 				}
 

@@ -24,10 +24,9 @@ public class ServerRMI_Imp extends RemoteObject implements ServerRMI_Interface {
 	}
 
 	@Override
-	public int receive_updates(ClientRMI_Interface callback, String username) throws java.rmi.RemoteException {
+	public void receive_updates(ClientRMI_Interface callback, String username) throws java.rmi.RemoteException {
 		int res;
 		res = server.receive_updates(callback, username);
-		return res;
 	}
 }
 

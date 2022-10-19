@@ -6,11 +6,6 @@ import java.util.ArrayList;
  * This class is used to store the local information of a user.
  * The user is the user logged in on the client.
  *
- * @public
- * @get_username() - Get the username of the user.
- * @get_followers() - Get the list of users that are following the user.
- * @add_follower(String username) - Add a user to the list of users that are following the user.
- * @add_followers(List<String> usernames) - Add a list of users to the list of users that are following the user.*
  */
 public class LocalUser {
 	// Member variables

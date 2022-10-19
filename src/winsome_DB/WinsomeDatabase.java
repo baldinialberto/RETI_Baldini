@@ -1207,7 +1207,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * This method is used to reward every user with a certain amount of coins.
 	 */
 	@Override
-	public void reward_everyone() {
+	public void reward_everyone(double author_reward) {
 		/*
 		 * This method is used to reward every user with a certain amount of coins.
 		 *
@@ -1231,7 +1231,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		// 2. Go through every post and calculate every reward.
 		for (PostDB post : posts.getPosts().values()) {
 			// 2.1. The reward returned by the post is a list of usernames and the amount of coins to reward them.
-			List<WinsomeReward> rewards = post.calculate_rewards();
+			List<WinsomeReward> rewards = post.calculate_rewards(author_reward);
 			if (rewards == null)
 				continue;
 

@@ -1,0 +1,11 @@
+Saving the database...
+Multicast address: 224.0.1.1
+Time to wait: 60000 ms, seconds: 60
+All workers terminated
+Rewards thread terminated
+Thread stopped.
+Saving the database...
+Database closed.
+Rewards updated.
+RMI unexported
+Time to wait: 60000 ms, seconds: 60

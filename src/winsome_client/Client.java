@@ -827,10 +827,10 @@ public class Client {
 	/**
 	 * This method is usually called by the server to notify the client that a new
 	 * follower has been added.
+	 *
 	 * @param username the username of the new follower
-	 * @return 0 if the operation is successful, -1 otherwise
 	 */
-	public int add_follower(String username) {
+	public void add_follower(String username) {
 		/*
 		 * this method is used to add a follower to the local user
 		 *
@@ -838,22 +838,20 @@ public class Client {
 		 * 2. return the result
 		 */
 
-		if (username == null) return -1;
+		if (username == null) return;
 
 		if (user.get_followers().contains(username)) {
-			return -1;
 		} else {
 			user.add_follower(username);
-			return 0;
 		}
 	}
 
 	/**
 	 * This method is usually called by the server when the client logs into
+	 *
 	 * @param followers the list of followers of the user
-	 * @return 0 if the operation is successful, -1 otherwise
 	 */
-	public int addAll_followers(String[] followers) {
+	public void addAll_followers(String[] followers) {
 		/*
 		 * this method is used to add a list of followers to the local user
 		 *
@@ -861,7 +859,7 @@ public class Client {
 		 * 2. return the result
 		 */
 
-		if (followers == null) return -1;
+		if (followers == null) return;
 
 		for (String follower : followers) {
 			if (!user.get_followers().contains(follower)) {
@@ -869,17 +867,16 @@ public class Client {
 			}
 		}
 
-		return 0;
 	}
 
 	/**
 	 * This method is usually called by the server to set the multicast address, port and group
-	 * @param ip the multicast address
-	 * @param port the multicast port
+	 *
+	 * @param ip           the multicast address
+	 * @param port         the multicast port
 	 * @param network_name the multicast group
-	 * @return 0 if the operation is successful, -1 otherwise
 	 */
-	public int set_multicast(String ip, int port, String network_name) {
+	public void set_multicast(String ip, int port, String network_name) {
 		/*
 		 * this method is used to set the multicast ip, port and network name
 		 *
@@ -887,7 +884,7 @@ public class Client {
 		 * 2. return the result
 		 */
 
-		if (ip == null || port < 0 || network_name == null) return -1;
+		if (ip == null || port < 0 || network_name == null) return;
 
 		this.multicast_address = ip;
 		this.multicast_port = port;
@@ -898,16 +895,15 @@ public class Client {
 				" multicast_port: " + multicast_port +
 				" multicast_network_name: " + multicast_network_name);
 
-		return 0;
 	}
 
 	/**
-	 * This method is usually called by the server to notify the client that an
+	 * This method is usually called by the server to notify the client that a
 	 * user has been removed from the list of followers
+	 *
 	 * @param username the username of the removed follower
-	 * @return 0 if the operation is successful, -1 otherwise
 	 */
-	public int remove_follower(String username) {
+	public void remove_follower(String username) {
 		/*
 		 * this method is used to remove a follower from the local user
 		 *
@@ -915,13 +911,11 @@ public class Client {
 		 * 2. return the result
 		 */
 
-		if (username == null) return -1;
+		if (username == null) return;
 
 		if (user.get_followers().contains(username)) {
 			user.remove_follower(username);
-			return 0;
 		} else {
-			return -1;
 		}
 	}
 

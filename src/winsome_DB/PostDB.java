@@ -230,7 +230,7 @@ public class PostDB extends User_interaction implements JSON_Serializable {
 	}
 
 	// Other Methods
-	public List<WinsomeReward> calculate_rewards() {
+	public List<WinsomeReward> calculate_rewards(double author_reward) {
 		/*
 		 * This method is used to calculate the reward of this post.
 		 *
@@ -305,8 +305,8 @@ public class PostDB extends User_interaction implements JSON_Serializable {
 		total_reward += Math.log(sum_comments + 1) / this.n_rewards;
 
 		// Calculate the rewards for the author and the curators.
-		double reward_author = total_reward * 0.8;
-		double reward_curators = total_reward * 0.2;
+		double reward_author = total_reward * author_reward;
+		double reward_curators = total_reward - reward_author;
 
 		// Assign the rewards to the author.
 		rewards.get(0).value = reward_author;

@@ -280,8 +280,9 @@ public interface Winsome_DB_Interface {
 
 	/**
 	 * This method is used to reward every user with a certain amount of coins.
+	 * @param author_reward the percentage of coins to reward the author of the post.
 	 */
-	void reward_everyone();
+	void reward_everyone(double author_reward);
 
 	/**
 	 * This method is used to close the database.

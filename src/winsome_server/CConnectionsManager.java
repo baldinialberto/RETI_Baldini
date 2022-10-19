@@ -65,9 +65,8 @@ public class CConnectionsManager extends ConcurrentHashMap<String, CConnection> 
 	 * if not successful, the method returns the error code
 	 *
 	 * @param address the connection to be removed
-	 * @return 0 if the connection was removed successfully, an error code otherwise
 	 */
-	public int remove_connection(String address) {
+	public void remove_connection(String address) {
 		/*
 		 * remove the connection from the connections manager
 		 *
@@ -79,18 +78,17 @@ public class CConnectionsManager extends ConcurrentHashMap<String, CConnection> 
 
 		// 1. check the parameters
 		if (address == null)
-			return CONNECTIONS_MANAGER_ERROR;
+			return;
 
 		// 2. check if the connection exists:
 		// loop through the connections manager and check if the address exists
 		if (!this.containsKey(address))
-			return CONNECTIONS_MANAGER_DOES_NOT_EXIST;
+			return;
 
 		// 3. if the connection exists, remove it from the connections manager
 		this.remove(address);
 
 		// 4. return the result
-		return CONNECTIONS_MANAGER_OK;
 	}
 
 	/**
@@ -283,9 +281,8 @@ public class CConnectionsManager extends ConcurrentHashMap<String, CConnection> 
 	 *
 	 * @param username the username of the user
 	 * @param callback the callback of the user
-	 * @return true if the callback was registered successfully, false otherwise
 	 */
-	public boolean register_callback_of_user(String username, ClientRMI_Interface callback) {
+	public void register_callback_of_user(String username, ClientRMI_Interface callback) {
 		/*
 		 * register the callback of a user
 		 *
@@ -297,17 +294,16 @@ public class CConnectionsManager extends ConcurrentHashMap<String, CConnection> 
 
 		// 1. check the parameters
 		if (username == null || callback == null)
-			return false;
+			return;
 
 		// 2. loop through the connections manager
 		for (CConnection c : this.values()) {
 			// 3. if the username exists, register the callback
 			if (c.get_username().equals(username)) {
 				c.set_callback(callback);
-				return true;
+				return;
 			}
 		}
 
-		return false;
 	}
 }

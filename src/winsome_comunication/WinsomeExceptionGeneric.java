@@ -1,7 +1,7 @@
 package winsome_comunication;
 
 public class WinsomeExceptionGeneric extends WinsomeException {
-	String message;
+	final String message;
 
 	public WinsomeExceptionGeneric(String message) {
 		this.message = message;

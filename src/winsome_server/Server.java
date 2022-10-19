@@ -140,7 +140,7 @@ public class Server {
 		 */
 
 		int seconds = 0;
-		int max_seconds = 10;
+		int max_seconds = properties.get_server_timeout();
 
 		// 1. Loop
 		while (true) {
@@ -899,7 +899,7 @@ public class Server {
 	}
 
 	public void reward_users() {
-		server_db.reward_everyone();
+		server_db.reward_everyone(properties.get_reward_authors());
 	}
 
 	public void close() {

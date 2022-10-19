@@ -2,7 +2,7 @@ package winsome_server;
 
 public class WinsomeReward {
 	public double value;
-	public String username;
+	public final String username;
 
 	public WinsomeReward(double value, String username) {
 		this.value = value;

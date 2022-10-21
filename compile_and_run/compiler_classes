@@ -18,7 +18,7 @@
 ../src/winsome_comunication/UserRepr.java
 ../src/winsome_comunication/TransactionRepr.java
 ../src/winsome_comunication/ServerRMI_Interface.java
-../src/winsome_comunication/Post_representation_simple.java
+../src/winsome_comunication/PostReprSimple.java
 ../src/winsome_comunication/PostReprDetailed.java
 ../src/winsome_comunication/CommentRepr.java
 ../src/winsome_comunication/ClientRMI_Interface.java

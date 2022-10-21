@@ -65,6 +65,7 @@ public class Server_Rewards_Thread extends Thread {
 
 			// 3. Update the rewards.
 			this.update_rewards();
+			System.out.println("Rewards updated.");
 
 			// 4. Wait til <minutes_to_reward> minutes have passed.
 			try {
@@ -80,10 +81,7 @@ public class Server_Rewards_Thread extends Thread {
 
 			// 5. Send the notifications.
 			this.send_notifications();
-
-			// DEBUG
-			System.out.flush();
-			System.out.println("Rewards updated.");
+			System.out.println("Notifications sent.");
 		}
 
 		lock.unlock();

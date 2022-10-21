@@ -1,6 +1,8 @@
 package winsome_comunication;
 
-public class UserRepr implements WinSerializable {
+import java.io.IOException;
+
+public class UserRepr extends WinSerializable {
 	private String username;
 	private String[] tags;
 
@@ -24,36 +26,22 @@ public class UserRepr implements WinSerializable {
 		deserialize(user_serialized);
 	}
 
-
-	@Override
-	public String serialize() {
-		/*
-		 * This method is used to serialize the User
-		 *
-		 * The user is serialized in the following way:
-		 * <username>|<tag1>|<tag2>|...|<tagn>
-		 */
-
-		StringBuilder sb = new StringBuilder(username);
-		for (String s : tags)
-			sb.append("|").append(s);
-
-		return sb.toString();
+	// Getters
+	public String getUsername() {
+		return this.username;
 	}
 
-	@Override
-	public void deserialize(String string) {
-		/*
-		 * This method is used to deserialize a string
-		 *
-		 * The string is deserialized in the following way:
-		 * <username>|<tag1>|<tag2>|...|<tagn>
-		 */
+	public String[] getTags() {
+		return this.tags;
+	}
 
-		String[] split = string.split("\\|");
-		this.username = split[0];
-		this.tags = new String[split.length - 1];
-		System.arraycopy(split, 1, this.tags, 0, split.length - 1);
+	// Setters
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setTags(String[] tags) {
+		this.tags = tags;
 	}
 
 	@Override

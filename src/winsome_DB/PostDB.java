@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import winsome_comunication.CommentRepr;
 import winsome_comunication.PostReprDetailed;
-import winsome_comunication.Post_representation_simple;
+import winsome_comunication.PostReprSimple;
 import winsome_server.*;
 
 import java.io.File;
@@ -176,7 +176,7 @@ public class PostDB extends User_interaction implements JSON_Serializable {
 	}
 	
 	// Representation
-	public Post_representation_simple representation_simple() {
+	public PostReprSimple representation_simple() {
 		/*
 		 * This method is used to get a Post_simple object from this Post object.
 		 *
@@ -184,7 +184,7 @@ public class PostDB extends User_interaction implements JSON_Serializable {
 		 */
 
 		// 1. Return the Post_simple object.
-		return new Post_representation_simple(this.title, this.text, this.author, this.id);
+		return new PostReprSimple(this.title, this.text, this.author, this.id);
 	}
 	public PostReprDetailed representation_detailed() {
 		/*

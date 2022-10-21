@@ -10,6 +10,10 @@
         "author" : "pippo",
         "time_created" : 1665666659447,
         "comment" : "che me ne frega a me"
+      }, {
+        "author" : "topolino",
+        "time_created" : 1666370376364,
+        "comment" : "okok"
       } ],
       "rates" : [ {
         "author" : "topolino",
@@ -20,8 +24,8 @@
         "time_created" : 1665666635156,
         "rate" : false
       } ],
-      "n_rewards" : 2,
-      "time_last_reward" : 1665666690379
+      "n_rewards" : 3,
+      "time_last_reward" : 1666370386347
     },
     "1" : {
       "author" : "paperino",
@@ -37,10 +41,22 @@
         "author" : "pippo",
         "time_created" : 1665499229368,
         "comment" : "ooko"
+      }, {
+        "author" : "topolino",
+        "time_created" : 1666369800385,
+        "comment" : "va bene"
+      }, {
+        "author" : "topolino",
+        "time_created" : 1666370362102,
+        "comment" : "okok"
       } ],
-      "rates" : [ ],
-      "n_rewards" : 2,
-      "time_last_reward" : 1665499239401
+      "rates" : [ {
+        "author" : "topolino",
+        "time_created" : 1666369828153,
+        "rate" : true
+      } ],
+      "n_rewards" : 4,
+      "time_last_reward" : 1666370386358
     },
     "2" : {
       "author" : "paperino",
@@ -48,10 +64,14 @@
       "id" : "2",
       "title" : "oggi ho fatto.",
       "text" : "la cacca rossa",
-      "comments" : [ ],
+      "comments" : [ {
+        "author" : "pluto",
+        "time_created" : 1666371952394,
+        "comment" : "ok"
+      } ],
       "rates" : [ ],
-      "n_rewards" : 0,
-      "time_last_reward" : 1664888927762
+      "n_rewards" : 1,
+      "time_last_reward" : 1666371959729
     },
     "3" : {
       "author" : "topolino",
@@ -85,10 +105,18 @@
       "id" : "5",
       "title" : "il mio ultimo post.",
       "text" : "Addio mondo crudele",
-      "comments" : [ ],
-      "rates" : [ ],
-      "n_rewards" : 0,
-      "time_last_reward" : 1666186840244
+      "comments" : [ {
+        "author" : "pluto",
+        "time_created" : 1666372259708,
+        "comment" : "ok"
+      } ],
+      "rates" : [ {
+        "author" : "pluto",
+        "time_created" : 1666372263932,
+        "rate" : false
+      } ],
+      "n_rewards" : 1,
+      "time_last_reward" : 1666372277601
     }
   },
   "last_post_id" : "5"

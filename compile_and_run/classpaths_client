@@ -1,1 +1,1 @@
-../bin/Client.jar:../bin
+../lib/jackson-databind-2.9.7.jar:../lib/jackson-core-2.9.7.jar:../lib/jackson-annotations-2.9.7.jar:../bin/Client.jar:../bin

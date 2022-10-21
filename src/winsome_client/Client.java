@@ -473,7 +473,7 @@ public class Client {
 	 * @return the list of posts of the user's blog if successful, null otherwise
 	 * @throws WinsomeException if the operation is not successful
 	 */
-	public List<Post_representation_simple> viewBlog()
+	public List<PostReprSimple> viewBlog()
 			throws WinsomeException {
 		/*
 		 * view blog
@@ -540,7 +540,7 @@ public class Client {
 	 * @return the list of posts in the user's feed if successful, null otherwise
 	 * @throws WinsomeException if the operation is not successful
 	 */
-	public List<Post_representation_simple> showFeed()
+	public List<PostReprSimple> showFeed()
 			throws WinsomeException {
 		/*
 		 * show feed

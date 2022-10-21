@@ -1,5 +1,6 @@
 package winsome_comunication;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -29,12 +30,10 @@ public class WinMessage {
 	public final static String SUCCESS = "SUCCESS";
 	public final static String EXIT = "EXIT";
 
-	private final static String DELIMITER = "<<;-;>>";
-
 	// member variables
-	private final List<String> message = new ArrayList<>();
-	byte[] bytes;
-	boolean serialized = false;
+	private ArrayList<String> message = new ArrayList<>();
+	private byte[] bytes;
+	private Boolean serialized = false;
 
 	public WinMessage(List<String> message) {
 		this.message.addAll(message);
@@ -93,34 +92,35 @@ public class WinMessage {
 		return message;
 	}
 
-	public byte[] serialize() {
+	public byte[] serialize(){
 		/*
-		 * This method serializes the message
-		 *
-		 * the message is serialized as follows:
-		 * <message0><DELIMITER><message1><DELIMITER>...<DELIMITER><messageN>
+		 * This method serializes the message using Jackson
 		 */
 		if (serialized) {
 			return bytes;
 		}
-		StringBuilder message = new StringBuilder();
-		for (String string : this.message) {
-			message.append(string).append(DELIMITER);
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			bytes = mapper.writeValueAsBytes(this.message);
+			serialized = true;
+		} catch (IOException e)
+		{
+			System.err.println(e.getMessage());
 		}
-		bytes = message.toString().getBytes();
-		serialized = true;
 		return bytes;
 	}
 
-	public void deserialize(byte[] data) {
+	public void deserialize(byte[] data){
 		/*
-		 * This method deserializes the message
-		 *
-		 * the message is serialized as follows:
-		 * <message0><DELIMITER><message1><DELIMITER>...<DELIMITER><messageN>
+		 * This method deserializes the message using Jackson
 		 */
-		this.message.clear();
-		this.message.addAll(Arrays.asList(new String(data).split(DELIMITER)));
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.readerForUpdating(this.message).readValue(data);
+		} catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+		}
 	}
 
 	private int get_length() {

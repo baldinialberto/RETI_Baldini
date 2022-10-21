@@ -5,18 +5,27 @@
     "tags" : [ "disney", "formaggio" ],
     "wallet" : {
       "username" : "topolino",
-      "balance" : 0.5737358650046842,
+      "balance" : 1.068310021236651,
       "transactions" : [ {
         "time_created" : 1665499160237,
         "value" : 0.019218120556728054
       }, {
         "time_created" : 1665580181689,
         "value" : 0.5545177444479562
+      }, {
+        "time_created" : 1666370386358,
+        "value" : 0.004804530139182015
+      }, {
+        "time_created" : 1666370386359,
+        "value" : 0.0045665997008229675
+      }, {
+        "time_created" : 1666372277608,
+        "value" : 0.48520302639196167
       } ]
     },
     "posts" : [ "3", "5" ],
     "following" : [ "pluto", "paperino" ],
-    "followers" : [ "paperino", "pippo" ]
+    "followers" : [ "pluto", "paperino", "pippo" ]
   },
   "pluto" : {
     "username" : "pluto",
@@ -24,11 +33,17 @@
     "tags" : [ "disney", "dogslife" ],
     "wallet" : {
       "username" : "pluto",
-      "balance" : 0.0,
-      "transactions" : [ ]
+      "balance" : 0.08648154250527627,
+      "transactions" : [ {
+        "time_created" : 1666371959738,
+        "value" : 0.04324077125263814
+      }, {
+        "time_created" : 1666372277610,
+        "value" : 0.04324077125263814
+      } ]
     },
     "posts" : [ ],
-    "following" : [ "paperino" ],
+    "following" : [ "topolino", "paperino" ],
     "followers" : [ "topolino" ]
   },
   "paperone" : {
@@ -75,7 +90,7 @@
     "tags" : [ "disney", "paperissima" ],
     "wallet" : {
       "username" : "paperino",
-      "balance" : 1.7467030062577056,
+      "balance" : 2.5513191570281153,
       "transactions" : [ {
         "time_created" : 1665499160236,
         "value" : 0.5545177444479562
@@ -88,6 +103,15 @@
       }, {
         "time_created" : 1665666690385,
         "value" : 0.2772588722239781
+      }, {
+        "time_created" : 1666370386356,
+        "value" : 0.16173434213065388
+      }, {
+        "time_created" : 1666370386358,
+        "value" : 0.15767878224779402
+      }, {
+        "time_created" : 1666371959736,
+        "value" : 0.48520302639196167
       } ]
     },
     "posts" : [ "0", "1", "2" ],

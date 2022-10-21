@@ -2,7 +2,7 @@ package winsome_client;
 
 import winsome_DB.RateDB;
 import winsome_comunication.PostReprDetailed;
-import winsome_comunication.Post_representation_simple;
+import winsome_comunication.PostReprSimple;
 import winsome_comunication.WalletRepr;
 
 import java.io.BufferedReader;
@@ -315,10 +315,10 @@ public class ClientCLI {
 
 		try {
 			// 2. call the blog method of the client
-			List<Post_representation_simple> post = client.viewBlog();
+			List<PostReprSimple> post = client.viewBlog();
 			// 3. print the result
 			if (post != null && post.size() > 0) {
-				printResponse(post.stream().map(Post_representation_simple::toString).collect(Collectors.toList()));
+				printResponse(post.stream().map(PostReprSimple::toString).collect(Collectors.toList()));
 			} else {
 				printResponse("No posts found");
 			}
@@ -397,10 +397,10 @@ public class ClientCLI {
 
 		try {
 			// 2. call the show_feed method of the client
-			List<Post_representation_simple> post = client.showFeed();
+			List<PostReprSimple> post = client.showFeed();
 			// 3. print the result
 			if (post != null && post.size() > 0) {
-				printResponse(post.stream().map(Post_representation_simple::toString).collect(Collectors.toList()));
+				printResponse(post.stream().map(PostReprSimple::toString).collect(Collectors.toList()));
 			} else {
 				printResponse("No posts found");
 			}

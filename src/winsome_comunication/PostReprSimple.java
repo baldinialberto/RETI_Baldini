@@ -6,7 +6,7 @@ package winsome_comunication;
  * The post is serializable and can be sent over the network.
  * The post is also deserializable and can be created from a string.
  */
-public class Post_representation_simple implements WinSerializable {
+public class PostReprSimple extends WinSerializable {
 	// Member variables
 	protected String title;
 	protected String content;
@@ -14,7 +14,7 @@ public class Post_representation_simple implements WinSerializable {
 	protected String id;
 
 	// Constructor
-	public Post_representation_simple(String title, String content, String author, String id) {
+	public PostReprSimple(String title, String content, String author, String id) {
 		this.title = title;
 		this.content = content;
 		this.author = author;
@@ -22,17 +22,16 @@ public class Post_representation_simple implements WinSerializable {
 	}
 
 	// Empty constructor
-	public Post_representation_simple() {
+	public PostReprSimple() {
 	}
 
-	// Deserialization constructor
-
 	/**
+	 * Deserialization constructor
 	 * This constructor is used to create a post representation from a string.
 	 * The string is a serialized post representation.
 	 * @param string The serialized post representation.
 	 */
-	public Post_representation_simple(String string) {
+	public PostReprSimple(String string) {
 		deserialize(string);
 	}
 
@@ -40,32 +39,26 @@ public class Post_representation_simple implements WinSerializable {
 	public String getTitle() {
 		return title;
 	}
+	public String getContent() {
+		return content;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public String getId() {
+		return id;
+	}
 
 	// Setters
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
-	public String getContent() {
-		return content;
-	}
-
 	public void setContent(String content) {
 		this.content = content;
 	}
-
-	public String getAuthor() {
-		return author;
-	}
-
 	public void setAuthor(String author) {
 		this.author = author;
 	}
-
-	public String getId() {
-		return id;
-	}
-
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -82,45 +75,5 @@ public class Post_representation_simple implements WinSerializable {
 		 */
 
 		return String.format("%-6s | %-10s | %-20s", this.id, this.author, this.title);
-	}
-
-	@Override
-	public String serialize() {
-		/*
-		 * This method is used to serialize the post.
-		 *
-		 * the serialized post is in the following format:
-		 * title|-|content|-|author|-|id
-		 *
-		 *
-		 * 1. Serialize the post.
-		 * 2. Return the serialized post.
-		 */
-
-		// 1. Serialize the post.
-		// 2. Return the serialized post.
-		return title + "|-|" + content + "|-|" + author + "|-|" + id;
-	}
-
-	@Override
-	public void deserialize(String string) {
-		/*
-		 * This method is used to deserialize the post.
-		 *
-		 * the serialized post is in the following format:
-		 * title|-|content|-|author|-|id
-		 *
-		 * 1. Split the string into an array of strings.
-		 * 2. Set the member variables.
-		 */
-
-		// 1. Split the string into an array of strings.
-		String[] split = string.split("\\|-\\|");
-
-		// 2. Set the member variables.
-		title = split[0];
-		content = split[1];
-		author = split[2];
-		id = split[3];
 	}
 }

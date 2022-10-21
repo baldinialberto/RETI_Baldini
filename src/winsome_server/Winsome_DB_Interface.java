@@ -3,7 +3,7 @@ package winsome_server;
 import winsome_DB.WinsomeDB_Exception;
 import winsome_comunication.CommentRepr;
 import winsome_comunication.PostReprDetailed;
-import winsome_comunication.Post_representation_simple;
+import winsome_comunication.PostReprSimple;
 import winsome_comunication.WalletRepr;
 
 /**
@@ -134,7 +134,7 @@ public interface Winsome_DB_Interface {
 	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Post_representation_simple[] get_user_posts(String username)
+	PostReprSimple[] get_user_posts(String username)
 			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	// POSTS //
@@ -227,11 +227,11 @@ public interface Winsome_DB_Interface {
 	/**
 	 * This method is used to get a post's simple representation.
 	 * @param post_id The id of the post to get the representation.
-	 * @return A Post_representation_simple object with the post's information.
+	 * @return A PostReprSimple object with the post's information.
 	 * @throws WinsomeDB_Exception.PostNotFound if the post is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Post_representation_simple get_post_simple(String post_id)
+	PostReprSimple get_post_simple(String post_id)
 			throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
@@ -249,21 +249,21 @@ public interface Winsome_DB_Interface {
 	/**
 	 * This method is used to get the posts of a user.
 	 * @param username The username of the user to get the posts.
-	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @return An array of PostReprSimple objects with the posts' information.
 	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Post_representation_simple[] get_user_blog(String username)
+	PostReprSimple[] get_user_blog(String username)
 			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**
 	 * This method is used to get the posts of a user's feed.
 	 * @param username The username of the user to get the feed.
-	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @return An array of PostReprSimple objects with the posts' information.
 	 * @throws WinsomeDB_Exception.UsernameNotFound if the username is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
-	Post_representation_simple[] get_user_feed(String username)
+	PostReprSimple[] get_user_feed(String username)
 			throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized;
 
 	/**

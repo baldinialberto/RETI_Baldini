@@ -18,7 +18,7 @@
 ../bin/winsome_comunication/ClientRMI_Interface.class
 ../bin/winsome_comunication/WinsomeExceptionGeneric.class
 ../bin/winsome_comunication/WalletRepr.class
-../bin/winsome_comunication/Post_representation_simple.class
+../bin/winsome_comunication/PostReprSimple.class
 ../bin/winsome_comunication/WinsomeException.class
 ../bin/winsome_comunication/UserRepr.class
 ../bin/winsome_comunication/PostReprDetailed.class

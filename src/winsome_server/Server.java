@@ -538,10 +538,10 @@ public class Server {
 
 		// 3. If the user is logged in, ask the database to get the blog
 		try {
-			Post_representation_simple[] posts = this.server_db.get_user_blog(this.connections_manager.get_username(address));
+			PostReprSimple[] posts = this.server_db.get_user_blog(this.connections_manager.get_username(address));
 			result.addString(WinMessage.SUCCESS);
 			// add an array of strings that are the serialized posts
-			result.addStrings(Arrays.stream(posts).map(Post_representation_simple::serialize).toArray(String[]::new));
+			result.addStrings(Arrays.stream(posts).map(PostReprSimple::serialize).toArray(String[]::new));
 		} catch (WinsomeException e) {
 			result.addString(WinMessage.ERROR);
 			result.addString(e.niceMessage());
@@ -606,10 +606,10 @@ public class Server {
 
 		// 3. If the user is logged in, ask the database to get the feed
 		try {
-			Post_representation_simple[] posts = this.server_db.get_user_feed(this.connections_manager.get_username(address));
+			PostReprSimple[] posts = this.server_db.get_user_feed(this.connections_manager.get_username(address));
 			result.addString(WinMessage.SUCCESS);
 			// add an array of strings that are the serialized posts
-			result.addStrings(Arrays.stream(posts).map(Post_representation_simple::serialize).toArray(String[]::new));
+			result.addStrings(Arrays.stream(posts).map(PostReprSimple::serialize).toArray(String[]::new));
 		} catch (WinsomeException e) {
 			result.addString(WinMessage.ERROR);
 			result.addString(e.niceMessage());

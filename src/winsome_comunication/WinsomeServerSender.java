@@ -357,7 +357,7 @@ public class WinsomeServerSender {
 	 * @return the blog of the user.
 	 * @throws WinsomeException if something goes wrong (check the message for details).
 	 */
-	public Post_representation_simple[] blog() throws WinsomeException {
+	public PostReprSimple[] blog() throws WinsomeException {
 		/*
 		 * blog request:
 		 * 1. request type = BLOG_REQUEST
@@ -401,7 +401,7 @@ public class WinsomeServerSender {
 
 		// Blog successful.
 		return blog_response.getStrings().subList(1, blog_response.size()).stream()
-				.map(Post_representation_simple::new).toArray(Post_representation_simple[]::new);
+				.map(PostReprSimple::new).toArray(PostReprSimple[]::new);
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class WinsomeServerSender {
 	 * @return the feed of the user.
 	 * @throws WinsomeException if something goes wrong (check the message for details).
 	 */
-	public Post_representation_simple[] feed() throws WinsomeException {
+	public PostReprSimple[] feed() throws WinsomeException {
 		/*
 		 * feed request:
 		 * 1. request type = FEED_REQUEST
@@ -454,7 +454,7 @@ public class WinsomeServerSender {
 
 		// Feed successful.
 		return feed_response.getStrings().subList(1, feed_response.size()).stream()
-				.map(Post_representation_simple::new).toArray(Post_representation_simple[]::new);
+				.map(PostReprSimple::new).toArray(PostReprSimple[]::new);
 	}
 
 	/**

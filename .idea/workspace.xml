@@ -8,20 +8,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/client.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/server.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/lib.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/server_log.txt" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/RETI_Baldini.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Client.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Server.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/classpaths_client" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/classpaths_client" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/compiler_classes" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/compiler_classes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_client" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_client" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_server" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/posts_backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/posts_backup.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/server_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/server_config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compile_and_run/users_backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/users_backup.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/CommentRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/CommentRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/PostReprDetailed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/PostReprDetailed.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/Post_representation_simple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/PostReprSimple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/TransactionRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/TransactionRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/UserRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/UserRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WalletRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WalletRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinSerializable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinSerializable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinsomeServerSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinsomeServerSender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/Server_Rewards_Thread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server_Rewards_Thread.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -48,7 +62,7 @@
     <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectId" id="2EhlU2JVA8MhPEnZH8uZUQ2QCJO" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -57,11 +71,11 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "last_opened_file_path": "/Users/albertobaldini/source/repos/RETI_Baldini/compile",
-    "project.structure.last.edited": "Artifacts",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
@@ -73,35 +87,22 @@
       <recent name="$PROJECT_DIR$/compile" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/out" />
       <recent name="$PROJECT_DIR$/compile_and_run" />
       <recent name="$PROJECT_DIR$/compile" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ClientMain">
-    <configuration name="ClientMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="winsome_client.ClientMain" />
-      <module name="RETI_Baldini" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager">
     <configuration name="ServerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <output_file path="server_log.txt" is_save="true" />
       <option name="MAIN_CLASS_NAME" value="winsome_server.ServerMain" />
       <module name="RETI_Baldini" />
-      <shortenClasspath name="NONE" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="Application.ClientMain" />
-      <item itemvalue="Application.ServerMain" />
-    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ServerMain" />
-        <item itemvalue="Application.ClientMain" />
       </list>
     </recent_temporary>
   </component>

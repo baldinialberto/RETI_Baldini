@@ -2,7 +2,7 @@ package winsome_comunication;
 
 import java.util.ArrayList;
 
-public class PostReprDetailed extends Post_representation_simple {
+public class PostReprDetailed extends PostReprSimple {
 	// Member variables
 	private int upvotes;
 	private int downvotes;
@@ -17,9 +17,44 @@ public class PostReprDetailed extends Post_representation_simple {
 		this.comments = comments;
 	}
 
+	// Empty Constructor
+	public PostReprDetailed() {
+		super();
+		this.upvotes = 0;
+		this.downvotes = 0;
+		this.comments = new ArrayList<CommentRepr>();
+	}
+
 	// String Constructor
 	public PostReprDetailed(String string) {
 		deserialize(string);
+	}
+
+	// Getters
+	public int getUpvotes() {
+		return upvotes;
+	}
+
+	public int getDownvotes() {
+		return downvotes;
+	}
+
+	public ArrayList<CommentRepr> getComments() {
+		return comments;
+	}
+
+	// Setters
+
+	public void setUpvotes(int upvotes) {
+		this.upvotes = upvotes;
+	}
+
+	public void setDownvotes(int downvotes) {
+		this.downvotes = downvotes;
+	}
+
+	public void setComments(ArrayList<CommentRepr> comments) {
+		this.comments = comments;
 	}
 
 	private static String newLine_n_chars(String string, int n) {
@@ -68,64 +103,6 @@ public class PostReprDetailed extends Post_representation_simple {
 		// 3. Reassemble the string
 		// 4. Return the string
 		return sb.toString();
-	}
-
-	@Override
-	public String serialize() {
-		/*
-		 * Serialize the object to a string
-		 *
-		 * the post is formatted as follows:
-		 * <Post_simple_serialization>|-|upvotes|-|downvotes|-|comments
-		 *
-		 * 1. Serialize the object
-		 * 2. Return the serialized object
-		 */
-
-		// 1. Serialize the object
-		StringBuilder serialized = new StringBuilder(super.serialize());
-		serialized.append("|-|");
-		serialized.append(this.upvotes);
-		serialized.append("|-|");
-
-		serialized.append(this.downvotes);
-		serialized.append("|-|");
-
-		serialized.append(this.comments.size());
-		serialized.append("|-|");
-
-		for (CommentRepr comment : this.comments) {
-			serialized.append(comment.serialize());
-			serialized.append("|-|");
-		}
-		// remove the last "|-|"
-		serialized.delete(serialized.length() - 3, serialized.length());
-
-		// 2. Return the serialized object
-		return serialized.toString();
-	}
-
-	@Override
-	public void deserialize(String string) {
-		/*
-		 * Deserialize the object from a string
-		 *
-		 * the post is formatted as follows:
-		 * <Post_simple_serialization>|-|upvotes|-|downvotes|-|ncomments|-|comments
-		 *
-		 * 1. Deserialize the object
-		 */
-
-		// 1. Deserialize the object
-		String[] parts = string.split("\\|-\\|");
-		super.deserialize(string);
-		upvotes = Integer.parseInt(parts[4]);
-		downvotes = Integer.parseInt(parts[5]);
-		int ncomments = Integer.parseInt(parts[6]);
-		comments = new ArrayList<>();
-		for (int i = 7; i < parts.length; i++) {
-			comments.add(new CommentRepr(parts[i]));
-		}
 	}
 
 	@Override

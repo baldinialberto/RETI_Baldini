@@ -180,8 +180,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 
 		// DEBUG
 		// Print that the database is being saved.
-		// In green color.
-		System.out.println("\033[32mSaving the database...\033[0m");
+		System.out.println("Saving the database...");
 
 		// 1. If the database is not initialized, throw an exception.
 		if (!initialized)
@@ -560,7 +559,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override @Deprecated
-	public Post_representation_simple[] get_user_posts(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
+	public PostReprSimple[] get_user_posts(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
 		return get_user_feed(username);
 	}
 
@@ -982,12 +981,12 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * This method is used to get a post's simple representation.
 	 *
 	 * @param post_id The id of the post to get the representation.
-	 * @return A Post_representation_simple object with the post's information.
+	 * @return A PostReprSimple object with the post's information.
 	 * @throws WinsomeDB_Exception.PostNotFound           if the post is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public Post_representation_simple get_post_simple(String post_id) throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
+	public PostReprSimple get_post_simple(String post_id) throws WinsomeDB_Exception.PostNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
 		/*
 		 * This method is used to get a post's simple representation.
 		 *
@@ -1009,7 +1008,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		}
 
 		// 3. Return the post's simple representation.
-		Post_representation_simple ret = posts.getPosts().get(post_id).representation_simple();
+		PostReprSimple ret = posts.getPosts().get(post_id).representation_simple();
 
 		posts_R_lock.unlock();
 
@@ -1058,12 +1057,12 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * This method is used to get the posts of a user.
 	 *
 	 * @param username The username of the user to get the posts.
-	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @return An array of PostReprSimple objects with the posts' information.
 	 * @throws WinsomeDB_Exception.UsernameNotFound       if the username is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public Post_representation_simple[] get_user_blog(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
+	public PostReprSimple[] get_user_blog(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
 		/*
 		 * This method is used to get the posts of a user.
 		 *
@@ -1089,7 +1088,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		String[] posts_ids = users.get(username).getPosts().toArray(new String[0]);
 
 		// 4. return a representation of the posts of the user.
-		Post_representation_simple[] ret = new Post_representation_simple[posts_ids.length];
+		PostReprSimple[] ret = new PostReprSimple[posts_ids.length];
 		for (int i = 0; i < posts_ids.length; i++)
 			ret[i] = posts.getPosts().get(posts_ids[i]).representation_simple();
 
@@ -1102,12 +1101,12 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 	 * This method is used to get the posts of a user's feed.
 	 *
 	 * @param username The username of the user to get the feed.
-	 * @return An array of Post_representation_simple objects with the posts' information.
+	 * @return An array of PostReprSimple objects with the posts' information.
 	 * @throws WinsomeDB_Exception.UsernameNotFound       if the username is not found in the database.
 	 * @throws WinsomeDB_Exception.DatabaseNotInitialized if the database is not initialized.
 	 */
 	@Override
-	public Post_representation_simple[] get_user_feed(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
+	public PostReprSimple[] get_user_feed(String username) throws WinsomeDB_Exception.UsernameNotFound, WinsomeDB_Exception.DatabaseNotInitialized {
 		/*
 		 * This method is used to get the posts of a user's feed.
 		 *
@@ -1143,7 +1142,7 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		}
 
 		// 5. Return a representation of the posts of the users' following list.
-		Post_representation_simple[] ret = new Post_representation_simple[posts_list.size()];
+		PostReprSimple[] ret = new PostReprSimple[posts_list.size()];
 
 		int i = 0;
 		for (PostDB post : posts_list)

@@ -14,16 +14,6 @@ import winsome_comunication.WinsomeException;
  * These exceptions are used to communicate with the server.
  */
 public class WinsomeDB_Exception {
-	public static class WrongPassword extends WinsomeException {
-		@Override
-		public String getMessage() {
-			return "WinSome 01 : Wrong Password";
-		}
-		public String niceMessage() {
-			return "Wrong Password";
-		}
-	}
-
 	public static class UsernameAlreadyExists extends WinsomeException {
 		@Override
 		public String getMessage() {

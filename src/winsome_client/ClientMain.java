@@ -10,7 +10,7 @@ public class ClientMain {
 		 */
 
 		// 1. create client
-		Client client = new Client("client_config.txt");
+		Client client = new Client(args.length == 1 ? args[0] : "client_config.txt");
 
 		Runtime.getRuntime().addShutdownHook(new ClientSH(client));
 

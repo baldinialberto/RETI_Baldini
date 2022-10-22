@@ -109,14 +109,22 @@
         "author" : "pluto",
         "time_created" : 1666372259708,
         "comment" : "ok"
+      }, {
+        "author" : "paperino",
+        "time_created" : 1666433881106,
+        "comment" : "addio amico mio"
       } ],
       "rates" : [ {
         "author" : "pluto",
         "time_created" : 1666372263932,
         "rate" : false
+      }, {
+        "author" : "paperino",
+        "time_created" : 1666433874147,
+        "rate" : true
       } ],
-      "n_rewards" : 1,
-      "time_last_reward" : 1666372277601
+      "n_rewards" : 2,
+      "time_last_reward" : 1666433883753
     }
   },
   "last_post_id" : "5"

@@ -8,35 +8,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/RETI_Baldini.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Client.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Server.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/classpaths_client" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/classpaths_client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/compiler_classes" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/compiler_classes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_client" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_server" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/client_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/client_config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compile_and_run/posts_backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/posts_backup.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compile_and_run/server_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/server_config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/users_backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/users_backup.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/CommentRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/CommentRepr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/PostReprDetailed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/PostReprDetailed.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/Post_representation_simple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/PostReprSimple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/TransactionRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/TransactionRepr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/UserRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/UserRepr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WalletRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WalletRepr.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinSerializable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinSerializable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinsomeServerSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_comunication/WinsomeServerSender.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/winsome_server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/ServerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/ServerMain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/winsome_server/Server_Rewards_Thread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server_Rewards_Thread.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,19 +49,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/Users/albertobaldini/source/repos/RETI_Baldini/compile",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/albertobaldini/source/repos/RETI_Baldini/compile&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/compile" />

@@ -34,6 +34,7 @@ public class Server {
 	private final CConnectionsManager connections_manager = new CConnectionsManager();
 	// Server socket and selector
 	private ServerSocketChannel server_socket;
+	private DatagramSocket dg_socket;
 	private Selector selector;
 	ServerRMI_Imp server_rmi;
 
@@ -59,8 +60,12 @@ public class Server {
 		this.properties = new ServerProperties(serverProperties_configFile, clientProperties_configFile);
 		// 1.1 Store the server address in the properties file
 		try {
-			this.properties.set_server_address(InetAddress.getLocalHost().getHostAddress());
-		} catch (UnknownHostException e) {
+			// set server address in properties file to the global address
+			dg_socket = new DatagramSocket();
+			dg_socket.connect(InetAddress.getByName("8.8.8.8"), 1234);
+			this.properties.set_server_address(dg_socket.getLocalAddress().getHostAddress());
+			dg_socket = new DatagramSocket(this.properties.get_multicast_port() + 1);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		// 1.2 save the properties to the client properties file
@@ -111,7 +116,7 @@ public class Server {
 		}
 
 		// 7. Start the reward thread
-		this.rewards_thread = new Server_Rewards_Thread(this, this.properties.get_reward_time());
+		this.rewards_thread = new Server_Rewards_Thread(this, this.properties.get_reward_time(), dg_socket);
 		this.rewards_thread.start();
 	}
 

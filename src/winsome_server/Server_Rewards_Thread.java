@@ -19,7 +19,7 @@ public class Server_Rewards_Thread extends Thread {
 	private final byte[] buffer = new byte[1024];
 	// member variables
 	private final Server server;
-	private DatagramSocket socket;
+	private final DatagramSocket socket;
 	private final Lock lock = new ReentrantLock();
 	private final Condition condition = lock.newCondition();
 
@@ -27,17 +27,11 @@ public class Server_Rewards_Thread extends Thread {
 
 
 	// constructor
-	public Server_Rewards_Thread(Server server, int minutes_to_reward) {
+	public Server_Rewards_Thread(Server server, int minutes_to_reward, DatagramSocket socket) {
 		this.setDaemon(true);
 		this.server = server;
 		this.minutes_to_reward = minutes_to_reward;
-
-		try {
-			socket = new DatagramSocket(this.server.getMulticast_port() + 1);
-		} catch (SocketException e) {
-			System.err.println("Error: Could not create a socket for the rewards thread.");
-			e.printStackTrace();
-		}
+		this.socket = socket;
 
 		// print out the multicast address
 		System.out.println("Multicast address: " + server.getMulticast_address());

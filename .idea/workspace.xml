@@ -9,8 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_client/ClientMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/ClientMain.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

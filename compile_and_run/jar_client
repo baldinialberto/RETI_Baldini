@@ -17,5 +17,4 @@
 ../bin/winsome_client/ClientCLI.class
 ../bin/winsome_client/ClientSH.class
 ../bin/winsome_client/ClientProperties.class
-../bin/winsome_client/ClientMain.class
 ../bin/winsome_client/Client.class

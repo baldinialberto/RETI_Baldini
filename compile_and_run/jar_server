@@ -7,7 +7,6 @@
 ../bin/winsome_server/CConnectionsManager.class
 ../bin/winsome_server/Winsome_DB_Interface.class
 ../bin/winsome_server/ServerSH.class
-../bin/winsome_server/ServerMain.class
 ../bin/winsome_server/CConnection.class
 ../bin/winsome_server/WinsomeReward.class
 ../bin/winsome_server/ServerRMI_Imp.class

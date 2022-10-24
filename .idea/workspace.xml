@@ -7,11 +7,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/client_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/client_config.txt" afterDir="false" />
-    </list>
+    <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

@@ -4,26 +4,29 @@
 
 # Variables
 BUILD_PATH = ../bin
-JACKSON_LIB = ../lib/jackson-core-2.9.7.jar;../lib/jackson-databind-2.9.7.jar;../lib/jackson-annotations-2.9.7.jar
+JACKSON_LIB_UNIX = ../lib/jackson-core-2.9.7.jar:../lib/jackson-databind-2.9.7.jar:../lib/jackson-annotations-2.9.7.jar
+JACKSON_LIB_WIN = $(subst :,;,$(JACKSON_LIB_UNIX))
 
 PHONY : all clean run_client run_server
 
 all : jar_client jar_server
 
-classes:
-	javac -d $(BUILD_PATH) -cp "${JACKSON_LIB};../src/" ../src/winsome_server/*.java ../src/winsome_communication/*.java ../src/winsome_DB/*.java ../src/winsome_client/*.java
+compile_unix:
+	javac -d $(BUILD_PATH) -cp $(JACKSON_LIB_UNIX) -sourcepath "../src/" ../src/winsome_server/*.java ../src/winsome_communication/*.java ../src/winsome_DB/*.java ../src/winsome_client/*.java
+compile_win:
+	javac -d $(BUILD_PATH) -cp $(JACKSON_LIB_WIN) -sourcepath "../src/" ../src/winsome_server/*.java ../src/winsome_communication/*.java ../src/winsome_DB/*.java ../src/winsome_client/*.java
 
 clean:
 	rm -rf $(BUILD_PATH)
 
 run_server:
-	java -cp "../lib/*;../bin" winsome_server.ServerMain &> server.log &
+	java -cp "../lib/*:../bin" winsome_server.ServerMain &> server.log &
 
 run_client:
-	java -cp "../lib/*;../bin" winsome_client.ClientMain
+	java -cp "../lib/*:../bin" winsome_client.ClientMain
 
-jar_server: classes
+jar_server: compile_unix
 	jar -cvf $(BUILD_PATH)/Server.jar @jar_server
 
-jar_client: classes
+jar_client: compile_unix
 	jar -cvf $(BUILD_PATH)/Client.jar @jar_client

@@ -10,13 +10,15 @@
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/compile_and_run/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_client" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/jar_server" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/jar_server" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/client_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/client_config.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">

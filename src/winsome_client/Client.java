@@ -345,7 +345,7 @@ public class Client {
 	 * Operazione lato client per visualizzare la lista dei propri follower. Questo
 	 * comando dell’utente non scatena una richiesta sincrona dal client al server.
 	 * Il client restituisce la lista dei follower mantenuta localmente che viene
-	 * via via aggiornata grazie a notifiche “asincrone” ricevute dal server. Vedere
+	 * via via aggiornata grazie a notifiche "asincrone" ricevute dal server. Vedere
 	 * i dettagli di implementazione nella sezione successiva. Corrisponde al
 	 * comando list followers.
 	 *
@@ -605,8 +605,8 @@ public class Client {
 	 * Operazione per cancellare un post. La richiesta viene accettata ed eseguita
 	 * solo se l’utente è l’autore del post. Il server cancella il post con tutto
 	 * il suo contenuto associato (commenti e voti). Non vengono calcolate
-	 * ricompense “parziali”, ovvero se un contenuto recente (post, voto o commento)
-	 * non era stato conteggiato nel calcolo delle ricompense perché ancora il
+	 * ricompense "parziali", ovvero se un contenuto recente (post, voto o commento)
+	 * non era stato conteggiato nel calcolo delle ricompense perche' ancora il
 	 * periodo non era scaduto, non viene considerato nel calcolo delle ricompense.
 	 * Il comando corrispondente alla cancellazione è delete <idPost>.
 	 *
@@ -671,7 +671,7 @@ public class Client {
 	 * Operazione per assegnare un voto positivo o negativo ad un post. Se l’utente
 	 * ha il post nel proprio feed e non ha ancora espresso un voto, il voto viene
 	 * accettato, negli altri casi (ad es. ha già votato il post, non ha il post
-	 * nel proprio feed, è l’autore del post) il voto non viene accettato e il
+	 * nel proprio feed, e' l’autore del post) il voto non viene accettato e il
 	 * server restituisce un messaggio di errore. Il comando per assegnare un voto
 	 * al post è rate <idPost> <vote>. Nel comando i voti sono così codificati:
 	 * voto positivo +1, voto negativo -1.

@@ -9,6 +9,41 @@
   <component name="ChangeListManager">
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Client.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Server.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/client_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/client_config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/compiler_classes" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/compiler_classes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compile_and_run/compiler_classpaths" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/compiler_classpaths" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/Comment_DB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/Comment_DB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/PostDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/TransactionDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/TransactionDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/UserDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/UserDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WalletDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WalletDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Exception.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Thread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDB_Thread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_DB/WinsomeDatabase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/ClientCLI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_client/ClientRMI_Imp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/ClientRMI_Imp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/ClientRMI_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/ClientRMI_Interface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/CommentRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/CommentRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/PostReprDetailed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/PostReprDetailed.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/PostReprSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/PostReprSimple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/ServerRMI_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/ServerRMI_Interface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/TransactionRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/TransactionRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/UserRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/UserRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WalletRepr.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WalletRepr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WinMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinSerializable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WinSerializable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinsomeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WinsomeException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinsomeExceptionGeneric.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WinsomeExceptionGeneric.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_comunication/WinsomeServerSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/WinsomeServerSender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/CConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/CConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/CConnectionsManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/CConnectionsManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/ServerRMI_Imp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/ServerRMI_Imp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Winsome_DB_Interface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_server/WorkerTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/WorkerTask.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

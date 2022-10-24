@@ -1,6 +1,6 @@
 package winsome_client;
 
-import winsome_comunication.ClientRMI_Interface;
+import winsome_communication.ClientRMI_Interface;
 
 import java.rmi.server.RemoteObject;
 

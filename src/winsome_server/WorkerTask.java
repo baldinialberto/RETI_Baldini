@@ -1,6 +1,6 @@
 package winsome_server;
 
-import winsome_comunication.WinMessage;
+import winsome_communication.WinMessage;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;

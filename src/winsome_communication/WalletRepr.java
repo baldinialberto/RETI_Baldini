@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 import java.util.ArrayList;
 import java.util.List;

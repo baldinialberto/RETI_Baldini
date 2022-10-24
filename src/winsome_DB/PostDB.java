@@ -2,9 +2,9 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.CommentRepr;
-import winsome_comunication.PostReprDetailed;
-import winsome_comunication.PostReprSimple;
+import winsome_communication.CommentRepr;
+import winsome_communication.PostReprDetailed;
+import winsome_communication.PostReprSimple;
 import winsome_server.*;
 
 import java.io.File;

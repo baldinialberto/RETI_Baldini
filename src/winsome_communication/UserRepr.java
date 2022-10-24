@@ -1,6 +1,4 @@
-package winsome_comunication;
-
-import java.io.IOException;
+package winsome_communication;
 
 public class UserRepr extends WinSerializable {
 	private String username;

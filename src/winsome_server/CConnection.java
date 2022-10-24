@@ -1,7 +1,7 @@
 package winsome_server;
 
 
-import winsome_comunication.ClientRMI_Interface;
+import winsome_communication.ClientRMI_Interface;
 
 public class CConnection {
 	// member variables

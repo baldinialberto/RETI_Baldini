@@ -2,7 +2,7 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.CommentRepr;
+import winsome_communication.CommentRepr;
 
 import java.io.File;
 import java.io.IOException;

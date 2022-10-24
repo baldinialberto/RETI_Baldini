@@ -1,10 +1,10 @@
 package winsome_server;
 
 import winsome_DB.WinsomeDB_Exception;
-import winsome_comunication.CommentRepr;
-import winsome_comunication.PostReprDetailed;
-import winsome_comunication.PostReprSimple;
-import winsome_comunication.WalletRepr;
+import winsome_communication.CommentRepr;
+import winsome_communication.PostReprDetailed;
+import winsome_communication.PostReprSimple;
+import winsome_communication.WalletRepr;
 
 /**
  * This interface is used by the Winsome Server to communicate with the Database.

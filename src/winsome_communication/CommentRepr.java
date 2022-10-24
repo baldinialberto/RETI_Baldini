@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 public class CommentRepr extends WinSerializable {
 	private String author;

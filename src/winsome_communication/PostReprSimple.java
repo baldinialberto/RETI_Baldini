@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 /**
  * This class represents a post in the Winsome system.

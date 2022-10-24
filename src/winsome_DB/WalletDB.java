@@ -2,8 +2,8 @@ package winsome_DB;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import winsome_comunication.TransactionRepr;
-import winsome_comunication.WalletRepr;
+import winsome_communication.TransactionRepr;
+import winsome_communication.WalletRepr;
 
 import java.io.File;
 import java.io.IOException;

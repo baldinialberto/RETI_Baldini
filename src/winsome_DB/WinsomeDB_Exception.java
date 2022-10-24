@@ -1,6 +1,6 @@
 package winsome_DB;
 
-import winsome_comunication.WinsomeException;
+import winsome_communication.WinsomeException;
 
 /**
  * This class contains all the exceptions that can be thrown by the Winsome_DB class.

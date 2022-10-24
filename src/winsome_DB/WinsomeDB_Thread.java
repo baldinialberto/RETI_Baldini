@@ -1,6 +1,6 @@
 package winsome_DB;
 
-import winsome_comunication.WinsomeException;
+import winsome_communication.WinsomeException;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;

@@ -1,6 +1,6 @@
 package winsome_client;
 
-import winsome_comunication.*;
+import winsome_communication.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -64,10 +64,12 @@ public class Client {
 		// 2. create client interface
 		c_interface = new ClientCLI(this);
 
-		// 3. connect to server's RMI
+		// 3. connect to server's  RMI
 		try {
-			Registry r = LocateRegistry.getRegistry(properties.get_registry_port());
-			server_rmi_interface = (ServerRMI_Interface) r.lookup(properties.get_rmi_name());
+			Registry r = LocateRegistry.getRegistry(properties.get_server_address(), properties.get_registry_port());
+			server_rmi_interface = (ServerRMI_Interface) r.lookup(
+					"rmi://" + properties.get_server_address() + "/" + properties.get_rmi_name()
+			);
 
 			// 4. create client's RMI
 			client_rmi = new ClientRMI_Imp(this);

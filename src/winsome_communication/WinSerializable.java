@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;

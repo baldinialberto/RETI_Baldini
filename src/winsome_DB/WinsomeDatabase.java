@@ -1,6 +1,6 @@
 package winsome_DB;
 
-import winsome_comunication.*;
+import winsome_communication.*;
 import winsome_server.Winsome_DB_Interface;
 import winsome_server.WinsomeReward;
 

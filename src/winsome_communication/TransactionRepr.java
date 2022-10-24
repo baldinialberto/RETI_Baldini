@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 public class TransactionRepr extends WinSerializable {
 	// member variables

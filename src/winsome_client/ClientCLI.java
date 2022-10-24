@@ -1,9 +1,9 @@
 package winsome_client;
 
 import winsome_DB.RateDB;
-import winsome_comunication.PostReprDetailed;
-import winsome_comunication.PostReprSimple;
-import winsome_comunication.WalletRepr;
+import winsome_communication.PostReprDetailed;
+import winsome_communication.PostReprSimple;
+import winsome_communication.WalletRepr;
 
 import java.io.BufferedReader;
 import java.io.IOException;

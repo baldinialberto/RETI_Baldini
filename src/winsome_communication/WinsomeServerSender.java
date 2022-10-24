@@ -1,4 +1,4 @@
-package winsome_comunication;
+package winsome_communication;
 
 import winsome_DB.RateDB;
 import winsome_DB.WinsomeDB_Exception;

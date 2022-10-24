@@ -2,7 +2,7 @@ package winsome_server;
 
 import winsome_DB.RateDB;
 import winsome_DB.WinsomeDatabase;
-import winsome_comunication.*;
+import winsome_communication.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;

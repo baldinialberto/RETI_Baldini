@@ -5,11 +5,8 @@ import java.rmi.Remote;
 /**
  * This interface is used to define the methods that the client can call on the server.
  *
- * @author Winsome
- * @version 1.0
  * @public register_user this method is used to register a new user through an RMI call
  * @public receive_updates this method is used to receive updates from the server through an RMI call
- * @since 1.0
  */
 public interface ServerRMI_Interface extends Remote {
 	/**
@@ -31,9 +28,6 @@ public interface ServerRMI_Interface extends Remote {
 	 * @param callback the callback object that will be used to send updates to the client
 	 *                 the callback object must implement the ClientInterface interface
 	 * @throws java.rmi.RemoteException
-	 * @author Winsome
-	 * @version 1.0
-	 * @since 1.0
 	 */
 	void receive_updates(ClientRMI_Interface callback, String username) throws java.rmi.RemoteException;
 }

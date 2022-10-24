@@ -8,10 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e973ada-ac71-4cd3-ae64-569a58aafb5b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compile_and_run/client_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compile_and_run/client_config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/winsome_server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Client.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Client.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Server.jar" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Server.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/winsome_communication/ServerRMI_Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/winsome_communication/ServerRMI_Interface.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

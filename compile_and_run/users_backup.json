@@ -62,6 +62,19 @@
     "following" : [ "paperino" ],
     "followers" : [ ]
   },
+  "gastone" : {
+    "username" : "gastone",
+    "password" : "gastone00",
+    "tags" : [ "disney", "soldi" ],
+    "wallet" : {
+      "username" : "gastone",
+      "balance" : 0.0,
+      "transactions" : [ ]
+    },
+    "posts" : [ ],
+    "following" : [ ],
+    "followers" : [ ]
+  },
   "pippo" : {
     "username" : "pippo",
     "password" : "pippo00",

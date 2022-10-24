@@ -444,6 +444,7 @@ public class Server {
 			result.addString(WinMessage.ERROR);
 			result.addString(e.niceMessage());
 		} catch (RemoteException e) {
+			result.addString(WinMessage.ERROR);
 			System.err.println("Error while sending follower update to " + username);
 		}
 

@@ -10,16 +10,16 @@ PHONY : all clean run_client run_server
 all : jar_client jar_server
 
 classes:
-	javac -d $(BUILD_PATH) -cp @compiler_classpaths @compiler_classes
+	javac -d $(BUILD_PATH) -cp "../lib/*;../src/" ../src/winsome_server/*.java ../src/ winsome_communication/*.java ../src/winsome_DB/*.java ../src/winsome_client/*.java
 
 clean:
 	rm -rf $(BUILD_PATH)
 
 run_server:
-	java -cp @classpaths_server winsome_server.ServerMain &> server.log &
+	java -cp "../lib/*;../bin" winsome_server.ServerMain &> server.log &
 
 run_client:
-	java -cp @classpaths_client winsome_client.ClientMain
+	java -cp "../lib/*;../bin" winsome_client.ClientMain
 
 jar_server: classes
 	jar -cvf $(BUILD_PATH)/Server.jar @jar_server

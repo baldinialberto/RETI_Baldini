@@ -104,8 +104,8 @@ public class Server {
 			// 6. Create a new server RMI object and bind it to the registry
 			server_rmi = new ServerRMI_Imp(this);
 			ServerRMI_Interface stub = (ServerRMI_Interface) UnicastRemoteObject.exportObject(server_rmi, 0);
-			System.setProperty("java.rmi.server.hostname", this.properties.get_server_address());
-			Registry registry = LocateRegistry.createRegistry(this.properties.get_registry_port());
+			LocateRegistry.createRegistry(this.properties.get_registry_port());
+			Registry registry = LocateRegistry.getRegistry(this.properties.get_registry_port());
 			registry.rebind(this.properties.get_rmi_name(), stub);
 
 		} catch (IOException e) {
@@ -437,9 +437,11 @@ public class Server {
 			result.addString(WinMessage.SUCCESS);
 			// 4. notify <username> (if online) that he is followed
 			ClientRMI_Interface callback = this.connections_manager.get_callback_of_username(username);
+
 			if (callback != null) {
 				callback.send_follower_update(this.connections_manager.get_username(address), true);
 			}
+
 		} catch (WinsomeException e) {
 			result.addString(WinMessage.ERROR);
 			result.addString(e.niceMessage());
@@ -447,7 +449,7 @@ public class Server {
 			result.addString(WinMessage.ERROR);
 			System.err.println("Error while sending follower update to " + username);
 		}
-
+		
 		return result;
 	}
 

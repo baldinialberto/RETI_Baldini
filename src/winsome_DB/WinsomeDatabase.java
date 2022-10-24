@@ -350,11 +350,12 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 		 *
 		 * 1. If the database is not initialized, throw an exception.
 		 * 2. If the username is not found in the database, throw an exception.
-		 * 3. If the user already follows the user to follow, throw an exception.
-		 * 4. If the user to follow is the user, throw an exception.
-		 * 5. Make the user follow the user to follow.
-		 * 6. Add the user to the <username_to_follow> followers.
-		 * 7. Dirty the users backup.
+		 * 3. If the username to follow is not found in the database, throw an exception.
+		 * 4. If the user already follows the user to follow, throw an exception.
+		 * 5. If the user to follow is the user, throw an exception.
+		 * 6. Make the user follow the user to follow.
+		 * 7. Add the user to the <username_to_follow> followers.
+		 * 8. Dirty the users backup.
 		 */
 
 		// 1. If the database is not initialized, throw an exception.
@@ -368,25 +369,34 @@ public class WinsomeDatabase implements Winsome_DB_Interface {
 			throw new WinsomeDB_Exception.UsernameNotFound(username);
 		}
 
-		// 3. If the user already follows the user to follow, throw an exception.
+		// 3. If the username to follow is not found in the database, throw an exception.
+		if (!users.containsKey(username_to_follow)) {
+			users_W_lock.unlock();
+			throw new WinsomeDB_Exception.UsernameNotFound(username_to_follow);
+		}
+
+		// 4. If the user already follows the user to follow, throw an exception.
 		if (users.get(username).getFollowing().contains(username_to_follow)) {
+
+			System.out.println("follow_DB: 5");
+
 			users_W_lock.unlock();
 			throw new WinsomeDB_Exception.UsernameAlreadyFollows(username, username_to_follow);
 		}
 
-		// 4. If the user to follow is the user, throw an exception.
+		// 5. If the user to follow is the user, throw an exception.
 		if (username.equals(username_to_follow)) {
 			users_W_lock.unlock();
 			throw new WinsomeDB_Exception.UsernameFollowItself(username);
 		}
 
-		// 5. Make the user follow the user to follow.
+		// 6. Make the user follow the user to follow.
 		users.get(username).getFollowing().add(username_to_follow);
 
-		// 6. Add the user to the <username_to_follow> followers.
+		// 7. Add the user to the <username_to_follow> followers.
 		users.get(username_to_follow).getFollowers().add(username);
 
-		// 7. Dirty the users backup.
+		// 8. Dirty the users backup.
 		users_backup_valid = false;
 
 		users_W_lock.unlock();

@@ -20,7 +20,7 @@ clean:
 	rm -rf $(BUILD_PATH)
 
 run_server:
-	java -cp "../lib/*:../bin" winsome_server.ServerMain &> server.log &
+	java -cp "../lib/*:../bin" winsome_server.ServerMain
 
 run_client:
 	java -cp "../lib/*:../bin" winsome_client.ClientMain

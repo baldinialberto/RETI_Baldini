@@ -67,9 +67,7 @@ public class Client {
 		// 3. connect to server's  RMI
 		try {
 			Registry r = LocateRegistry.getRegistry(properties.get_server_address(), properties.get_registry_port());
-			server_rmi_interface = (ServerRMI_Interface) r.lookup(
-					"rmi://" + properties.get_server_address() + "/" + properties.get_rmi_name()
-			);
+			server_rmi_interface = (ServerRMI_Interface) r.lookup(properties.get_rmi_name());
 
 			// 4. create client's RMI
 			client_rmi = new ClientRMI_Imp(this);

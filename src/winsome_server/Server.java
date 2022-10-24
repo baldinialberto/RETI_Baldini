@@ -104,9 +104,9 @@ public class Server {
 			// 6. Create a new server RMI object and bind it to the registry
 			server_rmi = new ServerRMI_Imp(this);
 			ServerRMI_Interface stub = (ServerRMI_Interface) UnicastRemoteObject.exportObject(server_rmi, 0);
-			LocateRegistry.createRegistry(this.properties.get_registry_port());
-			Registry registry = LocateRegistry.getRegistry(this.properties.get_registry_port());
-			registry.rebind("rmi://" + this.properties.get_server_address() + "/" + this.properties.get_rmi_name(), stub);
+			System.setProperty("java.rmi.server.hostname", this.properties.get_server_address());
+			Registry registry = LocateRegistry.createRegistry(this.properties.get_registry_port());
+			registry.rebind(this.properties.get_rmi_name(), stub);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
